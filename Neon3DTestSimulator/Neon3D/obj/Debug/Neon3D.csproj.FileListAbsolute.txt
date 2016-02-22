@@ -1,0 +1,9 @@
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\bin\Debug\Neon3D.exe.config
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\bin\Debug\Neon3D.exe
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\bin\Debug\Neon3D.pdb
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\obj\Debug\Neon3D.csprojResolveAssemblyReference.cache
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\obj\Debug\Neon3D.Form1.resources
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\obj\Debug\Neon3D.Properties.Resources.resources
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\obj\Debug\Neon3D.csproj.GenerateResource.Cache
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\obj\Debug\Neon3D.exe
+c:\users\eldin\documents\visual studio 2015\Projects\Neon3D\Neon3D\obj\Debug\Neon3D.pdb
