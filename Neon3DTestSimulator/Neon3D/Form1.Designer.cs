@@ -32,10 +32,13 @@
             this.Debug = new System.Windows.Forms.RichTextBox();
             this.Coordinates = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.rmvPrevBeam = new System.Windows.Forms.CheckBox();
+            this.ResetScr = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Show3D
             // 
+            this.Show3D.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.Show3D.Location = new System.Drawing.Point(966, 354);
             this.Show3D.Name = "Show3D";
             this.Show3D.Size = new System.Drawing.Size(312, 23);
@@ -46,6 +49,7 @@
             // 
             // Debug
             // 
+            this.Debug.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.Debug.Location = new System.Drawing.Point(966, 0);
             this.Debug.Name = "Debug";
             this.Debug.Size = new System.Drawing.Size(312, 275);
@@ -54,13 +58,16 @@
             // 
             // Coordinates
             // 
+            this.Coordinates.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.Coordinates.Location = new System.Drawing.Point(966, 328);
             this.Coordinates.Name = "Coordinates";
             this.Coordinates.Size = new System.Drawing.Size(312, 20);
             this.Coordinates.TabIndex = 2;
+            this.Coordinates.Text = "200,2,300,400";
             // 
             // label1
             // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(963, 312);
             this.label1.Name = "label1";
@@ -68,12 +75,36 @@
             this.label1.TabIndex = 3;
             this.label1.Text = "Coordinates";
             // 
+            // rmvPrevBeam
+            // 
+            this.rmvPrevBeam.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.rmvPrevBeam.AutoSize = true;
+            this.rmvPrevBeam.Location = new System.Drawing.Point(966, 383);
+            this.rmvPrevBeam.Name = "rmvPrevBeam";
+            this.rmvPrevBeam.Size = new System.Drawing.Size(140, 17);
+            this.rmvPrevBeam.TabIndex = 4;
+            this.rmvPrevBeam.Text = "Remove Previous Beam";
+            this.rmvPrevBeam.UseVisualStyleBackColor = true;
+            // 
+            // ResetScr
+            // 
+            this.ResetScr.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.ResetScr.Location = new System.Drawing.Point(966, 407);
+            this.ResetScr.Name = "ResetScr";
+            this.ResetScr.Size = new System.Drawing.Size(312, 23);
+            this.ResetScr.TabIndex = 5;
+            this.ResetScr.Text = "Reset Screen";
+            this.ResetScr.UseVisualStyleBackColor = true;
+            this.ResetScr.Click += new System.EventHandler(this.ResetScr_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1279, 588);
+            this.Controls.Add(this.ResetScr);
+            this.Controls.Add(this.rmvPrevBeam);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.Coordinates);
             this.Controls.Add(this.Debug);
@@ -92,6 +123,8 @@
         private System.Windows.Forms.RichTextBox Debug;
         private System.Windows.Forms.TextBox Coordinates;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.CheckBox rmvPrevBeam;
+        private System.Windows.Forms.Button ResetScr;
     }
 }
 
