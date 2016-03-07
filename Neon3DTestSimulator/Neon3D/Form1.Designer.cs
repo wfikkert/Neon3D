@@ -28,74 +28,79 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.Show3D = new System.Windows.Forms.Button();
-            this.Debug = new System.Windows.Forms.RichTextBox();
-            this.Coordinates = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.rmvPrevBeam = new System.Windows.Forms.CheckBox();
-            this.ResetScr = new System.Windows.Forms.Button();
+            this.splitScrUL = new System.Windows.Forms.ComboBox();
+            this.splitScrBL = new System.Windows.Forms.ComboBox();
+            this.splitScrUR = new System.Windows.Forms.ComboBox();
+            this.splitScrBR = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
-            // Show3D
+            // splitScrUL
             // 
-            this.Show3D.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.Show3D.Location = new System.Drawing.Point(966, 354);
-            this.Show3D.Name = "Show3D";
-            this.Show3D.Size = new System.Drawing.Size(312, 23);
-            this.Show3D.TabIndex = 0;
-            this.Show3D.Text = "Show3D";
-            this.Show3D.UseVisualStyleBackColor = true;
-            this.Show3D.Click += new System.EventHandler(this.Show3D_Click);
+            this.splitScrUL.FormattingEnabled = true;
+            this.splitScrUL.Items.AddRange(new object[] {
+            "TOP",
+            "BOTTOM",
+            "FRONT",
+            "BACK",
+            "LEFT",
+            "RIGHT",
+            "3D"});
+            this.splitScrUL.Location = new System.Drawing.Point(13, 13);
+            this.splitScrUL.Name = "splitScrUL";
+            this.splitScrUL.Size = new System.Drawing.Size(187, 21);
+            this.splitScrUL.TabIndex = 11;
+            this.splitScrUL.SelectedIndexChanged += new System.EventHandler(this.splitScrUL_SelectedIndexChanged);
             // 
-            // Debug
+            // splitScrBL
             // 
-            this.Debug.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.Debug.Location = new System.Drawing.Point(966, 0);
-            this.Debug.Name = "Debug";
-            this.Debug.Size = new System.Drawing.Size(312, 275);
-            this.Debug.TabIndex = 1;
-            this.Debug.Text = "";
+            this.splitScrBL.FormattingEnabled = true;
+            this.splitScrBL.Items.AddRange(new object[] {
+            "TOP",
+            "BOTTOM",
+            "FRONT",
+            "BACK",
+            "LEFT",
+            "RIGHT",
+            "3D"});
+            this.splitScrBL.Location = new System.Drawing.Point(13, 553);
+            this.splitScrBL.Name = "splitScrBL";
+            this.splitScrBL.Size = new System.Drawing.Size(187, 21);
+            this.splitScrBL.TabIndex = 12;
+            this.splitScrBL.SelectedIndexChanged += new System.EventHandler(this.splitScrBL_SelectedIndexChanged);
             // 
-            // Coordinates
+            // splitScrUR
             // 
-            this.Coordinates.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.Coordinates.Location = new System.Drawing.Point(966, 328);
-            this.Coordinates.Name = "Coordinates";
-            this.Coordinates.Size = new System.Drawing.Size(312, 20);
-            this.Coordinates.TabIndex = 2;
-            this.Coordinates.Text = "200,2,300,400";
+            this.splitScrUR.FormattingEnabled = true;
+            this.splitScrUR.Items.AddRange(new object[] {
+            "TOP",
+            "BOTTOM",
+            "FRONT",
+            "BACK",
+            "LEFT",
+            "RIGHT",
+            "3D"});
+            this.splitScrUR.Location = new System.Drawing.Point(973, 13);
+            this.splitScrUR.Name = "splitScrUR";
+            this.splitScrUR.Size = new System.Drawing.Size(187, 21);
+            this.splitScrUR.TabIndex = 13;
+            this.splitScrUR.SelectedIndexChanged += new System.EventHandler(this.splitScrUR_SelectedIndexChanged);
             // 
-            // label1
+            // splitScrBR
             // 
-            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(963, 312);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(63, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Coordinates";
-            // 
-            // rmvPrevBeam
-            // 
-            this.rmvPrevBeam.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.rmvPrevBeam.AutoSize = true;
-            this.rmvPrevBeam.Location = new System.Drawing.Point(966, 383);
-            this.rmvPrevBeam.Name = "rmvPrevBeam";
-            this.rmvPrevBeam.Size = new System.Drawing.Size(140, 17);
-            this.rmvPrevBeam.TabIndex = 4;
-            this.rmvPrevBeam.Text = "Remove Previous Beam";
-            this.rmvPrevBeam.UseVisualStyleBackColor = true;
-            // 
-            // ResetScr
-            // 
-            this.ResetScr.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.ResetScr.Location = new System.Drawing.Point(966, 407);
-            this.ResetScr.Name = "ResetScr";
-            this.ResetScr.Size = new System.Drawing.Size(312, 23);
-            this.ResetScr.TabIndex = 5;
-            this.ResetScr.Text = "Reset Screen";
-            this.ResetScr.UseVisualStyleBackColor = true;
-            this.ResetScr.Click += new System.EventHandler(this.ResetScr_Click);
+            this.splitScrBR.FormattingEnabled = true;
+            this.splitScrBR.Items.AddRange(new object[] {
+            "TOP",
+            "BOTTOM",
+            "FRONT",
+            "BACK",
+            "LEFT",
+            "RIGHT",
+            "3D"});
+            this.splitScrBR.Location = new System.Drawing.Point(973, 553);
+            this.splitScrBR.Name = "splitScrBR";
+            this.splitScrBR.Size = new System.Drawing.Size(187, 21);
+            this.splitScrBR.TabIndex = 14;
+            this.splitScrBR.SelectedIndexChanged += new System.EventHandler(this.splitScrBR_SelectedIndexChanged);
             // 
             // Form1
             // 
@@ -103,28 +108,26 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1279, 588);
-            this.Controls.Add(this.ResetScr);
-            this.Controls.Add(this.rmvPrevBeam);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.Coordinates);
-            this.Controls.Add(this.Debug);
-            this.Controls.Add(this.Show3D);
+            this.Controls.Add(this.splitScrBR);
+            this.Controls.Add(this.splitScrUR);
+            this.Controls.Add(this.splitScrBL);
+            this.Controls.Add(this.splitScrUL);
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Shown += new System.EventHandler(this.Form1_Shown);
+            this.DoubleClick += new System.EventHandler(this.Form1_DoubleClick);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button Show3D;
-        private System.Windows.Forms.RichTextBox Debug;
-        private System.Windows.Forms.TextBox Coordinates;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.CheckBox rmvPrevBeam;
-        private System.Windows.Forms.Button ResetScr;
+        private System.Windows.Forms.ComboBox splitScrUL;
+        private System.Windows.Forms.ComboBox splitScrBL;
+        private System.Windows.Forms.ComboBox splitScrUR;
+        private System.Windows.Forms.ComboBox splitScrBR;
     }
 }
 
