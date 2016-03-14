@@ -31,6 +31,7 @@
             this.resetNodes = new System.Windows.Forms.Button();
             this.ResetScr = new System.Windows.Forms.Button();
             this.Debug = new System.Windows.Forms.RichTextBox();
+            this.drawLines = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // resetNodes
@@ -65,11 +66,22 @@
             this.Debug.Text = "";
             this.Debug.TextChanged += new System.EventHandler(this.Debug_TextChanged);
             // 
+            // drawLines
+            // 
+            this.drawLines.Location = new System.Drawing.Point(26, 352);
+            this.drawLines.Name = "drawLines";
+            this.drawLines.Size = new System.Drawing.Size(310, 23);
+            this.drawLines.TabIndex = 14;
+            this.drawLines.Text = "Draw Lines";
+            this.drawLines.UseVisualStyleBackColor = true;
+            this.drawLines.Click += new System.EventHandler(this.drawLines_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(350, 448);
+            this.Controls.Add(this.drawLines);
             this.Controls.Add(this.resetNodes);
             this.Controls.Add(this.ResetScr);
             this.Controls.Add(this.Debug);
@@ -85,5 +97,6 @@
         private System.Windows.Forms.Button resetNodes;
         private System.Windows.Forms.Button ResetScr;
         private System.Windows.Forms.RichTextBox Debug;
+        private System.Windows.Forms.Button drawLines;
     }
 }

@@ -41,15 +41,17 @@ namespace Neon3D
 
         private void resetNodes_Click(object sender, EventArgs e)
         {
-            mainForm.starteEndnodes = new double[100, 2, 3];
-            mainForm.nodeCounter = 0;
-            mainForm.lineCounter = 0;
-            mainForm.resetScreen();
+            mainForm.resetNodes();
         }
 
         public void PrintDebug(string tekst)
         {
             Debug.AppendText(tekst);
+        }
+
+        private void drawLines_Click(object sender, EventArgs e)
+        {
+            mainForm.createLines();
         }
     }
 }
