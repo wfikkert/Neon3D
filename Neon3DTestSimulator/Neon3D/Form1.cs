@@ -23,6 +23,13 @@ namespace Neon3D
         public int lineCounter = 0;
         public int clicked = 0;
         public int selectedArrayLastIndex = 0;
+        
+        public double zoomTopleft = 1;
+        public double zoomTopRight = 1;
+        public double zoomBottomLeft = 1;
+        public double zoomBottomRight = 1;
+
+        public bool zoomed = false;
 
         public int tempStartX = 0;
         public int tempStartY = 0;
@@ -69,6 +76,96 @@ namespace Neon3D
         {
             resetScreen();
         }
+        
+        private void Form1_MouseWheel(object sender, MouseEventArgs e)
+        {
+
+
+            rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
+            rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
+            int clickedX = rawClickedXpos - midPointScreenX;
+            int clickedY = midPointScreenY - rawClickedYpos;
+
+           
+
+            if (clickedX < 0 && clickedY > 0)
+            {
+                
+                whichscreenclicked = "TopLeft";
+
+                if (e.Delta > 0)
+                {
+                    zoomTopleft = zoomTopleft + 0.1;
+                }
+                else if (e.Delta < 0)
+                {
+                    if (zoomTopleft > 0.1)
+                    {
+                        zoomTopleft = zoomTopleft -0.1;
+                    }
+                }
+
+                zoomTL.Text = "Zoom: " + zoomTopleft + "x";
+                newForm.PrintDebug("upper left screen scrolled, \n ZOOM: " + zoomTopleft + "\n");
+            }
+            else if (clickedX > 0 && clickedY > 0)
+            {
+                whichscreenclicked = "TopRight";
+                if (e.Delta > 0)
+                {
+                    zoomTopRight = zoomTopRight + 0.1;
+                }
+                else if (e.Delta < 0)
+                {
+                    if (zoomTopRight > 0.1)
+                    {
+                        zoomTopRight = zoomTopRight - 0.1;
+                    }
+                }
+
+                zoomTR.Text = "Zoom: " + zoomTopRight + "x";
+                newForm.PrintDebug("upper right screen scrolled, \n ZOOM: " + zoomTopRight + "\n");
+            }
+            else if (clickedX < 0 && clickedY < 0)
+            {
+              
+                whichscreenclicked = "BottomLeft";
+                if (e.Delta > 0)
+                {
+                    zoomBottomLeft = zoomBottomLeft + 0.1;
+                }
+                else if (e.Delta < 0)
+                {
+                    if (zoomBottomLeft > 0.1)
+                    {
+                        zoomBottomLeft = zoomBottomLeft - 0.1;
+                    }
+                }
+                zoomBL.Text = "Zoom: " + zoomBottomLeft + "x";
+                newForm.PrintDebug("down left screen scrolled, \n ZOOM: " + zoomBottomLeft + "\n");
+            }
+            else if (clickedX > 0 && clickedY < 0)
+            {
+                whichscreenclicked = "BottomRight";
+                if (e.Delta > 0)
+                {
+                    zoomBottomRight = zoomBottomRight + 0.1;
+                }
+                else if (e.Delta < 0)
+                {
+                    if (zoomBottomRight > 0.1)
+                    {
+                        zoomBottomRight = zoomBottomRight - 0.1;
+                    }
+                }
+
+                zoomBR.Text = "Zoom: " + zoomBottomRight + "x";
+                newForm.PrintDebug("down right screen scrolled, \n ZOOM: " + zoomBottomRight + "\n");
+            }
+
+            zoomed = true;
+            
+        }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
@@ -81,11 +178,16 @@ namespace Neon3D
 
             while (true)
             {
+
+                rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
+                rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
+
                 drawNodes(midPointScreenX / 2, midPointScreenY / 2, 0); // top left "TOP"
                 drawNodes((midPointScreenX / 2) * 3, midPointScreenY / 2, 4); //top right "RIGHT"
                 drawNodes(midPointScreenX / 2, (midPointScreenY / 2) * 3, 2); //bottom left "FRONT"
                 drawNodes((midPointScreenX / 2) * 3, (midPointScreenY / 2) * 3, 6); // bottom right "3D"
-                Thread.Sleep(50);
+
+
             }
             
         }
@@ -132,15 +234,6 @@ namespace Neon3D
             double prevX = 0;
 
             //remove and redraw nodes for begin and end
-            removePixel((int)prevx1, (int)prevy1, 1);
-            removePixel((int)prevx2, (int)prevy2, 1);
-            drawPixel((int)x1, (int)y1, 1, redValue, greenValue, blueValue);
-            drawPixel((int)x2, (int)y2, 1, 0, 0, 0);
-            prevx1 = x1;
-            prevy1 = y1;
-            prevx2 = x2;
-            prevy2 = y2;
-
 
 
             //for loop for drawing beam
@@ -271,6 +364,8 @@ namespace Neon3D
             double endz = 0;
 
 
+            int clickedX = rawClickedXpos - midPointScreenX;
+            int clickedY = midPointScreenY - rawClickedYpos;
 
             for (int i = 0; i < (allNodes.Length / 3); i++)
             {
@@ -281,24 +376,30 @@ namespace Neon3D
                     starty = allNodes[i, 1].Value;
                     if (conv3dto2d == 0)
                     {
-                        starty = allNodes[i, 2].Value;
+                        starty = allNodes[i, 2].Value * zoomTopleft;
+                        startx = startx * zoomTopleft;
                     }
                     else if (conv3dto2d == 1)
                     {
-                        startx = -allNodes[i, 0].Value; ;
-                        starty = allNodes[i, 2].Value; ;
+                        startx = -allNodes[i, 0].Value; 
+                        starty = allNodes[i, 2].Value; 
+                    } else if (conv3dto2d == 2)
+                    {
+                        starty = starty * zoomBottomLeft;
+                        startx = startx * zoomBottomLeft;
                     }
                     else if (conv3dto2d == 3)
                     {
-                        startx = -allNodes[i, 0].Value; ;
+                        startx = -allNodes[i, 0].Value; 
                     }
                     else if (conv3dto2d == 4)
                     {
-                        startx = allNodes[i, 2].Value; ;
+                        starty = starty * zoomTopRight;
+                        startx = allNodes[i, 2].Value * zoomTopRight;
                     }
                     else if (conv3dto2d == 5)
                     {
-                        startx = -allNodes[i, 2].Value; ;
+                        startx = -allNodes[i, 2].Value; 
                     }
 
 
@@ -335,8 +436,14 @@ namespace Neon3D
 
             for (linesDrawn = 0; linesDrawn < maxLines; linesDrawn++)
             {
-               if(starteEndnodes[linesDrawn, 0, 0] != null && starteEndnodes[linesDrawn, 0, 1] != null && starteEndnodes[linesDrawn, 1, 0] != null && starteEndnodes[linesDrawn, 1, 1] != null)
+
+               
+
+                if (starteEndnodes[linesDrawn, 0, 0] != null && starteEndnodes[linesDrawn, 0, 1] != null && starteEndnodes[linesDrawn, 1, 0] != null && starteEndnodes[linesDrawn, 1, 1] != null)
                 {
+
+
+                    
                     startx = starteEndnodes[linesDrawn, 0, 0].Value;
                     starty = starteEndnodes[linesDrawn, 0, 1].Value;
                     startz = starteEndnodes[linesDrawn, 0, 2].Value;
@@ -347,8 +454,10 @@ namespace Neon3D
 
                     if (conv3dto2d == 0)
                     {
-                        starty = startz;
-                        endy = endz;
+                        starty = startz * zoomTopleft;
+                        endy = endz * zoomTopleft;
+                        startx = startx * zoomTopleft;
+                        endx = endx * zoomTopleft;
                     }
                     else if (conv3dto2d == 1)
                     {
@@ -357,6 +466,13 @@ namespace Neon3D
                         endx = -endx;
                         endy = endz;
                     }
+                    else if (conv3dto2d == 2)
+                    {
+                        starty = starty * zoomBottomLeft;
+                        startx = startx * zoomBottomLeft;
+                        endy = endy * zoomBottomLeft;
+                        endx = endx * zoomBottomLeft;
+                    }
                     else if (conv3dto2d == 3)
                     {
                         startx = -startx;
@@ -364,15 +480,59 @@ namespace Neon3D
                     }
                     else if (conv3dto2d == 4)
                     {
-                        startx = startz;
-                        endx = endz;
+                        startx = startz * zoomTopRight; 
+                        endx = endz * zoomTopRight;
+                        starty = starty * zoomTopRight;
+                        endy = endy * zoomTopRight;
                     }
                     else if (conv3dto2d == 5)
                     {
                         startx = -startz;
                         endx = -endz;
                     }
+
+                    if (zoomed)
+                    {
+                        if (clickedX < 0 && clickedY > 0)
+                        {
+                            Brush aBrush = (Brush)Brushes.White;
+                            Graphics g = this.CreateGraphics();
+
+                            g.FillRectangle(aBrush, 0, 0, midPointScreenX, midPointScreenY);
+                            drawAxMatrix(midPointScreenX / 2, midPointScreenY / 2, 180, 168, 168, 1);
+                        }
+                        else if (clickedX > 0 && clickedY > 0)
+                        {
+
+                            Brush aBrush = (Brush)Brushes.White;
+                            Graphics g = this.CreateGraphics();
+
+                            g.FillRectangle(aBrush, midPointScreenX, 0, midPointScreenX * 2, midPointScreenY);
+                            drawAxMatrix((midPointScreenX / 2) * 3, midPointScreenY / 2, 180, 168, 168, 1);
+                        }
+                        else if (clickedX < 0 && clickedY < 0)
+                        {
+                            Brush aBrush = (Brush)Brushes.White;
+                            Graphics g = this.CreateGraphics();
+
+                            g.FillRectangle(aBrush, 0, midPointScreenY, midPointScreenX, midPointScreenY * 2);
+                            drawAxMatrix(midPointScreenX / 2, (midPointScreenY / 2) * 3, 180, 168, 168, 1);
+                        }
+                        else if (clickedX > 0 && clickedY < 0)
+                        {
+                            Brush aBrush = (Brush)Brushes.White;
+                            Graphics g = this.CreateGraphics();
+
+                            g.FillRectangle(aBrush, midPointScreenX, midPointScreenY, midPointScreenX * 2, midPointScreenY * 2);
+                            drawAxMatrix((midPointScreenX / 2) * 3, (midPointScreenY / 2) * 3, 180, 168, 168, 1);
+                        }
+                        drawAxMatrix(midPointScreenX, midPointScreenY, 255, 0, 0, 2);
+                    }
+                   
+
+
                     drawLine(startx, starty, endx, endy, midPointX, midPointY, 0, 0, 0, 1, false);
+                    zoomed = false;
                 }
                 
                 
@@ -407,11 +567,9 @@ namespace Neon3D
 
             int splitScreenMidPosX = 0;
             int splitScreenMidPosY = 0;
-
-            rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
-            rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
-            int clickedX =  rawClickedXpos - 960;
-            int clickedY = 540 - rawClickedYpos;
+           
+            int clickedX =  rawClickedXpos - midPointScreenX;
+            int clickedY = midPointScreenY - rawClickedYpos;
 
 
             if (clickedX < 0 && clickedY > 0)
@@ -461,7 +619,8 @@ namespace Neon3D
                 isXdefined = true;
                 isZdefined = true;
                 isYdefined = false;
-                
+                newForm.PrintDebug("START NEW NODE (x,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+
             }
             else if(isZdefined && isXdefined && whichscreenclicked == "BottomLeft")
             {
@@ -475,7 +634,7 @@ namespace Neon3D
                 allNodes[clicked, 1] = tempY;
 
 
-                newForm.PrintDebug("NODE CREATED AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                newForm.PrintDebug("NODE CREATED IN BOTTOM LEFT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
                 tempX = 0;
                 tempY = 0;
                 tempZ = 0;
@@ -496,7 +655,7 @@ namespace Neon3D
 
                 
 
-                newForm.PrintDebug("NODE CREATED AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                newForm.PrintDebug("NODE CREATED IN TOP RIGHT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
                 tempX = 0;
                 tempY = 0;
                 tempZ = 0;
@@ -509,11 +668,66 @@ namespace Neon3D
             }
 
 
-            
+            if (whichscreenclicked == "TopRight" && !isYdefined && !isZdefined)
+            {
+                tempZ = localScreenClickedX;
+                tempY = localScreenClickedY;
+                allNodes[clicked, 0] = 0;
+                allNodes[clicked, 1] = tempY;
+                allNodes[clicked, 2] = tempZ;
+                isXdefined = false;
+                isZdefined = true;
+                isYdefined = true;
+
+                newForm.PrintDebug("START NEW NODE (y,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+            }
+            else if (isZdefined && isYdefined && whichscreenclicked == "BottomLeft")
+            {
+                tempX = localScreenClickedX;
+                isXdefined = true;
+                isZdefined = false;
+                isYdefined = false;
+
+                removePixel(tempX + splitScreenMidPosX, splitScreenMidPosY - (int)allNodes[clicked, 1].Value, 4);
+                removePixel(tempZ + (splitScreenMidPosX * 3), (splitScreenMidPosY / 3) - (int)allNodes[clicked, 1].Value, 4);
+                allNodes[clicked, 0] = tempX;
+
+
+                newForm.PrintDebug("NODE CREATED IN BOTTOM LEFT SCREEN(x) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                tempX = 0;
+                tempY = 0;
+                tempZ = 0;
+
+                clicked++;
+            }
+            else if (isZdefined && isYdefined && whichscreenclicked == "TopLeft")
+            {
+                tempX = localScreenClickedX;
+                isXdefined = true;
+                isZdefined = false;
+                isYdefined = false;
+
+                removePixel(tempZ + splitScreenMidPosX + 40, splitScreenMidPosY - (int)allNodes[clicked, 1].Value, 4);
+                removePixel(tempX + (splitScreenMidPosX / 3) + 14, (splitScreenMidPosY * 3) - (int)allNodes[clicked, 1].Value, 4);
+                allNodes[clicked, 0] = tempX;
+
+                newForm.PrintDebug("NODE CREATED NODE CREATED IN TOP LEFT SCREEN(x) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                tempX = 0;
+                tempY = 0;
+                tempZ = 0;
+
+                clicked++;
+            }
+            else if (isZdefined && isXdefined && !isYdefined)
+            {
+                MessageBox.Show("You need to define the X position of your node", "Hint");
+            }
+
+
 
         }
 
-        
+
 
         public void createLines()
         {
@@ -565,7 +779,7 @@ namespace Neon3D
         }
 
 
-       
+        
         private void Form1_MouseClick(object sender, MouseEventArgs e)
         {
             int splitScreenMidPosX = 0;
@@ -585,7 +799,6 @@ namespace Neon3D
                 newForm.PrintDebug("upper left screen clicked \n");
                 whichscreenclicked = "TopLeft";
 
-
             }
             else if (clickedX > 0 && clickedY > 0)
             {
@@ -593,7 +806,6 @@ namespace Neon3D
                 splitScreenMidPosY = 270;
                 newForm.PrintDebug("upper right screen clicked \n");
                 whichscreenclicked = "TopRight";
-
             }
             else if (clickedX < 0 && clickedY < 0)
             {
@@ -608,7 +820,6 @@ namespace Neon3D
                 splitScreenMidPosY = 810;
                 whichscreenclicked = "BottomRight";
                 newForm.PrintDebug("down right screen clicked \n");
-
             }
 
             int localScreenClickedX = rawClickedXpos - splitScreenMidPosX;
@@ -616,7 +827,7 @@ namespace Neon3D
 
             newForm.PrintDebug(Convert.ToString(localScreenClickedX) + ":" + Convert.ToString((localScreenClickedY)) + " \n");
 
-            if (!isXdefined && isYdefined && !isZdefined)
+            if ((!isXdefined && isYdefined && !isZdefined) || (isXdefined && !isYdefined && !isZdefined))
             {
                 newForm.PrintDebug("AMOUNT OF INDEXES: " + allNodes.Length / 3 + "\n");
                 for (int i = 0; i < (allNodes.Length / 3); i++)
