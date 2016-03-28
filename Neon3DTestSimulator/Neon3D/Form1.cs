@@ -11,38 +11,33 @@ namespace Neon3D
             InitializeComponent();
         }
 
+
+        public int whichScreenSelected { get; set; } // 0= top left, 1= top right, 2= bottom left, 3= bottom right
+
         string[] previousCor = { "0", "0", "0", "0" };
 
-        public static int maxLines = 100;
+        public int clicked { get; set; }
 
-        public double?[,,] starteEndnodes = new double?[maxLines,2,3];
-        public double?[,] allNodes = new double?[maxLines * 2, 3];
-        public int?[] selectedNodes = new int?[maxLines * 2];
- 
-        
-        public int lineCounter = 0;
-        public int clicked = 0;
-        public int selectedArrayLastIndex = 0;
-        
-        public double zoomTopleft = 1;
+        public double zoomTopLeft = 1;
         public double zoomTopRight = 1;
         public double zoomBottomLeft = 1;
         public double zoomBottomRight = 1;
 
+        public int[] fullScrMP = new int[2];
+        public int[] topLeftMP = new int[2];
+        public int[] topRightMP = new int[2];
+        public int[] bottomLeftMP = new int[2];
+        public int[] bottomRightMP = new int[2];
+        public int[][] screenInformation = new int[5][];
         public bool zoomed = false;
 
         public int tempStartX = 0;
         public int tempStartY = 0;
 
-        public string whichscreenclicked = "";
-
         double prevx1 = 0;
         double prevy1 = 0;
         double prevx2 = 0;
         double prevy2 = 0;
-
-        public int midPointScreenX = 960;
-        public int midPointScreenY = 540;
 
         int tempX = 0;
         int tempY = 0;
@@ -60,109 +55,154 @@ namespace Neon3D
 
         Form2 newForm;
         Thread wekeepdrawing;
+        Thread wekeeptrackofourcursor;
+        Drawer drawer;
 
         private void Form1_Load(object sender, EventArgs e)
         {
 
+            fullScrMP[0] = 960;
+            fullScrMP[1] = 540;
+            topLeftMP[0] =      fullScrMP[0] / 2;
+            topLeftMP[1] =      fullScrMP[1] / 2;
+            topRightMP[0] =     (fullScrMP[0] / 2) * 3;
+            topRightMP[1] =     fullScrMP[1] / 2;
+            bottomLeftMP[0] =   fullScrMP[0] / 2;
+            bottomLeftMP[1] =   (fullScrMP[1] / 2) * 3;
+            bottomRightMP[0] =  (fullScrMP[0] / 2) * 3;
+            bottomRightMP[1] =  (fullScrMP[1] / 2) * 3;
+            screenInformation[0] = fullScrMP;
+            screenInformation[1] = topLeftMP;
+            screenInformation[2] = topRightMP;
+            screenInformation[3] = bottomLeftMP;
+            screenInformation[4] = bottomLeftMP;
+
+            drawer = new Drawer(this,debugCallback,100,screenInformation);
             newForm = new Form2(this); 
             newForm.Show();
 
+            wekeeptrackofourcursor = new Thread(new ThreadStart(() => checkCursorScreenPosition(screenInformation[0][0], screenInformation[0][1])));
+            wekeeptrackofourcursor.Start();
             wekeepdrawing = new Thread(new ThreadStart(keepdrawingScreens));
             wekeepdrawing.Start();
+
         }
 
+        private void debugCallback(string msg)
+        {
+            newForm.PrintDebug(msg);
+        }
 
         private void Form1_Shown(object sender, EventArgs e)
         {
             resetScreen();
         }
-        
+
+        private void checkCursorScreenPosition(int midpointx, int midpointy)
+        {
+            while (true)
+            {
+                rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
+                rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
+                int clickedX = rawClickedXpos - midpointx;
+                int clickedY = midpointy - rawClickedYpos;
+                if (clickedX < 0 && clickedY > 0)
+                {
+                    //topleft
+                    whichScreenSelected = 1;
+                }
+                else if (clickedX > 0 && clickedY > 0)
+                {
+                    //topright
+                    whichScreenSelected = 2;
+                }
+                else if (clickedX < 0 && clickedY < 0)
+                {
+                    //bottomleft
+                    whichScreenSelected = 3;
+                }
+                else if (clickedX > 0 && clickedY < 0)
+                {
+                    //bottomright;
+                    whichScreenSelected = 4;
+                }
+                Thread.Sleep(13);
+            }
+            
+        }
+
         private void Form1_MouseWheel(object sender, MouseEventArgs e)
         {
 
-
-            rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
-            rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
-            int clickedX = rawClickedXpos - midPointScreenX;
-            int clickedY = midPointScreenY - rawClickedYpos;
-
-           
-
-            if (clickedX < 0 && clickedY > 0)
+            switch (whichScreenSelected)
             {
-                
-                whichscreenclicked = "TopLeft";
-
-                if (e.Delta > 0)
-                {
-                    zoomTopleft = zoomTopleft + 0.1;
-                }
-                else if (e.Delta < 0)
-                {
-                    if (zoomTopleft > 0.1)
+                case 1: //top left
+                    if (e.Delta > 0)
                     {
-                        zoomTopleft = zoomTopleft -0.1;
+                        zoomTopLeft = zoomTopLeft + 0.1;
                     }
-                }
-
-                zoomTL.Text = "Zoom: " + zoomTopleft + "x";
-                newForm.PrintDebug("upper left screen scrolled, \n ZOOM: " + zoomTopleft + "\n");
-            }
-            else if (clickedX > 0 && clickedY > 0)
-            {
-                whichscreenclicked = "TopRight";
-                if (e.Delta > 0)
-                {
-                    zoomTopRight = zoomTopRight + 0.1;
-                }
-                else if (e.Delta < 0)
-                {
-                    if (zoomTopRight > 0.1)
+                    else if (e.Delta < 0)
                     {
-                        zoomTopRight = zoomTopRight - 0.1;
+                        if (zoomTopLeft > 0.1)
+                        {
+                            zoomTopLeft = zoomTopLeft - 0.1;
+                        }
                     }
-                }
 
-                zoomTR.Text = "Zoom: " + zoomTopRight + "x";
-                newForm.PrintDebug("upper right screen scrolled, \n ZOOM: " + zoomTopRight + "\n");
-            }
-            else if (clickedX < 0 && clickedY < 0)
-            {
-              
-                whichscreenclicked = "BottomLeft";
-                if (e.Delta > 0)
-                {
-                    zoomBottomLeft = zoomBottomLeft + 0.1;
-                }
-                else if (e.Delta < 0)
-                {
-                    if (zoomBottomLeft > 0.1)
+                    zoomTL.Text = "Zoom: " + zoomTopLeft + "x";
+                    newForm.PrintDebug("upper left screen scrolled, \n ZOOM: " + zoomTopLeft + "\n");
+                    break;
+
+                case 2: //top right
+                    if (e.Delta > 0)
                     {
-                        zoomBottomLeft = zoomBottomLeft - 0.1;
+                        zoomTopRight = zoomTopRight + 0.1;
                     }
-                }
-                zoomBL.Text = "Zoom: " + zoomBottomLeft + "x";
-                newForm.PrintDebug("down left screen scrolled, \n ZOOM: " + zoomBottomLeft + "\n");
-            }
-            else if (clickedX > 0 && clickedY < 0)
-            {
-                whichscreenclicked = "BottomRight";
-                if (e.Delta > 0)
-                {
-                    zoomBottomRight = zoomBottomRight + 0.1;
-                }
-                else if (e.Delta < 0)
-                {
-                    if (zoomBottomRight > 0.1)
+                    else if (e.Delta < 0)
                     {
-                        zoomBottomRight = zoomBottomRight - 0.1;
+                        if (zoomTopRight > 0.1)
+                        {
+                            zoomTopRight = zoomTopRight - 0.1;
+                        }
                     }
-                }
 
-                zoomBR.Text = "Zoom: " + zoomBottomRight + "x";
-                newForm.PrintDebug("down right screen scrolled, \n ZOOM: " + zoomBottomRight + "\n");
+                    zoomTR.Text = "Zoom: " + zoomTopRight + "x";
+                    newForm.PrintDebug("upper right screen scrolled, \n ZOOM: " + zoomTopRight + "\n");
+                    break;
+
+                case 3://bottom left
+                    if (e.Delta > 0)
+                    {
+                        zoomBottomLeft = zoomBottomLeft + 0.1;
+                    }
+                    else if (e.Delta < 0)
+                    {
+                        if (zoomBottomLeft > 0.1)
+                        {
+                            zoomBottomLeft = zoomBottomLeft - 0.1;
+                        }
+                    }
+                    zoomBL.Text = "Zoom: " + zoomBottomLeft + "x";
+                    newForm.PrintDebug("down left screen scrolled, \n ZOOM: " + zoomBottomLeft + "\n");
+                    break;
+
+                case 4://bottom right
+                    if (e.Delta > 0)
+                    {
+                        zoomBottomRight = zoomBottomRight + 0.1;
+                    }
+                    else if (e.Delta < 0)
+                    {
+                        if (zoomBottomRight > 0.1)
+                        {
+                            zoomBottomRight = zoomBottomRight - 0.1;
+                        }
+                    }
+
+                    zoomBR.Text = "Zoom: " + zoomBottomRight + "x";
+                    newForm.PrintDebug("down right screen scrolled, \n ZOOM: " + zoomBottomRight + "\n");
+                    break;
             }
-
             zoomed = true;
             
         }
@@ -178,368 +218,25 @@ namespace Neon3D
 
             while (true)
             {
-
-                rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
-                rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
-
-                drawNodes(midPointScreenX / 2, midPointScreenY / 2, 0); // top left "TOP"
-                drawNodes((midPointScreenX / 2) * 3, midPointScreenY / 2, 4); //top right "RIGHT"
-                drawNodes(midPointScreenX / 2, (midPointScreenY / 2) * 3, 2); //bottom left "FRONT"
-                drawNodes((midPointScreenX / 2) * 3, (midPointScreenY / 2) * 3, 6); // bottom right "3D"
-
-
+                drawer.drawNodes(0, 1, zoomTopLeft); // top left "TOP"
+                drawer.drawNodes(4, 2, zoomTopRight); //top right "RIGHT"
+                drawer.drawNodes(2, 3, zoomBottomLeft); //bottom left "FRONT"
+                drawer.drawNodes(6, 4, zoomBottomRight); // bottom right "3D"
             }
             
         }
 
         public void resetNodes()
         {
-            starteEndnodes = new double?[maxLines, 2, 3];
-            allNodes = new double?[maxLines * 2, 3];
-            selectedNodes = new int?[maxLines * 2];
+            drawer.starteEndnodes = new double?[drawer.maxLines, 2, 3];
+            drawer.allNodes = new double?[drawer.maxLines * 2, 3];
+            drawer.selectedNodes = new int?[drawer.maxLines * 2];
 
-            lineCounter = 0;
+            drawer.lineCounter = 0;
+            drawer.selectedArrayLastIndex = 0;
             clicked = 0;
-            selectedArrayLastIndex = 0;
             resetScreen();
         }
-
-        public void drawLine(double x1, double y1, double x2, double y2, double midX, double midY, int redValue, int greenValue, int blueValue, int size, bool remove)
-        {
-
-            y1 = y1 * -1;
-            y2 = y2 * -1;
-
-            x1 = x1 + midX;
-            x2 = x2 + midX;
-            y1 = y1 + midY;
-            y2 = y2 + midY;
-            
-
-            //switch points when first point is behind second point on x axel
-            if (x2 < x1)
-            {
-                double tempX = x1;
-                double tempY = y1;
-                x1 = x2;
-                y1 = y2;
-
-                x2 = tempX;
-                y2 = tempY;
-            }
-
-            //setup vars for loop
-            double x;
-            double prevY = 0;
-            double prevX = 0;
-
-            //remove and redraw nodes for begin and end
-
-
-            //for loop for drawing beam
-            for (x = (int)x1; x <= (int)x2; x++)
-            {
-
-                double y = 0;
-                try
-                {
-                    //formula for drawing beam between nodes
-                    if ((x2 - x1) == 0)
-                    {
-                        int count;
-
-                        if (y2 > y1)
-                        {
-                            double tempY = y1;
-                            y1 = y2;
-                            y2 = tempY;
-                        }
-                        for (count = (int)y2; count <= y1; count++) {
-
-                            if (!remove)
-                            {
-                                drawPixel((int)x, count, size, redValue, greenValue, blueValue);
-                            }
-                            else
-                            {
-                                removePixel((int)x, count, size);
-                            }
-                        }
-
-                    } else
-                    {
-                        y = Math.Round(((y2 - y1) / (x2 - x1)) * (x - x1) + y1);
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    newForm.PrintDebug("Error: " + e.ToString() + " \n");
-                    y = 540;
-                }
-
-
-                //drawing all pixels of beam between nodes
-                if (y - prevY > 0 && x != 0)
-                {
-
-                    int counter;
-                    for (counter = (int)prevY; counter <= (int)y; counter++)
-                    {
-                        if (!remove)
-                        {
-                            drawPixel((int)prevX, counter, size, redValue, greenValue, blueValue);
-                        }
-                        else
-                        {
-                            removePixel((int)prevX, counter, size);
-                        }
-                    }
-                } else if (prevY - y > 0 && x != 0)
-                {
-                    int counter;
-                    for (counter = (int)y; counter <= (int)prevY; counter++)
-                    {
-                        if (!remove)
-                        {
-                            drawPixel((int)prevX, counter, size, redValue, greenValue, blueValue);
-                        }
-                        else
-                        {
-                            removePixel((int)prevX, counter, size);
-                        }
-                    }
-                }
-
-
-                //draw line/remove prev line
-                if (!remove)
-                {
-
-                    drawPixel((int)x, (int)y, size, redValue, greenValue, blueValue);
-                } else
-                {
-                    removePixel((int)x, (int)y, size);
-                }
-
-                prevY = y;
-                prevX = x;
-            }
-
-
-        }
-
-
-        public void drawPixel(int x, int y, int size, int redValue, int greenValue, int blueValue)
-        {
-            Color myColor = Color.FromArgb(redValue, greenValue, blueValue);
-            SolidBrush brushColor = new SolidBrush(myColor);
-            Graphics g = this.CreateGraphics();
-            if (x != 0 && y != 0)
-            {
-                g.FillRectangle(brushColor, x, y, size, size);
-            }
-        }
-
-        private void removePixel(int x, int y, int size)
-        {
-
-            Brush aBrush = (Brush)Brushes.White;
-            Graphics g = this.CreateGraphics();
-            if (x != 0 && y != 0)
-            {
-                g.FillRectangle(aBrush, x, y, size, size);
-            }
-
-        }
-
-        private void drawNodes(int midPointX, int midPointY, int conv3dto2d)
-        {
-            int linesDrawn;
-            double startx = 0;
-            double starty = 0;
-            double startz = 0;
-            double endx = 0;
-            double endy = 0;
-            double endz = 0;
-
-
-            int clickedX = rawClickedXpos - midPointScreenX;
-            int clickedY = midPointScreenY - rawClickedYpos;
-
-            for (int i = 0; i < (allNodes.Length / 3); i++)
-            {
-                if(allNodes[i, 0] != null && allNodes[i,1] != null)
-                {
-
-                    startx = allNodes[i, 0].Value;
-                    starty = allNodes[i, 1].Value;
-                    if (conv3dto2d == 0)
-                    {
-                        starty = allNodes[i, 2].Value * zoomTopleft;
-                        startx = startx * zoomTopleft;
-                    }
-                    else if (conv3dto2d == 1)
-                    {
-                        startx = -allNodes[i, 0].Value; 
-                        starty = allNodes[i, 2].Value; 
-                    } else if (conv3dto2d == 2)
-                    {
-                        starty = starty * zoomBottomLeft;
-                        startx = startx * zoomBottomLeft;
-                    }
-                    else if (conv3dto2d == 3)
-                    {
-                        startx = -allNodes[i, 0].Value; 
-                    }
-                    else if (conv3dto2d == 4)
-                    {
-                        starty = starty * zoomTopRight;
-                        startx = allNodes[i, 2].Value * zoomTopRight;
-                    }
-                    else if (conv3dto2d == 5)
-                    {
-                        startx = -allNodes[i, 2].Value; 
-                    }
-
-
-                    for(int selectedcounter = 0; selectedcounter < selectedNodes.Length; selectedcounter++)
-                    {
-                        if(selectedNodes[selectedcounter] != null)
-                        {
-                            if (selectedNodes[selectedcounter].Value == i)
-                            {
-                                drawPixel((int)startx + midPointX, midPointY - (int)starty, 4, 0, 255, 0);
-                                drawPixel((int)startx + midPointX, midPointY - (int)starty, 4, 0, 255, 0);
-                                break;
-                            }
-                            else
-                            {
-                                drawPixel((int)startx + midPointX, midPointY - (int)starty, 4, 255, 0, 0);
-                                drawPixel((int)startx + midPointX, midPointY - (int)starty, 4, 255, 0, 0);
-                            }
-                        } else
-                        {
-                            drawPixel((int)startx + midPointX, midPointY - (int)starty, 4, 255, 0, 0);
-                            drawPixel((int)startx + midPointX, midPointY - (int)starty, 4, 255, 0, 0);
-                        }
-                       
-
-                    }
-                    
-                }
-                
-                       
-                    
-            }
-
-
-            for (linesDrawn = 0; linesDrawn < maxLines; linesDrawn++)
-            {
-
-               
-
-                if (starteEndnodes[linesDrawn, 0, 0] != null && starteEndnodes[linesDrawn, 0, 1] != null && starteEndnodes[linesDrawn, 1, 0] != null && starteEndnodes[linesDrawn, 1, 1] != null)
-                {
-
-
-                    
-                    startx = starteEndnodes[linesDrawn, 0, 0].Value;
-                    starty = starteEndnodes[linesDrawn, 0, 1].Value;
-                    startz = starteEndnodes[linesDrawn, 0, 2].Value;
-                    endx = starteEndnodes[linesDrawn, 1, 0].Value;
-                    endy = starteEndnodes[linesDrawn, 1, 1].Value;
-                    endz = starteEndnodes[linesDrawn, 1, 2].Value;
-
-
-                    if (conv3dto2d == 0)
-                    {
-                        starty = startz * zoomTopleft;
-                        endy = endz * zoomTopleft;
-                        startx = startx * zoomTopleft;
-                        endx = endx * zoomTopleft;
-                    }
-                    else if (conv3dto2d == 1)
-                    {
-                        startx = -startx;
-                        starty = startz;
-                        endx = -endx;
-                        endy = endz;
-                    }
-                    else if (conv3dto2d == 2)
-                    {
-                        starty = starty * zoomBottomLeft;
-                        startx = startx * zoomBottomLeft;
-                        endy = endy * zoomBottomLeft;
-                        endx = endx * zoomBottomLeft;
-                    }
-                    else if (conv3dto2d == 3)
-                    {
-                        startx = -startx;
-                        endx = -endx;
-                    }
-                    else if (conv3dto2d == 4)
-                    {
-                        startx = startz * zoomTopRight; 
-                        endx = endz * zoomTopRight;
-                        starty = starty * zoomTopRight;
-                        endy = endy * zoomTopRight;
-                    }
-                    else if (conv3dto2d == 5)
-                    {
-                        startx = -startz;
-                        endx = -endz;
-                    }
-
-                    if (zoomed)
-                    {
-                        if (clickedX < 0 && clickedY > 0)
-                        {
-                            Brush aBrush = (Brush)Brushes.White;
-                            Graphics g = this.CreateGraphics();
-
-                            g.FillRectangle(aBrush, 0, 0, midPointScreenX, midPointScreenY);
-                            drawAxMatrix(midPointScreenX / 2, midPointScreenY / 2, 180, 168, 168, 1);
-                        }
-                        else if (clickedX > 0 && clickedY > 0)
-                        {
-
-                            Brush aBrush = (Brush)Brushes.White;
-                            Graphics g = this.CreateGraphics();
-
-                            g.FillRectangle(aBrush, midPointScreenX, 0, midPointScreenX * 2, midPointScreenY);
-                            drawAxMatrix((midPointScreenX / 2) * 3, midPointScreenY / 2, 180, 168, 168, 1);
-                        }
-                        else if (clickedX < 0 && clickedY < 0)
-                        {
-                            Brush aBrush = (Brush)Brushes.White;
-                            Graphics g = this.CreateGraphics();
-
-                            g.FillRectangle(aBrush, 0, midPointScreenY, midPointScreenX, midPointScreenY * 2);
-                            drawAxMatrix(midPointScreenX / 2, (midPointScreenY / 2) * 3, 180, 168, 168, 1);
-                        }
-                        else if (clickedX > 0 && clickedY < 0)
-                        {
-                            Brush aBrush = (Brush)Brushes.White;
-                            Graphics g = this.CreateGraphics();
-
-                            g.FillRectangle(aBrush, midPointScreenX, midPointScreenY, midPointScreenX * 2, midPointScreenY * 2);
-                            drawAxMatrix((midPointScreenX / 2) * 3, (midPointScreenY / 2) * 3, 180, 168, 168, 1);
-                        }
-                        drawAxMatrix(midPointScreenX, midPointScreenY, 255, 0, 0, 2);
-                    }
-                   
-
-
-                    drawLine(startx, starty, endx, endy, midPointX, midPointY, 0, 0, 0, 1, false);
-                    zoomed = false;
-                }
-                
-                
-            }
-
-        }
-
 
         public void resetScreen()
         {
@@ -548,301 +245,161 @@ namespace Neon3D
 
             g.FillRectangle(aBrush, 0, 0, 1920, 1080);
 
-
-            drawAxMatrix(midPointScreenX, midPointScreenY, 255, 0, 0, 2);
-            drawAxMatrix(midPointScreenX / 2, midPointScreenY / 2, 180, 168, 168, 1);
-            drawAxMatrix(midPointScreenX / 2, (midPointScreenY / 2) * 3, 180, 168, 168, 1);
-            drawAxMatrix((midPointScreenX / 2) * 3, midPointScreenY / 2, 180, 168, 168, 1);
-            drawAxMatrix((midPointScreenX / 2) * 3, (midPointScreenY / 2) * 3, 180, 168, 168, 1);
+            drawer.drawAxMatrix(0, 255, 0, 0, 2);
+            drawer.drawAxMatrix(1, 180, 168, 168, 1);
+            drawer.drawAxMatrix(2, 180, 168, 168, 1);
+            drawer.drawAxMatrix(3, 180, 168, 168, 1);
+            drawer.drawAxMatrix(4, 180, 168, 168, 1);
         }
-
-
         
-
         private void Form1_DoubleClick(object sender, EventArgs e)
-        {          
-
-            
+        {
             //createNode((Cursor.Position.X - this.Left) - 960 , 540 - (Cursor.Position.Y - this.Top), 0);
 
-            int splitScreenMidPosX = 0;
-            int splitScreenMidPosY = 0;
-           
-            int clickedX =  rawClickedXpos - midPointScreenX;
-            int clickedY = midPointScreenY - rawClickedYpos;
-
-
-            if (clickedX < 0 && clickedY > 0)
+            int localScreenClickedX = rawClickedXpos - screenInformation[whichScreenSelected][0];
+            int localScreenClickedY = screenInformation[whichScreenSelected][1] - rawClickedYpos;
+            switch (whichScreenSelected)
             {
-
-                splitScreenMidPosX = 480;
-                splitScreenMidPosY = 270;
-                newForm.PrintDebug("upper left screen clicked \n");
-                whichscreenclicked = "TopLeft";
-                
-
-            } else if(clickedX > 0 && clickedY > 0)
-            {
-                splitScreenMidPosX = 1400;
-                splitScreenMidPosY = 270;
-                newForm.PrintDebug("upper right screen clicked \n");
-                whichscreenclicked = "TopRight";
-
-            } else if(clickedX < 0 && clickedY < 0)
-            {
-                splitScreenMidPosX = 480;
-                splitScreenMidPosY = 810;
-                whichscreenclicked = "BottomLeft";
-                newForm.PrintDebug("down left screen clicked \n");
-            } else if (clickedX > 0 && clickedY < 0)
-            {
-                splitScreenMidPosX = 1400;
-                splitScreenMidPosY = 810;
-                whichscreenclicked = "BottomRight";
-                newForm.PrintDebug("down right screen clicked \n");
-                
-            }
-
-            int localScreenClickedX = rawClickedXpos - splitScreenMidPosX;
-            int localScreenClickedY = splitScreenMidPosY - rawClickedYpos;
-
-          
-            
-
-            if (whichscreenclicked == "TopLeft" && !isXdefined && !isZdefined)
-            {
-                tempZ = localScreenClickedY;
-                tempX = localScreenClickedX;
-                allNodes[clicked, 0] = tempX;
-                allNodes[clicked, 1] = 0;
-                allNodes[clicked, 2] = tempZ;
-                isXdefined = true;
-                isZdefined = true;
-                isYdefined = false;
-                newForm.PrintDebug("START NEW NODE (x,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
-
-            }
-            else if(isZdefined && isXdefined && whichscreenclicked == "BottomLeft")
-            {
-                tempY = localScreenClickedY;
-                isXdefined = false;
-                isZdefined = false;
-                isYdefined = true;
-
-                removePixel(tempX + splitScreenMidPosX, splitScreenMidPosY - (int)allNodes[clicked, 1].Value, 4);
-                removePixel(tempZ + (splitScreenMidPosX * 3), (splitScreenMidPosY / 3) - (int)allNodes[clicked, 1].Value, 4);
-                allNodes[clicked, 1] = tempY;
-
-
-                newForm.PrintDebug("NODE CREATED IN BOTTOM LEFT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
-                tempX = 0;
-                tempY = 0;
-                tempZ = 0;
-
-                clicked++;
-            }
-            else if (isZdefined && isXdefined && whichscreenclicked == "TopRight")
-            {
-                tempY = localScreenClickedY;
-                isXdefined = false;
-                isZdefined = false;
-                isYdefined = true;
-
-                removePixel(tempZ + splitScreenMidPosX + 40, splitScreenMidPosY - (int)allNodes[clicked, 1].Value, 4);
-                removePixel(tempX + (splitScreenMidPosX / 3) + 14, (splitScreenMidPosY * 3) - (int)allNodes[clicked, 1].Value, 4);
-                allNodes[clicked, 1] = tempY;
-
-
-                
-
-                newForm.PrintDebug("NODE CREATED IN TOP RIGHT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
-                tempX = 0;
-                tempY = 0;
-                tempZ = 0;
-
-                clicked++;
-            }
-            else if(isZdefined && isXdefined && !isYdefined )
-            {
-                MessageBox.Show("You need to define the Y position of your node", "Hint");
-            }
-
-
-            if (whichscreenclicked == "TopRight" && !isYdefined && !isZdefined)
-            {
-                tempZ = localScreenClickedX;
-                tempY = localScreenClickedY;
-                allNodes[clicked, 0] = 0;
-                allNodes[clicked, 1] = tempY;
-                allNodes[clicked, 2] = tempZ;
-                isXdefined = false;
-                isZdefined = true;
-                isYdefined = true;
-
-                newForm.PrintDebug("START NEW NODE (y,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
-            }
-            else if (isZdefined && isYdefined && whichscreenclicked == "BottomLeft")
-            {
-                tempX = localScreenClickedX;
-                isXdefined = true;
-                isZdefined = false;
-                isYdefined = false;
-
-                removePixel(tempX + splitScreenMidPosX, splitScreenMidPosY - (int)allNodes[clicked, 1].Value, 4);
-                removePixel(tempZ + (splitScreenMidPosX * 3), (splitScreenMidPosY / 3) - (int)allNodes[clicked, 1].Value, 4);
-                allNodes[clicked, 0] = tempX;
-
-
-                newForm.PrintDebug("NODE CREATED IN BOTTOM LEFT SCREEN(x) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
-                tempX = 0;
-                tempY = 0;
-                tempZ = 0;
-
-                clicked++;
-            }
-            else if (isZdefined && isYdefined && whichscreenclicked == "TopLeft")
-            {
-                tempX = localScreenClickedX;
-                isXdefined = true;
-                isZdefined = false;
-                isYdefined = false;
-
-                removePixel(tempZ + splitScreenMidPosX + 40, splitScreenMidPosY - (int)allNodes[clicked, 1].Value, 4);
-                removePixel(tempX + (splitScreenMidPosX / 3) + 14, (splitScreenMidPosY * 3) - (int)allNodes[clicked, 1].Value, 4);
-                allNodes[clicked, 0] = tempX;
-
-                newForm.PrintDebug("NODE CREATED NODE CREATED IN TOP LEFT SCREEN(x) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
-                tempX = 0;
-                tempY = 0;
-                tempZ = 0;
-
-                clicked++;
-            }
-            else if (isZdefined && isXdefined && !isYdefined)
-            {
-                MessageBox.Show("You need to define the X position of your node", "Hint");
-            }
-
-
-
-        }
-
-
-
-        public void createLines()
-        {
-            
-
-                for (int i = 0; i < selectedNodes.Length; i++)
-                {
-                    if ((i % 2) == 0)
+                case 1: //top left
+                    if (!isXdefined && !isZdefined)
                     {
-                        if (selectedNodes[i] != null && selectedNodes[i + 1] != null)
-                        {
-                            starteEndnodes[lineCounter, 0, 0] = allNodes[selectedNodes[i].Value, 0];
-                            starteEndnodes[lineCounter, 0, 1] = allNodes[selectedNodes[i].Value, 1];
-                            starteEndnodes[lineCounter, 0, 2] = allNodes[selectedNodes[i].Value, 2];
-                            starteEndnodes[lineCounter, 1, 0] = allNodes[selectedNodes[i + 1].Value, 0];
-                            starteEndnodes[lineCounter, 1, 1] = allNodes[selectedNodes[i + 1].Value, 1];
-                            starteEndnodes[lineCounter, 1, 2] = allNodes[selectedNodes[i + 1].Value, 2];
-                            lineCounter++;
-
-
-                            drawPixel((int)allNodes[selectedNodes[i].Value, 0] + (midPointScreenX / 2), (midPointScreenY / 2) - (int)allNodes[selectedNodes[i].Value, 2], 4, 255, 0, 0);
-                            drawPixel((int)allNodes[selectedNodes[i + 1].Value, 0] + (midPointScreenX / 2), (midPointScreenY / 2) - (int)allNodes[selectedNodes[i + 1].Value, 2], 4, 255, 0, 0);
-
-                            drawPixel((int)allNodes[selectedNodes[i].Value, 0] + (midPointScreenX / 2), ((midPointScreenY / 2) * 3) - (int)allNodes[selectedNodes[i].Value, 1], 4, 255, 0, 0);
-                            drawPixel((int)allNodes[selectedNodes[i + 1].Value, 0] + (midPointScreenX / 2), ((midPointScreenY / 2) * 3) - (int)allNodes[selectedNodes[i + 1].Value, 1], 4, 255, 0, 0);
-
-                            selectedNodes = new int?[maxLines * 2];
-                            selectedArrayLastIndex = 0;
-                            break;
-                        }
-                        else
-                        {
-                            MessageBox.Show("You need to select 2 nodes!!!", "Hint");
-
-                            break;
-                        }
+                        tempZ = localScreenClickedY;
+                        tempX = localScreenClickedX;
+                        drawer.allNodes[clicked, 0] = tempX;
+                        drawer.allNodes[clicked, 1] = 0;
+                        drawer.allNodes[clicked, 2] = tempZ;
+                        isXdefined = true;
+                        isZdefined = true;
+                        isYdefined = false;
+                        newForm.PrintDebug("START NEW NODE (x,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
                     }
-                }
+                    else if (isZdefined && isYdefined)
+                    {
+                        tempX = localScreenClickedX;
+                        isXdefined = true;
+                        isZdefined = false;
+                        isYdefined = false;
 
-            
+                        drawer.removePixel(tempZ + screenInformation[0][0] + 40, screenInformation[0][1] - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        drawer.removePixel(tempX + (screenInformation[0][0] / 3) + 14, (screenInformation[0][1] * 3) - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        drawer.allNodes[clicked, 0] = tempX;
 
+                        newForm.PrintDebug("NODE CREATED NODE CREATED IN TOP LEFT SCREEN(x) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                        tempX = 0;
+                        tempY = 0;
+                        tempZ = 0;
+
+                        clicked++;
+                    }
+                    break;
+                case 2: //top right
+                    if (isZdefined && isXdefined)
+                    {
+                        tempY = localScreenClickedY;
+                        isXdefined = false;
+                        isZdefined = false;
+                        isYdefined = true;
+
+                        drawer.removePixel(tempZ + screenInformation[0][0] + 40, screenInformation[0][1] - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        drawer.removePixel(tempX + (screenInformation[0][0] / 3) + 14, (screenInformation[0][1] * 3) - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        drawer.allNodes[clicked, 1] = tempY;
+
+                        newForm.PrintDebug("NODE CREATED IN TOP RIGHT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                        tempX = 0;
+                        tempY = 0;
+                        tempZ = 0;
+
+                        clicked++;
+                    }
+                    else if (!isYdefined && !isZdefined)
+                    {
+                        tempZ = localScreenClickedX;
+                        tempY = localScreenClickedY;
+                        drawer.allNodes[clicked, 0] = 0;
+                        drawer.allNodes[clicked, 1] = tempY;
+                        drawer.allNodes[clicked, 2] = tempZ;
+                        isXdefined = false;
+                        isZdefined = true;
+                        isYdefined = true;
+
+                        newForm.PrintDebug("START NEW NODE (y,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                    }
+                    
+                    break;
+                case 3: //bottom left
+                    if (isZdefined && isXdefined)
+                    {
+                        tempY = localScreenClickedY;
+                        isXdefined = false;
+                        isZdefined = false;
+                        isYdefined = true;
+
+                        drawer.removePixel(tempX + screenInformation[0][0], screenInformation[0][1] - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        drawer.removePixel(tempZ + (screenInformation[0][0] * 3), (screenInformation[0][1] / 3) - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        drawer.allNodes[clicked, 1] = tempY;
+
+
+                        newForm.PrintDebug("NODE CREATED IN BOTTOM LEFT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                        tempX = 0;
+                        tempY = 0;
+                        tempZ = 0;
+
+                        clicked++;
+                    }else if (isZdefined && isYdefined)
+                    {
+                        tempX = localScreenClickedX;
+                        isXdefined = true;
+                        isZdefined = false;
+                        isYdefined = false;
+
+                        drawer.removePixel(tempX + screenInformation[0][0], screenInformation[0][1] - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        drawer.removePixel(tempZ + (screenInformation[0][0] * 3), (screenInformation[0][1] / 3) - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        drawer.allNodes[clicked, 0] = tempX;
+
+
+                        newForm.PrintDebug("NODE CREATED IN BOTTOM LEFT SCREEN(x) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                        tempX = 0;
+                        tempY = 0;
+                        tempZ = 0;
+
+                        clicked++;
+                    }
+                    break;
+                case 4: //bottom right
+                    break;
+            }
             
         }
-
-        public void drawAxMatrix(int midPointX, int midPointY, int r, int g, int b, int size)
-        {
-            drawLine(midPointX, 0, -midPointX, 0, midPointX, midPointY, r, g, b, size, false);
-            drawLine(0, midPointY, 0, -midPointY, midPointX, midPointY, r, g, b, size, false);
-        }
-
-
         
         private void Form1_MouseClick(object sender, MouseEventArgs e)
         {
-            int splitScreenMidPosX = 0;
-            int splitScreenMidPosY = 0;
 
-            rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
-            rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
-            int clickedX = rawClickedXpos - 960;
-            int clickedY = 540 - rawClickedYpos;
+            int customRawClickedXpos = rawClickedXpos - 10;
+            int customRawClickedYpos = rawClickedYpos - 32;
+            int clickedX = rawClickedXpos - screenInformation[0][0];
+            int clickedY = screenInformation[0][1] - rawClickedYpos;
 
-
-            if (clickedX < 0 && clickedY > 0)
-            {
-
-                splitScreenMidPosX = 480;
-                splitScreenMidPosY = 270;
-                newForm.PrintDebug("upper left screen clicked \n");
-                whichscreenclicked = "TopLeft";
-
-            }
-            else if (clickedX > 0 && clickedY > 0)
-            {
-                splitScreenMidPosX = 1400;
-                splitScreenMidPosY = 270;
-                newForm.PrintDebug("upper right screen clicked \n");
-                whichscreenclicked = "TopRight";
-            }
-            else if (clickedX < 0 && clickedY < 0)
-            {
-                splitScreenMidPosX = 480;
-                splitScreenMidPosY = 810;
-                whichscreenclicked = "BottomLeft";
-                newForm.PrintDebug("down left screen clicked \n");
-            }
-            else if (clickedX > 0 && clickedY < 0)
-            {
-                splitScreenMidPosX = 1400;
-                splitScreenMidPosY = 810;
-                whichscreenclicked = "BottomRight";
-                newForm.PrintDebug("down right screen clicked \n");
-            }
-
-            int localScreenClickedX = rawClickedXpos - splitScreenMidPosX;
-            int localScreenClickedY = splitScreenMidPosY - rawClickedYpos;
+            int localScreenClickedX = rawClickedXpos - screenInformation[whichScreenSelected][0];
+            int localScreenClickedY = screenInformation[whichScreenSelected][1] - rawClickedYpos;
 
             newForm.PrintDebug(Convert.ToString(localScreenClickedX) + ":" + Convert.ToString((localScreenClickedY)) + " \n");
 
             if ((!isXdefined && isYdefined && !isZdefined) || (isXdefined && !isYdefined && !isZdefined))
             {
-                newForm.PrintDebug("AMOUNT OF INDEXES: " + allNodes.Length / 3 + "\n");
-                for (int i = 0; i < (allNodes.Length / 3); i++)
+                newForm.PrintDebug("AMOUNT OF INDEXES: " + drawer.allNodes.Length / 3 + "\n");
+                for (int i = 0; i < (drawer.allNodes.Length / 3); i++)
                 {
 
                    
-                        if ((localScreenClickedX > allNodes[i, 0] - 8 &&
-                            localScreenClickedX < allNodes[i, 0] + 8) &&
-                            (localScreenClickedY > allNodes[i, 2] - 8 &&
-                            localScreenClickedY < allNodes[i, 2] + 8))
+                        if ((localScreenClickedX > drawer.allNodes[i, 0] - 8 &&
+                            localScreenClickedX < drawer.allNodes[i, 0] + 8) &&
+                            (localScreenClickedY > drawer.allNodes[i, 2] - 8 &&
+                            localScreenClickedY < drawer.allNodes[i, 2] + 8))
                         {
 
                             newForm.PrintDebug("NODE WITH INDEX: " + i+ " SELECTED!\n");
-                            selectedNodes[selectedArrayLastIndex] = i;
-                            selectedArrayLastIndex++;
+                            drawer.selectedNodes[drawer.selectedArrayLastIndex] = i;
+                            drawer.selectedArrayLastIndex++;
                         }
                     
                 }
@@ -853,7 +410,7 @@ namespace Neon3D
         {
             if (e.KeyData == Keys.Enter)
             {
-                createLines();
+                drawer.createLines();
             } else if (e.KeyData == Keys.R)
             {
                 resetScreen();
@@ -862,6 +419,11 @@ namespace Neon3D
                 resetNodes();
                 resetScreen();
             }
+        }
+
+        public void createLines()
+        {
+            drawer.createLines();
         }
     }
 }
