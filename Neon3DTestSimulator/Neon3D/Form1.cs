@@ -34,18 +34,9 @@ namespace Neon3D
         public int tempStartX = 0;
         public int tempStartY = 0;
 
-        double prevx1 = 0;
-        double prevy1 = 0;
-        double prevx2 = 0;
-        double prevy2 = 0;
-
         int tempX = 0;
         int tempY = 0;
         int tempZ = 0;
-
-        bool isYdefined = false;
-        bool isXdefined = false;
-        bool isZdefined = false;
 
         int rawClickedXpos = 0;
         int rawClickedYpos = 0;
@@ -104,6 +95,7 @@ namespace Neon3D
             {
                 rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
                 rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
+
                 int clickedX = rawClickedXpos - midpointx;
                 int clickedY = midpointy - rawClickedYpos;
                 if (clickedX < 0 && clickedY > 0)
@@ -244,138 +236,179 @@ namespace Neon3D
             Graphics g = this.CreateGraphics();
 
             g.FillRectangle(aBrush, 0, 0, 1920, 1080);
+            zoomBottomLeft = 1;
+            zoomBottomRight = 1;
+            zoomTopLeft = 1;
+            zoomTopRight = 1;
+            zoomBL.Text = zoomBottomLeft.ToString();
+            zoomBR.Text = zoomBottomRight.ToString();
+            zoomTR.Text = zoomTopRight.ToString();
+            zoomTL.Text = zoomTopLeft.ToString();
 
-            drawer.drawAxMatrix(0, 255, 0, 0, 2);
-            drawer.drawAxMatrix(1, 180, 168, 168, 1);
-            drawer.drawAxMatrix(2, 180, 168, 168, 1);
-            drawer.drawAxMatrix(3, 180, 168, 168, 1);
-            drawer.drawAxMatrix(4, 180, 168, 168, 1);
+            drawer.drawAxMatrix(0, 255, 0, 0, 6);
+            drawInsideAxles(4);
         }
-        
+
+        public void drawInsideAxles(int size) {
+            drawer.drawAxMatrix(1, 180, 168, 168, size);
+            drawer.drawAxMatrix(2, 180, 168, 168, size);
+            drawer.drawAxMatrix(3, 180, 168, 168, size);
+            drawer.drawAxMatrix(4, 180, 168, 168, size);
+        }
+
+
+        public int previousScreenSelected = 0;
+        public bool newNode = true;
         private void Form1_DoubleClick(object sender, EventArgs e)
         {
             //createNode((Cursor.Position.X - this.Left) - 960 , 540 - (Cursor.Position.Y - this.Top), 0);
 
             int localScreenClickedX = rawClickedXpos - screenInformation[whichScreenSelected][0];
             int localScreenClickedY = screenInformation[whichScreenSelected][1] - rawClickedYpos;
+
+            newForm.PrintDebug("PREV SCREEN SELECTED: " + previousScreenSelected + "\n");
             switch (whichScreenSelected)
             {
                 case 1: //top left
-                    if (!isXdefined && !isZdefined)
+                    if (newNode)
                     {
+                        newNode = false;
                         tempZ = localScreenClickedY;
                         tempX = localScreenClickedX;
                         drawer.allNodes[clicked, 0] = tempX;
                         drawer.allNodes[clicked, 1] = 0;
                         drawer.allNodes[clicked, 2] = tempZ;
-                        isXdefined = true;
-                        isZdefined = true;
-                        isYdefined = false;
+
                         newForm.PrintDebug("START NEW NODE (x,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+
+                        previousScreenSelected = whichScreenSelected;
                     }
-                    else if (isZdefined && isYdefined)
+                    else if (previousScreenSelected == 2)
                     {
                         tempX = localScreenClickedX;
-                        isXdefined = true;
-                        isZdefined = false;
-                        isYdefined = false;
-
-                        drawer.removePixel(tempZ + screenInformation[0][0] + 40, screenInformation[0][1] - (int)drawer.allNodes[clicked, 1].Value, 4);
-                        drawer.removePixel(tempX + (screenInformation[0][0] / 3) + 14, (screenInformation[0][1] * 3) - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        
                         drawer.allNodes[clicked, 0] = tempX;
-
+                        drawInsideAxles(4);
                         newForm.PrintDebug("NODE CREATED NODE CREATED IN TOP LEFT SCREEN(x) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
                         tempX = 0;
                         tempY = 0;
                         tempZ = 0;
-
+                        newNode = true;
                         clicked++;
                     }
-                    break;
-                case 2: //top right
-                    if (isZdefined && isXdefined)
+                    else if (previousScreenSelected == 3)
                     {
-                        tempY = localScreenClickedY;
-                        isXdefined = false;
-                        isZdefined = false;
-                        isYdefined = true;
+                        tempZ = localScreenClickedY;
+                        drawer.allNodes[clicked, 2] = tempZ;
 
-                        drawer.removePixel(tempZ + screenInformation[0][0] + 40, screenInformation[0][1] - (int)drawer.allNodes[clicked, 1].Value, 4);
-                        drawer.removePixel(tempX + (screenInformation[0][0] / 3) + 14, (screenInformation[0][1] * 3) - (int)drawer.allNodes[clicked, 1].Value, 4);
-                        drawer.allNodes[clicked, 1] = tempY;
-
+                        drawInsideAxles(4);
                         newForm.PrintDebug("NODE CREATED IN TOP RIGHT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
                         tempX = 0;
                         tempY = 0;
                         tempZ = 0;
-
+                        newNode = true;
                         clicked++;
+                    } else
+                    {
+                        MessageBox.Show("You need to define Y in front or right view!", "Hint");
                     }
-                    else if (!isYdefined && !isZdefined)
+                    break;
+                case 2: //top right
+                    if (newNode)
                     {
                         tempZ = localScreenClickedX;
                         tempY = localScreenClickedY;
+                        newNode = false;
                         drawer.allNodes[clicked, 0] = 0;
                         drawer.allNodes[clicked, 1] = tempY;
                         drawer.allNodes[clicked, 2] = tempZ;
-                        isXdefined = false;
-                        isZdefined = true;
-                        isYdefined = true;
 
-                        newForm.PrintDebug("START NEW NODE (y,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                        previousScreenSelected = whichScreenSelected;
+                    }
+                    else if (previousScreenSelected == 1)
+                    {
+                        tempY = localScreenClickedY;
+                        drawer.allNodes[clicked, 1] = tempY;
+                        drawInsideAxles(4);
+                        newForm.PrintDebug("NODE CREATED IN TOP RIGHT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                        tempX = 0;
+                        tempY = 0;
+                        tempZ = 0;
+                        newNode = true;
+                        clicked++;
+
+                    } else if(previousScreenSelected == 3)
+                    {
+                        tempZ = localScreenClickedX;
+                        drawer.allNodes[clicked, 2] = tempZ;
+                        drawInsideAxles(4);
+                        newForm.PrintDebug("NODE CREATED IN TOP RIGHT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+                        tempX = 0;
+                        tempY = 0;
+                        tempZ = 0;
+                        newNode = true;
+                        clicked++;
+                    } else
+                    {
+                        MessageBox.Show("You need to define X in front or top view!", "Hint");
                     }
                     
                     break;
                 case 3: //bottom left
-                    if (isZdefined && isXdefined)
+                    if (newNode) {
+                        tempY = localScreenClickedY;
+                        tempX = localScreenClickedX;
+                        newNode = false;
+                        drawer.allNodes[clicked, 0] = tempX;
+                        drawer.allNodes[clicked, 1] = tempY;
+                        drawer.allNodes[clicked, 2] = 0;
+
+                        newForm.PrintDebug("START NEW NODE (x,z) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
+
+                        previousScreenSelected = whichScreenSelected;
+                    }
+                    else if (previousScreenSelected == 1)
                     {
                         tempY = localScreenClickedY;
-                        isXdefined = false;
-                        isZdefined = false;
-                        isYdefined = true;
-
-                        drawer.removePixel(tempX + screenInformation[0][0], screenInformation[0][1] - (int)drawer.allNodes[clicked, 1].Value, 4);
-                        drawer.removePixel(tempZ + (screenInformation[0][0] * 3), (screenInformation[0][1] / 3) - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        
                         drawer.allNodes[clicked, 1] = tempY;
 
-
+                        drawInsideAxles(4);
                         newForm.PrintDebug("NODE CREATED IN BOTTOM LEFT SCREEN(y) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
                         tempX = 0;
                         tempY = 0;
                         tempZ = 0;
-
+                        newNode = true;
                         clicked++;
-                    }else if (isZdefined && isYdefined)
+                    }else if (previousScreenSelected == 2)
                     {
                         tempX = localScreenClickedX;
-                        isXdefined = true;
-                        isZdefined = false;
-                        isYdefined = false;
-
-                        drawer.removePixel(tempX + screenInformation[0][0], screenInformation[0][1] - (int)drawer.allNodes[clicked, 1].Value, 4);
-                        drawer.removePixel(tempZ + (screenInformation[0][0] * 3), (screenInformation[0][1] / 3) - (int)drawer.allNodes[clicked, 1].Value, 4);
+                        
                         drawer.allNodes[clicked, 0] = tempX;
 
-
+                        drawInsideAxles(4);
                         newForm.PrintDebug("NODE CREATED IN BOTTOM LEFT SCREEN(x) \n AT -> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
                         tempX = 0;
                         tempY = 0;
                         tempZ = 0;
-
+                        newNode = true;
                         clicked++;
+                    } else
+                    {
+                        MessageBox.Show("You need to define Z in top or right view!", "Hint");
                     }
                     break;
                 case 4: //bottom right
                     break;
             }
-            
+
         }
         
         private void Form1_MouseClick(object sender, MouseEventArgs e)
         {
 
-            int customRawClickedXpos = rawClickedXpos - 10;
-            int customRawClickedYpos = rawClickedYpos - 32;
+            int customRawClickedXpos = rawClickedXpos;
+            int customRawClickedYpos = rawClickedYpos;
             int clickedX = rawClickedXpos - screenInformation[0][0];
             int clickedY = screenInformation[0][1] - rawClickedYpos;
 
@@ -384,27 +417,46 @@ namespace Neon3D
 
             newForm.PrintDebug(Convert.ToString(localScreenClickedX) + ":" + Convert.ToString((localScreenClickedY)) + " \n");
 
-            if ((!isXdefined && isYdefined && !isZdefined) || (isXdefined && !isYdefined && !isZdefined))
+            int range = 8;
+            try
             {
                 newForm.PrintDebug("AMOUNT OF INDEXES: " + drawer.allNodes.Length / 3 + "\n");
                 for (int i = 0; i < (drawer.allNodes.Length / 3); i++)
                 {
+                    /*
 
-                   
-                        if ((localScreenClickedX > drawer.allNodes[i, 0] - 8 &&
-                            localScreenClickedX < drawer.allNodes[i, 0] + 8) &&
-                            (localScreenClickedY > drawer.allNodes[i, 2] - 8 &&
-                            localScreenClickedY < drawer.allNodes[i, 2] + 8))
-                        {
+                        
+                    */
 
-                            newForm.PrintDebug("NODE WITH INDEX: " + i+ " SELECTED!\n");
-                            drawer.selectedNodes[drawer.selectedArrayLastIndex] = i;
-                            drawer.selectedArrayLastIndex++;
-                        }
-                    
+                    if (((localScreenClickedX > drawer.allNodes[i, 0] - range &&
+                        localScreenClickedX < drawer.allNodes[i, 0] + range) &&
+                        (localScreenClickedY > drawer.allNodes[i, 2] - range &&
+                        localScreenClickedY < drawer.allNodes[i, 2] + range)) || (
+                        (localScreenClickedX > drawer.allNodes[i, 0] - range &&
+                        localScreenClickedX < drawer.allNodes[i, 0] + range) &&
+                        (localScreenClickedY > drawer.allNodes[i, 1] - range &&
+                        localScreenClickedY < drawer.allNodes[i, 1] + range)) || 
+                        ((localScreenClickedY > drawer.allNodes[i, 1] - range &&
+                        localScreenClickedY < drawer.allNodes[i, 1] + range) &&
+                        (localScreenClickedX > drawer.allNodes[i, 2] - range &&
+                        localScreenClickedX < drawer.allNodes[i, 2] + range)))
+                    {
+
+                        newForm.PrintDebug("NODE WITH INDEX: " + i + " SELECTED!\n");
+                        drawer.selectedNodes[drawer.selectedArrayLastIndex] = i;
+                        drawer.selectedArrayLastIndex++;
+                    } 
+
                 }
             }
-        }
+            catch(Exception ex)
+            {
+                newForm.PrintDebug("ERROR: " + ex.ToString() + "\n");
+            }
+                
+              
+            }
+        
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {

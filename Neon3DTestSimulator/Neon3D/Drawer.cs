@@ -61,7 +61,13 @@ namespace Neon3D
             Graphics g = mainForm.CreateGraphics();
             if (x != 0 && y != 0)
             {
-                g.FillRectangle(aBrush, x, y, size, size);
+                try
+                {
+                    g.FillRectangle(aBrush, x, y, size, size);
+                } catch (Exception e)
+                {
+                    DebugCallBack("derp");
+                }
             }
 
         }
@@ -134,7 +140,7 @@ namespace Neon3D
                 catch (Exception e)
                 {
                     DebugCallBack("Error: " + e.ToString() + " \n");
-                    y = 540;
+                    y = globalScreenInformation[0][1];
                 }
 
                 //drawing all pixels of beam between nodes
@@ -208,13 +214,6 @@ namespace Neon3D
                         starteEndnodes[lineCounter, 1, 2] = allNodes[selectedNodes[i + 1].Value, 2];
                         lineCounter++;
 
-                        int screen = 0;
-                        drawPixel((int)allNodes[selectedNodes[i].Value, 0] + (globalScreenInformation[screen][0] / 2), (globalScreenInformation[screen][1] / 2) - (int)allNodes[selectedNodes[i].Value, 2], 4, 255, 0, 0);
-                        drawPixel((int)allNodes[selectedNodes[i + 1].Value, 0] + (globalScreenInformation[screen][0] / 2), (globalScreenInformation[screen][1] / 2) - (int)allNodes[selectedNodes[i + 1].Value, 2], 4, 255, 0, 0);
-
-                        drawPixel((int)allNodes[selectedNodes[i].Value, 0] + (globalScreenInformation[screen][0] / 2), ((globalScreenInformation[screen][1] / 2) * 3) - (int)allNodes[selectedNodes[i].Value, 1], 4, 255, 0, 0);
-                        drawPixel((int)allNodes[selectedNodes[i + 1].Value, 0] + (globalScreenInformation[screen][0] / 2), ((globalScreenInformation[screen][1] / 2) * 3) - (int)allNodes[selectedNodes[i + 1].Value, 1], 4, 255, 0, 0);
-
                         selectedNodes = new int?[maxLines * 2];
                         selectedArrayLastIndex = 0;
                         break;
@@ -276,24 +275,51 @@ namespace Neon3D
 
                     for (int selectedcounter = 0; selectedcounter < selectedNodes.Length; selectedcounter++)
                     {
+
+
+                        switch (screen)
+                        {
+                            case 1:
+                                if (zoomscreen != prevousZoomScreenTL)
+                                {
+                                    removePixel((int)(((startx * prevousZoomScreenTL) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * prevousZoomScreenTL))), 4);
+                                }
+                                break;
+                            case 2:
+                                if (zoomscreen != prevousZoomScreenTR)
+                                {
+                                    removePixel((int)(((startx * prevousZoomScreenTR) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * prevousZoomScreenTR))), 4);
+                                }
+                                break;
+                            case 3:
+                                if (zoomscreen != prevousZoomScreenBL)
+                                {
+                                    removePixel((int)(((startx * prevousZoomScreenBL) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * prevousZoomScreenBL))), 4);
+                                }
+                                break;
+                            case 4:
+                                if (zoomscreen != prevousZoomScreenBR)
+                                {
+                                    removePixel((int)(((startx * prevousZoomScreenBR) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * prevousZoomScreenBR))), 4);
+                                }
+                                break;
+                        }
+
                         if (selectedNodes[selectedcounter] != null)
                         {
                             if (selectedNodes[selectedcounter].Value == i)
                             {
-                                drawPixel((int)startx + globalScreenInformation[screen][0], globalScreenInformation[screen][1] - (int)starty, 4, 0, 255, 0);
-                                drawPixel((int)startx + globalScreenInformation[screen][0], globalScreenInformation[screen][1] - (int)starty, 4, 0, 255, 0);
+                                drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 0, 255, 0);
                                 break;
                             }
                             else
                             {
-                                drawPixel((int)startx + globalScreenInformation[screen][0], globalScreenInformation[screen][1] - (int)starty, 4, 255, 0, 0);
-                                drawPixel((int)startx + globalScreenInformation[screen][0], globalScreenInformation[screen][1] - (int)starty, 4, 255, 0, 0);
+                                drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
                             }
                         }
                         else
                         {
-                            drawPixel((int)startx + globalScreenInformation[screen][0], globalScreenInformation[screen][1] - (int)starty, 4, 255, 0, 0);
-                            drawPixel((int)startx + globalScreenInformation[screen][0], globalScreenInformation[screen][1] - (int)starty, 4, 255, 0, 0);
+                            drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
                         }
                     }
                 }
@@ -338,42 +364,41 @@ namespace Neon3D
                         startx = -startz;
                         endx = -endz;
                     }
-
-
+                    
                     switch (screen)
                     {
                         case 1:
                             if(zoomscreen != prevousZoomScreenTL)
                             {
-                                drawLine(startx * prevousZoomScreenTL, starty * prevousZoomScreenTL, endx * prevousZoomScreenTL, endy * prevousZoomScreenTL, globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                                drawLine((startx * prevousZoomScreenTL), (starty * prevousZoomScreenTL), (endx * prevousZoomScreenTL), (endy * prevousZoomScreenTL) , globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
                                
                             }
                             break;
                         case 2:
                             if (zoomscreen != prevousZoomScreenTR)
                             {
-                                drawLine(startx * prevousZoomScreenTR, starty * prevousZoomScreenTR, endx * prevousZoomScreenTR, endy * prevousZoomScreenTR, globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                                drawLine((startx * prevousZoomScreenTR), (starty * prevousZoomScreenTR), (endx * prevousZoomScreenTR), (endy * prevousZoomScreenTR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
                              
                             }
                             break;
                         case 3:
                             if (zoomscreen != prevousZoomScreenBL)
                             {
-                                drawLine(startx * prevousZoomScreenBL, starty * prevousZoomScreenBL, endx * prevousZoomScreenBL, endy * prevousZoomScreenBL, globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                                drawLine((startx * prevousZoomScreenBL), (starty * prevousZoomScreenBL), (endx * prevousZoomScreenBL), (endy * prevousZoomScreenBL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
                                 
                             }
                             break;
                         case 4:
                             if (zoomscreen != prevousZoomScreenBR)
                             {
-                                drawLine(startx * prevousZoomScreenBR, starty * prevousZoomScreenBR, endx * prevousZoomScreenBR, endy * prevousZoomScreenBR, globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                                drawLine((startx * prevousZoomScreenBR), (starty * prevousZoomScreenBR), (endx * prevousZoomScreenBR), (endy * prevousZoomScreenBR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
                                
                             }
                             break;
                     }
 
 
-                    drawLine(startx * zoomscreen, starty * zoomscreen, endx * zoomscreen, endy * zoomscreen, globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+                    drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
 
                 }
             }
