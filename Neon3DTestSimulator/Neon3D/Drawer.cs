@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Neon3D
 {
-    class Drawer
+    class Drawer : Form
     {
         //constructor
         private Form1 mainForm = null;
@@ -23,7 +23,7 @@ namespace Neon3D
 
         //global trackers
         public int lineCounter { get; set; }
-        public int selectedArrayLastIndex{ get; set; }
+        public int selectedArrayLastIndex { get; set; }
         public int maxLines { get; set; }
 
         //midpoints
@@ -41,6 +41,106 @@ namespace Neon3D
             lineCounter = 0;
             selectedArrayLastIndex = 0;
 
+        }
+
+        public void setArrays(string array)
+        {
+            /* array example */
+            /*
+                [0, [0,[0,-159],[1,112],[2,115]], [1,[0,78],[1,133],[2,102]]]
+                [1, [0,[0,78],[1,133],[2,102]], [1,[0,222],[1,144],[2,185]]]
+                [2, [0,[0,-159],[1,112],[2,115]], [1,[0,222],[1,144],[2,185]]]
+            */
+            string[] stringLines = array.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+            DebugCallBack("first index of stringLines: " + stringLines[0] + " \n");
+            foreach (string stringlines in stringLines)
+            {
+                if(stringlines != "" || stringlines != null)
+                {
+                    DebugCallBack("stringline: " + stringlines + " \n");
+                    try
+                    {
+
+                        string[] parts = stringlines.Split('[');
+                        int lineIndex = Int32.Parse(parts[1].Split(',')[0]);
+                        int startNodeX = Int32.Parse(parts[3].Split(',')[1].Split(']')[0]);
+                        int startNodeY = Int32.Parse(parts[4].Split(',')[1].Split(']')[0]);
+                        int startNodeZ = Int32.Parse(parts[5].Split(',')[1].Split(']')[0]);
+                        int endNodeX = Int32.Parse(parts[7].Split(',')[1].Split(']')[0]);
+                        int endNodeY = Int32.Parse(parts[8].Split(',')[1].Split(']')[0]);
+                        int endNodeZ = Int32.Parse(parts[9].Split(',')[1].Split(']')[0]);
+                        starteEndnodes[lineCounter + lineIndex, 0, 0] = startNodeX;
+                        starteEndnodes[lineCounter + lineIndex, 0, 1] = startNodeY;
+                        starteEndnodes[lineCounter + lineIndex, 0, 2] = startNodeZ;
+                        starteEndnodes[lineCounter + lineIndex, 1, 0] = endNodeX;
+                        starteEndnodes[lineCounter + lineIndex, 1, 1] = endNodeY;
+                        starteEndnodes[lineCounter + lineIndex, 1, 2] = endNodeZ;
+
+                        bool added = false;
+                        for (int i = 0; i < (allNodes.Length); i++)
+                        {
+                            if (allNodes[i, 0] == null)
+                            {
+                                allNodes[i, 0] = startNodeX;
+                                allNodes[i, 1] = startNodeY;
+                                allNodes[i, 2] = startNodeZ;
+                                allNodes[i + 1, 0] = startNodeX;
+                                allNodes[i + 1, 1] = startNodeY;
+                                allNodes[i + 1, 2] = startNodeZ;
+                                added = true;
+                                break;
+                            }
+                        }
+
+                        if (!added)
+                        {
+                            DebugCallBack("Could not add node to nodelist, array reached limit! \n");
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugCallBack("Cannot read line and nodes! \n");
+                        DebugCallBack(e.ToString() + "\n");
+                    }
+                }
+            }
+        }
+
+        public string generateString()
+        {
+            /* array example */
+            /*
+                [0, [0, [0, "x"],[1,"y"],[2,"z"]] , [1,[0, "x"],[1,"y"],[2,"z"]]]  *line 0
+                [1, [0, [0, "x"],[1,"y"],[2,"z"]] , [1,[0, "x"],[1,"y"],[2,"z"]]]  *line 1
+            */
+            int bound0 = starteEndnodes.GetUpperBound(0);
+            int bound1 = starteEndnodes.GetUpperBound(1);
+            int bound2 = starteEndnodes.GetUpperBound(2);
+
+            StringBuilder buildAstring = new StringBuilder();
+            for (int variable0 = 0; variable0 <= bound0; variable0++)
+            {
+                if(starteEndnodes[variable0, 0, 0] != null)
+                {
+                    buildAstring.Append("[" + variable0.ToString());
+                    for (int variable1 = 0; variable1 <= bound1; variable1++)
+                    {
+                        buildAstring.Append(", [" + variable1.ToString());
+                        for (int variable2 = 0; variable2 <= bound2; variable2++)
+                        {
+                            double? value = starteEndnodes[variable0, variable1, variable2];
+                            buildAstring.Append(",[" + variable2.ToString() + "," + value + "]");
+                        }
+                        buildAstring.Append("]");
+                    }
+                    buildAstring.Append("]" + Environment.NewLine);
+                } else
+                {
+                    break;
+                }
+            }
+            return buildAstring.ToString();
         }
 
         public void drawPixel(int x, int y, int size, int redValue, int greenValue, int blueValue)

@@ -32,6 +32,8 @@
             this.ResetScr = new System.Windows.Forms.Button();
             this.Debug = new System.Windows.Forms.RichTextBox();
             this.drawLines = new System.Windows.Forms.Button();
+            this.OpenFile = new System.Windows.Forms.Button();
+            this.SaveAs = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // resetNodes
@@ -76,11 +78,33 @@
             this.drawLines.UseVisualStyleBackColor = true;
             this.drawLines.Click += new System.EventHandler(this.drawLines_Click);
             // 
+            // OpenFile
+            // 
+            this.OpenFile.Location = new System.Drawing.Point(26, 381);
+            this.OpenFile.Name = "OpenFile";
+            this.OpenFile.Size = new System.Drawing.Size(310, 23);
+            this.OpenFile.TabIndex = 15;
+            this.OpenFile.Text = "Open File";
+            this.OpenFile.UseVisualStyleBackColor = true;
+            this.OpenFile.Click += new System.EventHandler(this.OpenFile_Click);
+            // 
+            // SaveAs
+            // 
+            this.SaveAs.Location = new System.Drawing.Point(26, 410);
+            this.SaveAs.Name = "SaveAs";
+            this.SaveAs.Size = new System.Drawing.Size(310, 23);
+            this.SaveAs.TabIndex = 16;
+            this.SaveAs.Text = "Save As";
+            this.SaveAs.UseVisualStyleBackColor = true;
+            this.SaveAs.Click += new System.EventHandler(this.SaveAs_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(350, 448);
+            this.Controls.Add(this.SaveAs);
+            this.Controls.Add(this.OpenFile);
             this.Controls.Add(this.drawLines);
             this.Controls.Add(this.resetNodes);
             this.Controls.Add(this.ResetScr);
@@ -98,5 +122,7 @@
         private System.Windows.Forms.Button ResetScr;
         private System.Windows.Forms.RichTextBox Debug;
         private System.Windows.Forms.Button drawLines;
+        private System.Windows.Forms.Button OpenFile;
+        private System.Windows.Forms.Button SaveAs;
     }
 }

@@ -78,6 +78,15 @@ namespace Neon3D
             wekeepdrawing.Start();
 
         }
+        public string generateString()
+        {
+            return drawer.generateString();
+        }
+
+        public void setArrays(string array)
+        {
+            drawer.setArrays(array);
+        }
 
         private void debugCallback(string msg)
         {
@@ -423,10 +432,7 @@ namespace Neon3D
                 newForm.PrintDebug("AMOUNT OF INDEXES: " + drawer.allNodes.Length / 3 + "\n");
                 for (int i = 0; i < (drawer.allNodes.Length / 3); i++)
                 {
-                    /*
-
-                        
-                    */
+                    
 
                     if (((localScreenClickedX > drawer.allNodes[i, 0] - range &&
                         localScreenClickedX < drawer.allNodes[i, 0] + range) &&
