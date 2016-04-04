@@ -23,6 +23,11 @@ namespace Neon3D
         public double zoomBottomLeft = 1;
         public double zoomBottomRight = 1;
 
+        public int rotationTopLeft = 0;
+        public int rotationTopRight = 0;
+        public int rotationBottomLeft = 0;
+        public int rotationBottomRight = 0;
+
         public int[] fullScrMP = new int[2];
         public int[] topLeftMP = new int[2];
         public int[] topRightMP = new int[2];
@@ -30,6 +35,9 @@ namespace Neon3D
         public int[] bottomRightMP = new int[2];
         public int[][] screenInformation = new int[5][];
         public bool zoomed = false;
+        public bool leftKeyIsPressed = false;
+        public bool rightKeyIsPressed = false;
+        public int rotation = 0;
 
         public int tempStartX = 0;
         public int tempStartY = 0;
@@ -44,9 +52,10 @@ namespace Neon3D
 
 
 
-        Form2 newForm;
+        public static Form2 newForm;
         Thread wekeepdrawing;
         Thread wekeeptrackofourcursor;
+        Thread wekeeptrackofourrotation;
         Drawer drawer;
 
         private void Form1_Load(object sender, EventArgs e)
@@ -76,6 +85,8 @@ namespace Neon3D
             wekeeptrackofourcursor.Start();
             wekeepdrawing = new Thread(new ThreadStart(keepdrawingScreens));
             wekeepdrawing.Start();
+            wekeeptrackofourrotation = new Thread(new ThreadStart(() => keepTrackOfRotation()));
+            wekeeptrackofourrotation.Start();
 
         }
         public string generateString()
@@ -96,6 +107,127 @@ namespace Neon3D
         private void Form1_Shown(object sender, EventArgs e)
         {
             resetScreen();
+        }
+        
+        private void keepTrackOfRotation()
+        {
+            while (true)
+            {
+                switch (whichScreenSelected)
+                {
+                    case 1: //top left
+                        if (rightKeyIsPressed)
+                        {
+                            rightKeyIsPressed = false;
+                            leftKeyIsPressed = false;
+                            if (rotationTopLeft == 361)
+                            {
+                                rotationTopLeft = 0;
+                            }
+                            rotationTopLeft++;
+                        }
+                        else if (leftKeyIsPressed)
+                        {
+                            rightKeyIsPressed = false;
+                            leftKeyIsPressed = false;
+                            if (rotationTopLeft == -1)
+                            {
+                                rotationTopLeft = 360;
+                            }
+                            rotationTopLeft--;
+                        }
+                        this.Invoke((MethodInvoker)delegate {
+                            RotationTL.Text = "Rotation: " + rotationTopLeft.ToString();
+                        });
+                        
+                        break;
+
+                    case 2: //top right
+                        if (rightKeyIsPressed)
+                        {
+                            rightKeyIsPressed = false;
+                            leftKeyIsPressed = false;
+                            if (rotationTopRight == 361)
+                            {
+                                rotationTopRight = 0;
+                            }
+                            rotationTopRight++;
+                        }
+                        else if (leftKeyIsPressed)
+                        {
+                            rightKeyIsPressed = false;
+                            leftKeyIsPressed = false;
+                            if (rotationTopRight == -1)
+                            {
+                                rotationTopRight = 360;
+                            }
+                            rotationTopRight--;
+                        }
+                        this.Invoke((MethodInvoker)delegate {
+                            RotationTR.Text = "Rotation: " + rotationTopRight.ToString();
+                        });
+                        break;
+
+                    case 3://bottom left
+                        if (rightKeyIsPressed)
+                        {
+                            rightKeyIsPressed = false;
+                            leftKeyIsPressed = false;
+                            if (rotationBottomLeft == 361)
+                            {
+                                rotationBottomLeft = 0;
+                            }
+                            rotationBottomLeft++;
+                        }
+                        else if (leftKeyIsPressed)
+                        {
+                            rightKeyIsPressed = false;
+                            leftKeyIsPressed = false;
+                            if (rotationBottomLeft == -1)
+                            {
+                                rotationBottomLeft = 360;
+                            }
+                            rotationBottomLeft--;
+                        }
+                        try
+                        {
+                            this.Invoke((MethodInvoker)delegate {
+                                RotationBL.Text = "Rotation: " + rotationBottomLeft.ToString();
+                            });
+                        }
+                        catch (Exception ex) { }
+
+                        
+                        break;
+
+                    case 4://bottom right
+                        if (rightKeyIsPressed)
+                        {
+                            rightKeyIsPressed = false;
+                            leftKeyIsPressed = false;
+                            if (rotationBottomRight == 361)
+                            {
+                                rotationBottomRight = 0;
+                            }
+                            rotationBottomRight++;
+                        }
+                        else if (leftKeyIsPressed)
+                        {
+                            rightKeyIsPressed = false;
+                            leftKeyIsPressed = false;
+                            if (rotationBottomRight == -1)
+                            {
+                                rotationBottomRight = 360;
+                            }
+                            rotationBottomRight--;
+                        }
+                        this.Invoke((MethodInvoker)delegate {
+                            RotationBR.Text = "Rotation: " + rotationBottomRight.ToString();
+                        });
+                        break;
+                }
+                Thread.Sleep(100);
+            }
         }
 
         private void checkCursorScreenPosition(int midpointx, int midpointy)
@@ -219,10 +351,11 @@ namespace Neon3D
 
             while (true)
             {
-                drawer.drawNodes(0, 1, zoomTopLeft); // top left "TOP"
-                drawer.drawNodes(4, 2, zoomTopRight); //top right "RIGHT"
-                drawer.drawNodes(2, 3, zoomBottomLeft); //bottom left "FRONT"
-                drawer.drawNodes(6, 4, zoomBottomRight); // bottom right "3D"
+
+                drawer.drawNodes(2, 3, zoomBottomLeft, rotationBottomLeft); //bottom left "FRONT"
+                drawer.drawNodes(0, 1, zoomTopLeft, rotationTopLeft); // top left "TOP"
+                drawer.drawNodes(4, 2, zoomTopRight, rotationTopRight); //top right "RIGHT"
+                drawer.drawNodes(6, 4, zoomBottomRight, rotationBottomRight); // bottom right "3D"
             }
             
         }
@@ -249,10 +382,18 @@ namespace Neon3D
             zoomBottomRight = 1;
             zoomTopLeft = 1;
             zoomTopRight = 1;
-            zoomBL.Text = zoomBottomLeft.ToString();
-            zoomBR.Text = zoomBottomRight.ToString();
-            zoomTR.Text = zoomTopRight.ToString();
-            zoomTL.Text = zoomTopLeft.ToString();
+            rotationTopLeft = 0;
+            rotationTopRight = 0;
+            rotationBottomLeft = 0;
+            rotationBottomRight = 0;
+            RotationTL.Text = "Rotation: " + rotationTopLeft.ToString();
+            RotationTR.Text = "Rotation: " + rotationTopRight.ToString();
+            RotationBL.Text = "Rotation: " + rotationBottomLeft.ToString();
+            RotationBR.Text = "Rotation: " + rotationBottomRight.ToString();
+            zoomBL.Text = "Zoom: " + zoomBottomLeft.ToString();
+            zoomBR.Text = "Zoom: " + zoomBottomRight.ToString();
+            zoomTR.Text = "Zoom: " + zoomTopRight.ToString();
+            zoomTL.Text = "Zoom: " + zoomTopLeft.ToString();
 
             drawer.drawAxMatrix(0, 255, 0, 0, 6);
             drawInsideAxles(4);
@@ -476,12 +617,54 @@ namespace Neon3D
             {
                 resetNodes();
                 resetScreen();
-            }
+            } else if (e.KeyData == Keys.Right)
+            {
+                
+                leftKeyIsPressed = false;
+                rightKeyIsPressed = true;
+            } else if (e.KeyData == Keys.Left)
+            {
+
+                rightKeyIsPressed = false;
+                leftKeyIsPressed = true;
+            } 
         }
 
         public void createLines()
         {
             drawer.createLines();
+        }
+
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData == Keys.Right)
+            {
+                while (drawer.isStillDrawing) ;
+                Brush aBrush = (Brush)Brushes.White;
+                Graphics g = this.CreateGraphics();
+
+                g.FillRectangle(aBrush, 0, 0, 1920, 1080);
+
+                drawer.drawAxMatrix(0, 255, 0, 0, 6);
+                drawInsideAxles(4);
+
+                leftKeyIsPressed = false;
+                rightKeyIsPressed = false;
+            }
+            else if (e.KeyData == Keys.Left)
+            {
+                while (drawer.isStillDrawing) ;
+                Brush aBrush = (Brush)Brushes.White;
+                Graphics g = this.CreateGraphics();
+
+                g.FillRectangle(aBrush, 0, 0, 1920, 1080);
+
+                drawer.drawAxMatrix(0, 255, 0, 0, 6);
+                drawInsideAxles(4);
+
+                rightKeyIsPressed = false;
+                leftKeyIsPressed = false;
+            }
         }
     }
 }

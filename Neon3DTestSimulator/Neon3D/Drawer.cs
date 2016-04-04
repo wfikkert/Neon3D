@@ -26,6 +26,8 @@ namespace Neon3D
         public int selectedArrayLastIndex { get; set; }
         public int maxLines { get; set; }
 
+        public bool isStillDrawing { get; set; }
+
         //midpoints
         public int[][] globalScreenInformation;
 
@@ -87,6 +89,7 @@ namespace Neon3D
                                 allNodes[i + 1, 0] = startNodeX;
                                 allNodes[i + 1, 1] = startNodeY;
                                 allNodes[i + 1, 2] = startNodeZ;
+                                lineCounter = i;
                                 added = true;
                                 break;
                             }
@@ -332,8 +335,9 @@ namespace Neon3D
         public double prevousZoomScreenTR = 0;
         public double prevousZoomScreenBR = 0;
         public double prevousZoomScreenBL = 0;
-        public void drawNodes(int conv3dto2d, int screen, double zoomscreen)
+        public void drawNodes(int conv3dto2d, int screen, double zoomscreen, int rotation)
         {
+            isStillDrawing = true;
             int linesDrawn;
             double startx = 0;
             double starty = 0;
@@ -437,69 +441,118 @@ namespace Neon3D
                     endy = starteEndnodes[linesDrawn, 1, 1].Value;
                     endz = starteEndnodes[linesDrawn, 1, 2].Value;
 
+                    double rstartx = starteEndnodes[linesDrawn, 0, 0].Value;
+                    double rendx = starteEndnodes[linesDrawn, 1, 0].Value;
+                    double rstarty = starteEndnodes[linesDrawn, 0, 1].Value;
+                    double rstartz = starteEndnodes[linesDrawn, 0, 2].Value;
+                    double rendy = starteEndnodes[linesDrawn, 1, 1].Value;
+                    double rendz = starteEndnodes[linesDrawn, 1, 2].Value;
+
+
                     if (conv3dto2d == 0)
                     {
+
+                        double rotationdifferencestart = (((startx * -1) - (starty * -1)) / 90);
+                        double rotationdifferenceend = (((endx * -1) - (endy * -1)) / 90);
+                        startx = rstartx + (rotationdifferencestart * rotation);
+                        endx = rendx + (rotationdifferenceend * rotation);
                         starty = startz;
                         endy = endz;
                     }
                     else if (conv3dto2d == 1)
                     {
-                        startx = -startx;
+
+                        double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
+                        double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
+                        startx = - (rstartx + (rotationdifferencestart * rotation));
                         starty = startz;
-                        endx = -endx;
+                        endx = -(rendx + (rotationdifferenceend * rotation));
                         endy = endz;
+                    } else if(conv3dto2d == 2)
+                    {
+                        double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
+                        double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
+                        startx = rstartx + (rotationdifferencestart * rotation);
+                        endx = rendx + (rotationdifferenceend * rotation);
+
                     }
                     else if (conv3dto2d == 3)
                     {
+
+                        double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
+                        double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
                         startx = -startx;
                         endx = -endx;
                     }
                     else if (conv3dto2d == 4)
                     {
-                        startx = startz;
-                        endx = endz;
+
+                        double rotationdifferencestart = (((startz * -1) - (startx * -1)) / 90);
+                        double rotationdifferenceend = (((endz * -1) - (endx * -1)) / 90);
+                        startx = (rstartz + (rotationdifferencestart * rotation));
+                        endx = (rendz + (rotationdifferenceend * rotation));
                     }
                     else if (conv3dto2d == 5)
                     {
-                        startx = -startz;
-                        endx = -endz;
+
+                        double rotationdifferencestart = (((startz * -1) - (startx * -1)) / 90);
+                        double rotationdifferenceend = (((endz * -1) - (endx * -1)) / 90);
+                        startx = -(rstartz + (rotationdifferenceend * rotation));
+                        endx = -(rendz + (rotationdifferenceend * rotation));
                     }
-                    
+
                     switch (screen)
                     {
                         case 1:
-                            if(zoomscreen != prevousZoomScreenTL)
+                            if (zoomscreen != prevousZoomScreenTL)
                             {
-                                drawLine((startx * prevousZoomScreenTL), (starty * prevousZoomScreenTL), (endx * prevousZoomScreenTL), (endy * prevousZoomScreenTL) , globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
-                               
+                                drawLine((startx * prevousZoomScreenTL), (starty * prevousZoomScreenTL), (endx * prevousZoomScreenTL), (endy * prevousZoomScreenTL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+
+                            } else
+                            {
+                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+
                             }
+
+
                             break;
                         case 2:
                             if (zoomscreen != prevousZoomScreenTR)
                             {
                                 drawLine((startx * prevousZoomScreenTR), (starty * prevousZoomScreenTR), (endx * prevousZoomScreenTR), (endy * prevousZoomScreenTR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
-                             
+                                
+                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+
+                            }
+                            else
+                            {
+                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+
                             }
                             break;
                         case 3:
                             if (zoomscreen != prevousZoomScreenBL)
                             {
                                 drawLine((startx * prevousZoomScreenBL), (starty * prevousZoomScreenBL), (endx * prevousZoomScreenBL), (endy * prevousZoomScreenBL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
-                                
-                            }
-                            break;
-                        case 4:
-                            if (zoomscreen != prevousZoomScreenBR)
-                            {
-                                drawLine((startx * prevousZoomScreenBR), (starty * prevousZoomScreenBR), (endx * prevousZoomScreenBR), (endy * prevousZoomScreenBR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                             
+                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
                                
                             }
+                            else
+                            {
+                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+
+                            }
+
+                            break;
+                        case 4:
+                           
                             break;
                     }
+                    
 
-
-                    drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
-
+                   
                 }
             }
             switch (screen)
@@ -529,7 +582,7 @@ namespace Neon3D
                     }
                     break;
             }
-
+            isStillDrawing = false;
         }
     }
 }

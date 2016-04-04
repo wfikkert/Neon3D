@@ -48,7 +48,14 @@ namespace Neon3D
 
         public void PrintDebug(string tekst)
         {
-            Debug.AppendText(tekst);
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<string>(Debug.AppendText), new object[] {tekst });
+                return;
+            } else
+            {
+                Debug.AppendText(tekst);
+            }
         }
 
         private void drawLines_Click(object sender, EventArgs e)
