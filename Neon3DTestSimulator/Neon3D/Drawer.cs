@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace Neon3D
 {
     class Drawer : Form
@@ -335,7 +336,7 @@ namespace Neon3D
         public double prevousZoomScreenTR = 0;
         public double prevousZoomScreenBR = 0;
         public double prevousZoomScreenBL = 0;
-        public void drawNodes(int conv3dto2d, int screen, double zoomscreen, int rotation)
+        public void drawNodes(int conv3dto2d, int screen, double zoomscreen, int[] rotation)
         {
             isStillDrawing = true;
             int linesDrawn;
@@ -429,6 +430,13 @@ namespace Neon3D
                 }
             }
 
+            isStillDrawing = false;
+            double x1;
+            double y1;
+            double y2;
+            double x2;
+            double z1;
+            double z2;
 
             for (linesDrawn = 0; linesDrawn < maxLines; linesDrawn++)
             {
@@ -441,39 +449,94 @@ namespace Neon3D
                     endy = starteEndnodes[linesDrawn, 1, 1].Value;
                     endz = starteEndnodes[linesDrawn, 1, 2].Value;
 
-                    double rstartx = starteEndnodes[linesDrawn, 0, 0].Value;
-                    double rendx = starteEndnodes[linesDrawn, 1, 0].Value;
-                    double rstarty = starteEndnodes[linesDrawn, 0, 1].Value;
-                    double rstartz = starteEndnodes[linesDrawn, 0, 2].Value;
-                    double rendy = starteEndnodes[linesDrawn, 1, 1].Value;
-                    double rendz = starteEndnodes[linesDrawn, 1, 2].Value;
 
+                    x1 = startx;
+                    x2 = endx;
+                    y1 = starty;
+                    y2 = endy;
+                    z1 = startz;
+                    z2 = endz;
 
                     if (conv3dto2d == 0)
                     {
 
-                        double rotationdifferencestart = (((startx * -1) - (starty * -1)) / 90);
-                        double rotationdifferenceend = (((endx * -1) - (endy * -1)) / 90);
-                        startx = rstartx + (rotationdifferencestart * rotation);
-                        endx = rendx + (rotationdifferenceend * rotation);
-                        starty = startz;
-                        endy = endz;
+                        double rotationdifferencestart = 0;
+
+                        double rotationdifferenceend = 0;
+                        x1 = startx;
+                        x2 = endx;
+                        y1 = startz;
+                        y2 = endz;
+                        
+
+
+                       
+                        Form1.newForm.PrintDebug("Rotationdiffirence start: " + rotationdifferencestart.ToString() + ",\n Rotationdiffirence end: " + rotationdifferenceend.ToString() + ", \n rotation: " + rotation[0] + "\n");
+                        
+                        if (rotation[0] > 90 && rotation[0] <= 180)
+                        {
+                            rotationdifferencestart = ((((startx * -1) / 90) - ((starty) / 90)) );
+                            rotationdifferenceend = ((((endx * -1) / 90) - ((endy) / 90)));
+
+                            x1 = x1 + (rotationdifferencestart * rotation[0]);
+                            x2 = x2 + (rotationdifferenceend * rotation[0]);
+                            y1 = startz;
+                            y2 = endz;
+
+
+                        }
+                        else if (rotation[0]>180 && rotation[0] <= 270)
+                        {
+                            rotationdifferencestart = ((((startx) / 90) - ((starty) / 90))*-1);
+                            rotationdifferenceend = ((((endx) / 90) - ((endy) / 90))*-1);
+
+                            x1 = x1 + (rotationdifferencestart * rotation[0] * -1);
+                            x2 = x2 + (rotationdifferenceend * rotation[0] * -1);
+                            y1 = startz;
+                            y2 = endz;
+
+                        }
+                        else if(rotation[0] > 270)
+                        {
+                            rotationdifferencestart = (((startx) / 90) - ((starty) / 90));
+
+                            rotationdifferenceend = (((endx) / 90) - ((endy) / 90));
+
+                            y1 = startz;
+                            y2 = endz;
+                        }
+                        else
+                        {
+                             rotationdifferencestart = (((startx) / 90) - ((starty) / 90));
+
+                             rotationdifferenceend = (((endx) / 90) - ((endy) / 90));
+                            x1 = x1 + (rotationdifferencestart * rotation[0] * -1);
+                            x2 = x2 + (rotationdifferenceend * rotation[0] * -1);
+                            y1 = startz;
+                            y2 = endz;
+                        }
                     }
                     else if (conv3dto2d == 1)
                     {
 
                         double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
                         double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
-                        startx = - (rstartx + (rotationdifferencestart * rotation));
+                        startx = - (startx + (rotationdifferencestart * rotation[0]));
                         starty = startz;
-                        endx = -(rendx + (rotationdifferenceend * rotation));
+                        endx = -(endx + (rotationdifferenceend * rotation[0]));
                         endy = endz;
-                    } else if(conv3dto2d == 2)
+
+                        //Form1.newForm.PrintDebug("Rotationdiffirence start: " + rotationdifferencestart.ToString() + ",\n Rotationdiffirence end: " + rotationdifferenceend.ToString() + ", \n rotation: " + rotation[0] + "\n");
+
+                    }
+                    else if(conv3dto2d == 2)
                     {
                         double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
                         double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
-                        startx = rstartx + (rotationdifferencestart * rotation);
-                        endx = rendx + (rotationdifferenceend * rotation);
+                        startx = startx + (rotationdifferencestart * rotation[0]);
+                        endx = endx + (rotationdifferenceend * rotation[0]);
+
+                       // Form1.newForm.PrintDebug("Rotationdiffirence start: " + rotationdifferencestart.ToString() + ",\n Rotationdiffirence end: " + rotationdifferenceend.ToString() + ", \n rotation: " + rotation[0] + "\n");
 
                     }
                     else if (conv3dto2d == 3)
@@ -483,22 +546,28 @@ namespace Neon3D
                         double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
                         startx = -startx;
                         endx = -endx;
+                        //Form1.newForm.PrintDebug("Rotationdiffirence start: " + rotationdifferencestart.ToString() + ",\n Rotationdiffirence end: " + rotationdifferenceend.ToString() + ", \n rotation: " + rotation[0] + "\n");
+
                     }
                     else if (conv3dto2d == 4)
                     {
 
                         double rotationdifferencestart = (((startz * -1) - (startx * -1)) / 90);
                         double rotationdifferenceend = (((endz * -1) - (endx * -1)) / 90);
-                        startx = (rstartz + (rotationdifferencestart * rotation));
-                        endx = (rendz + (rotationdifferenceend * rotation));
+                        startx = (startz + (rotationdifferencestart * rotation[0]));
+                        endx = (endz + (rotationdifferenceend * rotation[0]));
+                       // Form1.newForm.PrintDebug("Rotationdiffirence start: " + rotationdifferencestart.ToString() + ",\n Rotationdiffirence end: " + rotationdifferenceend.ToString() + ", \n rotation: " + rotation[0] + "\n");
+
                     }
                     else if (conv3dto2d == 5)
                     {
 
                         double rotationdifferencestart = (((startz * -1) - (startx * -1)) / 90);
                         double rotationdifferenceend = (((endz * -1) - (endx * -1)) / 90);
-                        startx = -(rstartz + (rotationdifferenceend * rotation));
-                        endx = -(rendz + (rotationdifferenceend * rotation));
+                        startx = -(startz + (rotationdifferencestart * rotation[0]));
+                        endx = -(endz + (rotationdifferenceend * rotation[0]));
+                        //Form1.newForm.PrintDebug("Rotationdiffirence start: " + rotationdifferencestart.ToString() + ",\n Rotationdiffirence end: " + rotationdifferenceend.ToString() + ", \n rotation: " + rotation[0] + "\n");
+
                     }
 
                     switch (screen)
@@ -506,12 +575,12 @@ namespace Neon3D
                         case 1:
                             if (zoomscreen != prevousZoomScreenTL)
                             {
-                                drawLine((startx * prevousZoomScreenTL), (starty * prevousZoomScreenTL), (endx * prevousZoomScreenTL), (endy * prevousZoomScreenTL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
-                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+                                drawLine((x1 * prevousZoomScreenTL), (y1 * prevousZoomScreenTL), (x2 * prevousZoomScreenTL), (y2 * prevousZoomScreenTL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                                drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
 
                             } else
                             {
-                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+                                drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
 
                             }
 
@@ -520,28 +589,28 @@ namespace Neon3D
                         case 2:
                             if (zoomscreen != prevousZoomScreenTR)
                             {
-                                drawLine((startx * prevousZoomScreenTR), (starty * prevousZoomScreenTR), (endx * prevousZoomScreenTR), (endy * prevousZoomScreenTR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                                drawLine((x1 * prevousZoomScreenTR), (y1 * prevousZoomScreenTR), (x2 * prevousZoomScreenTR), (y2 * prevousZoomScreenTR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
                                 
-                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+                                drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
 
                             }
                             else
                             {
-                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+                                drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
 
                             }
                             break;
                         case 3:
                             if (zoomscreen != prevousZoomScreenBL)
                             {
-                                drawLine((startx * prevousZoomScreenBL), (starty * prevousZoomScreenBL), (endx * prevousZoomScreenBL), (endy * prevousZoomScreenBL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
+                                drawLine((x1 * prevousZoomScreenBL), (y1 * prevousZoomScreenBL), (x2 * prevousZoomScreenBL), (y2 * prevousZoomScreenBL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
                              
-                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+                                drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
                                
                             }
                             else
                             {
-                                drawLine((startx * zoomscreen), (starty * zoomscreen), (endx * zoomscreen), (endy * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
+                                drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
 
                             }
 
