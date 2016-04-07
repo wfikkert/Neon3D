@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 namespace Neon3D
@@ -64,9 +66,11 @@ namespace Neon3D
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            int wHeight = Screen.PrimaryScreen.Bounds.Height / 2; 
+            int wWidth = Screen.PrimaryScreen.Bounds.Width / 2;
 
-            fullScrMP[0] = 960;
-            fullScrMP[1] = 540;
+            fullScrMP[0] = wWidth;
+            fullScrMP[1] = wHeight;
             topLeftMP[0] =      fullScrMP[0] / 2;
             topLeftMP[1] =      fullScrMP[1] / 2;
             topRightMP[0] =     (fullScrMP[0] / 2) * 3;
@@ -90,8 +94,35 @@ namespace Neon3D
             rotationBottomRight[1] = 0;
 
             drawer = new Drawer(this,debugCallback,100,screenInformation);
-            newForm = new Form2(this); 
-            newForm.Show();
+            newForm = new Form2(this);
+
+
+            try
+            {
+                if (File.Exists("piramide.n3d"))
+                {
+                    FileStream myStream = new FileStream("piramide.n3d", FileMode.Open);
+
+                    if (myStream != null)
+                    {
+                        using (myStream)
+                        {
+                            // Insert code to read the stream here.
+                            StreamReader myReader = new StreamReader(myStream);
+                            using (myReader)
+                            {
+                                string data = myReader.ReadToEnd();
+                                setArrays(data);
+                            }
+                        }
+                    }
+                }
+               
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
+            }
 
             wekeeptrackofourcursor = new Thread(new ThreadStart(() => checkCursorScreenPosition(screenInformation[0][0], screenInformation[0][1])));
             wekeeptrackofourcursor.Start();
@@ -726,8 +757,18 @@ namespace Neon3D
             }
                 
               
-            }
+        }
         
+        private void refreshScreen()
+        {
+            Brush aBrush = (Brush)Brushes.White;
+            Graphics g = this.CreateGraphics();
+
+            g.FillRectangle(aBrush, 0, 0, 1920, 1080);
+
+            drawer.drawAxMatrix(0, 255, 0, 0, 6);
+            drawInsideAxles(4);
+        }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -760,6 +801,25 @@ namespace Neon3D
             {
                 upKeyIsPressed = false;
                 downKeyIsPressed = true;
+            } else if(e.KeyData == Keys.NumPad6)
+            {
+                rotationTopLeft[0] = 90;
+                refreshScreen();
+            }
+            else if (e.KeyData == Keys.NumPad4)
+            {
+                rotationTopLeft[0] = 270;
+                refreshScreen();
+            }
+            else if (e.KeyData == Keys.NumPad8)
+            {
+                rotationTopLeft[0] = 0;
+                refreshScreen();
+            }
+            else if (e.KeyData == Keys.NumPad2)
+            {
+                rotationTopLeft[0] = 180;
+                refreshScreen();
             }
         }
 
@@ -773,57 +833,114 @@ namespace Neon3D
             if (e.KeyData == Keys.Right)
             {
                 while (drawer.isStillDrawing) ;
-                Brush aBrush = (Brush)Brushes.White;
-                Graphics g = this.CreateGraphics();
-
-                g.FillRectangle(aBrush, 0, 0, 1920, 1080);
-
-                drawer.drawAxMatrix(0, 255, 0, 0, 6);
-                drawInsideAxles(4);
-
+                refreshScreen();
                 leftKeyIsPressed = false;
                 rightKeyIsPressed = false;
             }
             else if (e.KeyData == Keys.Left)
             {
                 while (drawer.isStillDrawing) ;
-                Brush aBrush = (Brush)Brushes.White;
-                Graphics g = this.CreateGraphics();
-
-                g.FillRectangle(aBrush, 0, 0, 1920, 1080);
-
-                drawer.drawAxMatrix(0, 255, 0, 0, 6);
-                drawInsideAxles(4);
-
+                refreshScreen();
                 rightKeyIsPressed = false;
                 leftKeyIsPressed = false;
             }else if(e.KeyData == Keys.Up)
             {
                 while (drawer.isStillDrawing) ;
-                Brush aBrush = (Brush)Brushes.White;
-                Graphics g = this.CreateGraphics();
-
-                g.FillRectangle(aBrush, 0, 0, 1920, 1080);
-
-                drawer.drawAxMatrix(0, 255, 0, 0, 6);
-                drawInsideAxles(4);
-
+                refreshScreen();
                 upKeyIsPressed = false;
                 downKeyIsPressed = false;
             }else if(e.KeyData == Keys.Down)
             {
                 while (drawer.isStillDrawing) ;
-                Brush aBrush = (Brush)Brushes.White;
-                Graphics g = this.CreateGraphics();
-
-                g.FillRectangle(aBrush, 0, 0, 1920, 1080);
-
-                drawer.drawAxMatrix(0, 255, 0, 0, 6);
-                drawInsideAxles(4);
+                refreshScreen();
 
                 upKeyIsPressed = false;
                 downKeyIsPressed = false;
             }
+        }
+
+        private void OpenFile_Click(object sender, EventArgs e)
+        {
+            Stream myStream = null;
+            StreamReader myReader = null;
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+
+
+            openFileDialog1.Filter = "Node3D Files (*.n3d*)|*.n3d*";
+            openFileDialog1.FilterIndex = 1;
+            openFileDialog1.RestoreDirectory = true;
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    if ((myStream = openFileDialog1.OpenFile()) != null)
+                    {
+                        using (myStream)
+                        {
+                            // Insert code to read the stream here.
+                            myReader = new StreamReader(myStream);
+                            using (myReader)
+                            {
+                                string data = myReader.ReadToEnd();
+                                setArrays(data);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
+                }
+            }
+        }
+
+        private void SaveAs_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.Filter = "Node3D Files (*.n3d*)|*.n3d*";
+            saveFileDialog1.FilterIndex = 1;
+            saveFileDialog1.ShowDialog();
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string name = saveFileDialog1.FileName;
+                newForm.PrintDebug("SAVING FILE TO: " + name + "\n");
+                using (FileStream fs = File.Create(name))
+                {
+                    Byte[] info = new UTF8Encoding(true).GetBytes(generateString());
+                    // Add some information to the file.
+                    fs.Write(info, 0, info.Length);
+                }
+            }
+        }
+
+        private void ResetScr_Click(object sender, EventArgs e)
+        {
+            resetScreen();
+        }
+
+        private void DeleteAllNodes_Click(object sender, EventArgs e)
+        {
+            resetNodes();
+        }
+
+        private void DrawLine_Click(object sender, EventArgs e)
+        {
+            createLines();
+        }
+
+        private void OpenDebug_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                newForm.Show();
+            }
+            catch
+            {
+                newForm = new Form2(this);
+                newForm.Show();
+            }
+            
         }
     }
 }

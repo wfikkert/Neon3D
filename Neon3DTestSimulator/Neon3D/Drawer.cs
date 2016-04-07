@@ -471,17 +471,17 @@ namespace Neon3D
 
 
                        
-                        Form1.newForm.PrintDebug("Rotationdiffirence start: " + rotationdifferencestart.ToString() + ",\n Rotationdiffirence end: " + rotationdifferenceend.ToString() + ", \n rotation: " + rotation[0] + "\n");
                         
                         if (rotation[0] > 90 && rotation[0] <= 180)
                         {
-                            rotationdifferencestart = ((((startx * -1) / 90) - ((starty) / 90)) );
-                            rotationdifferenceend = ((((endx * -1) / 90) - ((endy) / 90)));
+                            rotationdifferencestart = (((endx) / 90) - ((starty) / 90));
 
-                            x1 = x1 + (rotationdifferencestart * rotation[0]);
-                            x2 = x2 + (rotationdifferenceend * rotation[0]);
+                            rotationdifferenceend = (((startx) / 90) - ((endy) / 90));
+                            x1 = x1 + (rotationdifferencestart * (180 - rotation[0]) * -1);
+                            x2 = x2 + (rotationdifferenceend * (180 - rotation[0]) * -1);
                             y1 = startz;
                             y2 = endz;
+                            Form1.newForm.PrintDebug("Rotationdiffirence start: " + rotationdifferencestart.ToString() + ",\n Rotationdiffirence end: " + rotationdifferenceend.ToString() + ", \n rotation: " + rotation[0] + "\n");
 
 
                         }

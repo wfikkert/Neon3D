@@ -34,6 +34,7 @@
         private System.Windows.Forms.Label label3;
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.label1 = new System.Windows.Forms.Label();
             this.Front = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -46,12 +47,20 @@
             this.RotationBL = new System.Windows.Forms.Label();
             this.RotationTR = new System.Windows.Forms.Label();
             this.RotationBR = new System.Windows.Forms.Label();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.OpenFile = new System.Windows.Forms.ToolStripButton();
+            this.SaveAs = new System.Windows.Forms.ToolStripButton();
+            this.ResetScr = new System.Windows.Forms.ToolStripButton();
+            this.DeleteAllNodes = new System.Windows.Forms.ToolStripButton();
+            this.DrawLine = new System.Windows.Forms.ToolStripButton();
+            this.OpenDebug = new System.Windows.Forms.ToolStripButton();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 13);
+            this.label1.Location = new System.Drawing.Point(13, 39);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(26, 13);
             this.label1.TabIndex = 0;
@@ -69,7 +78,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(973, 13);
+            this.label2.Location = new System.Drawing.Point(973, 39);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(32, 13);
             this.label2.TabIndex = 2;
@@ -87,7 +96,7 @@
             // zoomTL
             // 
             this.zoomTL.AutoSize = true;
-            this.zoomTL.Location = new System.Drawing.Point(13, 26);
+            this.zoomTL.Location = new System.Drawing.Point(13, 52);
             this.zoomTL.Name = "zoomTL";
             this.zoomTL.Size = new System.Drawing.Size(51, 13);
             this.zoomTL.TabIndex = 4;
@@ -114,7 +123,7 @@
             // zoomTR
             // 
             this.zoomTR.AutoSize = true;
-            this.zoomTR.Location = new System.Drawing.Point(973, 26);
+            this.zoomTR.Location = new System.Drawing.Point(973, 52);
             this.zoomTR.Name = "zoomTR";
             this.zoomTR.Size = new System.Drawing.Size(51, 13);
             this.zoomTR.TabIndex = 7;
@@ -123,7 +132,7 @@
             // RotationTL
             // 
             this.RotationTL.AutoSize = true;
-            this.RotationTL.Location = new System.Drawing.Point(13, 39);
+            this.RotationTL.Location = new System.Drawing.Point(13, 65);
             this.RotationTL.Name = "RotationTL";
             this.RotationTL.Size = new System.Drawing.Size(59, 13);
             this.RotationTL.TabIndex = 8;
@@ -141,7 +150,7 @@
             // RotationTR
             // 
             this.RotationTR.AutoSize = true;
-            this.RotationTR.Location = new System.Drawing.Point(973, 39);
+            this.RotationTR.Location = new System.Drawing.Point(973, 65);
             this.RotationTR.Name = "RotationTR";
             this.RotationTR.Size = new System.Drawing.Size(59, 13);
             this.RotationTR.TabIndex = 10;
@@ -156,12 +165,90 @@
             this.RotationBR.TabIndex = 11;
             this.RotationBR.Text = "Rotation: 0";
             // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.OpenFile,
+            this.SaveAs,
+            this.ResetScr,
+            this.DeleteAllNodes,
+            this.DrawLine,
+            this.OpenDebug});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(1279, 25);
+            this.toolStrip1.TabIndex = 12;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // OpenFile
+            // 
+            this.OpenFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.OpenFile.Image = ((System.Drawing.Image)(resources.GetObject("OpenFile.Image")));
+            this.OpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.OpenFile.Name = "OpenFile";
+            this.OpenFile.Size = new System.Drawing.Size(40, 22);
+            this.OpenFile.Text = "Open";
+            this.OpenFile.Click += new System.EventHandler(this.OpenFile_Click);
+            // 
+            // SaveAs
+            // 
+            this.SaveAs.AutoSize = false;
+            this.SaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.SaveAs.Image = ((System.Drawing.Image)(resources.GetObject("SaveAs.Image")));
+            this.SaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.SaveAs.Name = "SaveAs";
+            this.SaveAs.Size = new System.Drawing.Size(51, 22);
+            this.SaveAs.Text = "Save As";
+            this.SaveAs.Click += new System.EventHandler(this.SaveAs_Click);
+            // 
+            // ResetScr
+            // 
+            this.ResetScr.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.ResetScr.Image = ((System.Drawing.Image)(resources.GetObject("ResetScr.Image")));
+            this.ResetScr.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ResetScr.Name = "ResetScr";
+            this.ResetScr.Size = new System.Drawing.Size(77, 22);
+            this.ResetScr.Text = "Reset Screen";
+            this.ResetScr.Click += new System.EventHandler(this.ResetScr_Click);
+            // 
+            // DeleteAllNodes
+            // 
+            this.DeleteAllNodes.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.DeleteAllNodes.Image = ((System.Drawing.Image)(resources.GetObject("DeleteAllNodes.Image")));
+            this.DeleteAllNodes.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.DeleteAllNodes.Name = "DeleteAllNodes";
+            this.DeleteAllNodes.Size = new System.Drawing.Size(98, 22);
+            this.DeleteAllNodes.Text = "Delete All Nodes";
+            this.DeleteAllNodes.Click += new System.EventHandler(this.DeleteAllNodes_Click);
+            // 
+            // DrawLine
+            // 
+            this.DrawLine.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.DrawLine.Image = ((System.Drawing.Image)(resources.GetObject("DrawLine.Image")));
+            this.DrawLine.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.DrawLine.Name = "DrawLine";
+            this.DrawLine.Size = new System.Drawing.Size(63, 22);
+            this.DrawLine.Text = "Draw Line";
+            this.DrawLine.Click += new System.EventHandler(this.DrawLine_Click);
+            // 
+            // OpenDebug
+            // 
+            this.OpenDebug.AutoToolTip = false;
+            this.OpenDebug.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.OpenDebug.Image = ((System.Drawing.Image)(resources.GetObject("OpenDebug.Image")));
+            this.OpenDebug.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.OpenDebug.Name = "OpenDebug";
+            this.OpenDebug.Size = new System.Drawing.Size(78, 22);
+            this.OpenDebug.Text = "Open Debug";
+            this.OpenDebug.Click += new System.EventHandler(this.OpenDebug_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1279, 648);
+            this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.RotationBR);
             this.Controls.Add(this.RotationTR);
             this.Controls.Add(this.RotationBL);
@@ -185,6 +272,8 @@
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseClick);
             this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseWheel);
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -201,6 +290,13 @@
         private System.Windows.Forms.Label RotationBL;
         private System.Windows.Forms.Label RotationTR;
         private System.Windows.Forms.Label RotationBR;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton OpenFile;
+        private System.Windows.Forms.ToolStripButton SaveAs;
+        private System.Windows.Forms.ToolStripButton ResetScr;
+        private System.Windows.Forms.ToolStripButton DeleteAllNodes;
+        private System.Windows.Forms.ToolStripButton DrawLine;
+        private System.Windows.Forms.ToolStripButton OpenDebug;
     }
 }
 
