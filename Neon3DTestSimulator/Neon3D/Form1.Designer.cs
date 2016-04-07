@@ -28,17 +28,17 @@
         /// </summary>
         /// 
 
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label TopLabel;
         private System.Windows.Forms.Label Front;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label Right;
+        private System.Windows.Forms.Label dried;
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.label1 = new System.Windows.Forms.Label();
+            this.TopLabel = new System.Windows.Forms.Label();
             this.Front = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.Right = new System.Windows.Forms.Label();
+            this.dried = new System.Windows.Forms.Label();
             this.zoomTL = new System.Windows.Forms.Label();
             this.zoomBL = new System.Windows.Forms.Label();
             this.zoomBR = new System.Windows.Forms.Label();
@@ -57,46 +57,41 @@
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // label1
+            // TopLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 39);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(26, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Top";
+            this.TopLabel.AutoSize = true;
+            this.TopLabel.Name = "TopLabel";
+            this.TopLabel.Size = new System.Drawing.Size(26, 13);
+            this.TopLabel.TabIndex = 0;
+            this.TopLabel.Text = "TopLabel";
             // 
             // Front
             // 
             this.Front.AutoSize = true;
-            this.Front.Location = new System.Drawing.Point(13, 553);
             this.Front.Name = "Front";
             this.Front.Size = new System.Drawing.Size(31, 13);
             this.Front.TabIndex = 1;
             this.Front.Text = "Front";
             // 
-            // label2
+            // Right
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(973, 39);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(32, 13);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Right";
+            this.Right.AutoSize = true;
+            this.Right.Name = "Right";
+            this.Right.Size = new System.Drawing.Size(32, 13);
+            this.Right.TabIndex = 2;
+            this.Right.Text = "Right";
             // 
-            // label3
+            // dried
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(973, 553);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(21, 13);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "3D";
+            this.dried.AutoSize = true;
+            this.dried.Name = "dried";
+            this.dried.Size = new System.Drawing.Size(21, 13);
+            this.dried.TabIndex = 3;
+            this.dried.Text = "3D";
             // 
             // zoomTL
             // 
             this.zoomTL.AutoSize = true;
-            this.zoomTL.Location = new System.Drawing.Point(13, 52);
             this.zoomTL.Name = "zoomTL";
             this.zoomTL.Size = new System.Drawing.Size(51, 13);
             this.zoomTL.TabIndex = 4;
@@ -105,7 +100,6 @@
             // zoomBL
             // 
             this.zoomBL.AutoSize = true;
-            this.zoomBL.Location = new System.Drawing.Point(13, 568);
             this.zoomBL.Name = "zoomBL";
             this.zoomBL.Size = new System.Drawing.Size(51, 13);
             this.zoomBL.TabIndex = 5;
@@ -114,7 +108,6 @@
             // zoomBR
             // 
             this.zoomBR.AutoSize = true;
-            this.zoomBR.Location = new System.Drawing.Point(973, 566);
             this.zoomBR.Name = "zoomBR";
             this.zoomBR.Size = new System.Drawing.Size(51, 13);
             this.zoomBR.TabIndex = 6;
@@ -123,7 +116,6 @@
             // zoomTR
             // 
             this.zoomTR.AutoSize = true;
-            this.zoomTR.Location = new System.Drawing.Point(973, 52);
             this.zoomTR.Name = "zoomTR";
             this.zoomTR.Size = new System.Drawing.Size(51, 13);
             this.zoomTR.TabIndex = 7;
@@ -132,7 +124,6 @@
             // RotationTL
             // 
             this.RotationTL.AutoSize = true;
-            this.RotationTL.Location = new System.Drawing.Point(13, 65);
             this.RotationTL.Name = "RotationTL";
             this.RotationTL.Size = new System.Drawing.Size(59, 13);
             this.RotationTL.TabIndex = 8;
@@ -141,7 +132,6 @@
             // RotationBL
             // 
             this.RotationBL.AutoSize = true;
-            this.RotationBL.Location = new System.Drawing.Point(13, 581);
             this.RotationBL.Name = "RotationBL";
             this.RotationBL.Size = new System.Drawing.Size(59, 13);
             this.RotationBL.TabIndex = 9;
@@ -150,7 +140,6 @@
             // RotationTR
             // 
             this.RotationTR.AutoSize = true;
-            this.RotationTR.Location = new System.Drawing.Point(973, 65);
             this.RotationTR.Name = "RotationTR";
             this.RotationTR.Size = new System.Drawing.Size(59, 13);
             this.RotationTR.TabIndex = 10;
@@ -159,7 +148,6 @@
             // RotationBR
             // 
             this.RotationBR.AutoSize = true;
-            this.RotationBR.Location = new System.Drawing.Point(973, 579);
             this.RotationBR.Name = "RotationBR";
             this.RotationBR.Size = new System.Drawing.Size(59, 13);
             this.RotationBR.TabIndex = 11;
@@ -257,10 +245,10 @@
             this.Controls.Add(this.zoomBR);
             this.Controls.Add(this.zoomBL);
             this.Controls.Add(this.zoomTL);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.dried);
+            this.Controls.Add(this.Right);
             this.Controls.Add(this.Front);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.TopLabel);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";

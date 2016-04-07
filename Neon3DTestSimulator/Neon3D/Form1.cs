@@ -83,7 +83,7 @@ namespace Neon3D
             screenInformation[1] = topLeftMP;
             screenInformation[2] = topRightMP;
             screenInformation[3] = bottomLeftMP;
-            screenInformation[4] = bottomLeftMP;
+            screenInformation[4] = bottomRightMP;
             rotationTopLeft[0] = 0;
             rotationTopLeft[1] = 0;
             rotationTopRight[0] = 0;
@@ -92,6 +92,32 @@ namespace Neon3D
             rotationBottomLeft[1] = 0;
             rotationBottomRight[0] = 0;
             rotationBottomRight[1] = 0;
+
+
+            TopLabel.Location = new System.Drawing.Point(13, 39);
+
+            Front.Location = new System.Drawing.Point(13, wHeight + 13);
+
+            Right.Location = new System.Drawing.Point(wWidth + 13, 39);
+
+            dried.Location = new System.Drawing.Point(wWidth + 13, wHeight + 13);
+
+            zoomTL.Location = new System.Drawing.Point(13, 52);
+
+            zoomBL.Location = new System.Drawing.Point(13, wHeight + 28);
+
+            zoomBR.Location = new System.Drawing.Point(wWidth + 13, wHeight + 28);
+
+            zoomTR.Location = new System.Drawing.Point(wWidth + 13, 52);
+
+            RotationTL.Location = new System.Drawing.Point(13, 65);
+
+            RotationBL.Location = new System.Drawing.Point(13, wHeight + 41);
+
+            RotationTR.Location = new System.Drawing.Point(wWidth + 13, 65);
+
+            RotationBR.Location = new System.Drawing.Point(wWidth + 13, wHeight + 41);
+
 
             drawer = new Drawer(this,debugCallback,100,screenInformation);
             newForm = new Form2(this);
@@ -566,7 +592,7 @@ namespace Neon3D
         public bool newNode = true;
         private void Form1_DoubleClick(object sender, EventArgs e)
         {
-            //createNode((Cursor.Position.X - this.Left) - 960 , 540 - (Cursor.Position.Y - this.Top), 0);
+            //createNode((Cursor.Position.X - this.Left) - 960 , 540 - (Cursor.Position.Y - this.TopLabel), 0);
 
             int localScreenClickedX = rawClickedXpos - screenInformation[whichScreenSelected][0];
             int localScreenClickedY = screenInformation[whichScreenSelected][1] - rawClickedYpos;
@@ -803,22 +829,22 @@ namespace Neon3D
                 downKeyIsPressed = true;
             } else if(e.KeyData == Keys.NumPad6)
             {
-                rotationTopLeft[0] = 90;
+                rotationBottomRight[0] = 90;
                 refreshScreen();
             }
             else if (e.KeyData == Keys.NumPad4)
             {
-                rotationTopLeft[0] = 270;
+                rotationBottomRight[0] = 270;
                 refreshScreen();
             }
             else if (e.KeyData == Keys.NumPad8)
             {
-                rotationTopLeft[0] = 0;
+                rotationBottomRight[0] = 0;
                 refreshScreen();
             }
             else if (e.KeyData == Keys.NumPad2)
             {
-                rotationTopLeft[0] = 180;
+                rotationBottomRight[0] = 180;
                 refreshScreen();
             }
         }
