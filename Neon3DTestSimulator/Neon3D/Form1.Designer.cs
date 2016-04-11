@@ -120,31 +120,7 @@
             this.zoomTR.Size = new System.Drawing.Size(51, 13);
             this.zoomTR.TabIndex = 7;
             this.zoomTR.Text = "Zoom: 1x";
-            // 
-            // RotationTL
-            // 
-            this.RotationTL.AutoSize = true;
-            this.RotationTL.Name = "RotationTL";
-            this.RotationTL.Size = new System.Drawing.Size(59, 13);
-            this.RotationTL.TabIndex = 8;
-            this.RotationTL.Text = "Rotation: 0";
-            // 
-            // RotationBL
-            // 
-            this.RotationBL.AutoSize = true;
-            this.RotationBL.Name = "RotationBL";
-            this.RotationBL.Size = new System.Drawing.Size(59, 13);
-            this.RotationBL.TabIndex = 9;
-            this.RotationBL.Text = "Rotation: 0";
-            // 
-            // RotationTR
-            // 
-            this.RotationTR.AutoSize = true;
-            this.RotationTR.Name = "RotationTR";
-            this.RotationTR.Size = new System.Drawing.Size(59, 13);
-            this.RotationTR.TabIndex = 10;
-            this.RotationTR.Text = "Rotation: 0";
-            // 
+            //
             // RotationBR
             // 
             this.RotationBR.AutoSize = true;

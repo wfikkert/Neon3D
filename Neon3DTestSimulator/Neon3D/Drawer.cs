@@ -348,6 +348,8 @@ namespace Neon3D
         public double prevz2 = 0;
 
 
+        public bool firstRotateX = false;
+        public bool firstRotateY = false;
 
         public void drawNodes(int conv3dto2d, int screen, double zoomscreen, int[] rotation)
         {
@@ -415,30 +417,29 @@ namespace Neon3D
                                     removePixel((int)(((startx * prevousZoomScreenBL) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * prevousZoomScreenBL))), 4);
                                 }
                                 break;
-                            case 4:
-                                if (zoomscreen != prevousZoomScreenBR)
-                                {
-                                    removePixel((int)(((startx * prevousZoomScreenBR) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * prevousZoomScreenBR))), 4);
-                                }
-                                break;
                         }
 
-                        if (selectedNodes[selectedcounter] != null)
+                        if(conv3dto2d != 6)
                         {
-                            if (selectedNodes[selectedcounter].Value == i)
+                            if (selectedNodes[selectedcounter] != null)
                             {
-                                drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 0, 255, 0);
-                                break;
+                                if (selectedNodes[selectedcounter].Value == i)
+                                {
+                                    drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 0, 255, 0);
+                                    break;
+                                }
+                                else
+                                {
+                                    drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
+                                }
                             }
                             else
                             {
                                 drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
                             }
-                        }
-                        else
-                        {
-                            drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
-                        }
+                        } 
+
+                       
                     }
                 }
             }
@@ -460,66 +461,27 @@ namespace Neon3D
                     if (conv3dto2d == 0)
                     {
 
-                        if (rotation[1] != 180 && rotation[1] != 0)
-                        {
-                            // y axle rotation x axle
-                            x1 = startx * Math.Cos(rotation[0] / 57.4) + startz * Math.Sin(rotation[0] / 57.4);
-                            x2 = endx * Math.Cos(rotation[0] / 57.4) + endz * Math.Sin(rotation[0] / 57.4);
-                            y1 = starty * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
-                            y2 = endy * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
-
-                        }
-                        else
-                        {
-                            //x axle rotation
-                            x1 = startx * Math.Cos(rotation[0] / 57.4) - starty * Math.Sin(rotation[0] / 57.4);
-                            x2 = endx * Math.Cos(rotation[0] / 57.4) - endy * Math.Sin(rotation[0] / 57.4);
-                            y1 = starty * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
-                            y2 = endy * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
-                        }
-
-                        if (rotation[0] != 180 && rotation[0] != 0)
-                        {
-
-                            // y rotation on z axle
-                            x1 = startx * Math.Cos(rotation[0] / 57.4) - starty * Math.Sin(rotation[0] / 57.4);
-                            x2 = endx * Math.Cos(rotation[0] / 57.4) - endy * Math.Sin(rotation[0] / 57.4);
-
-                            //−x sin θ + z cos θ
-                            y1 = -startx * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
-                            y2 = -endx * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
-
-                        }
-                        else
-                        {
-
-                            x1 = startx * Math.Cos(rotation[0] / 57.4) - starty * Math.Sin(rotation[0] / 57.4);
-                            x2 = endx * Math.Cos(rotation[0] / 57.4) - endy * Math.Sin(rotation[0] / 57.4);
-                            y1 = starty * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
-                            y2 = endy * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
-                        }
-
+                        x1 = startx;
+                        x2 = endx;
+                        y1 = startz;
+                        y2 = endz;
                         
 
                     }
                     else if (conv3dto2d == 1)
                     {
-
-                        double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
-                        double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
-                        startx = - (startx + (rotationdifferencestart * rotation[0]));
-                        starty = startz;
-                        endx = -(endx + (rotationdifferenceend * rotation[0]));
-                        endy = endz;
-
+                        x1 = -startx;
+                        x2 = -endx;
+                        y1 = startz;
+                        y2 = endz;
 
                     }
                     else if(conv3dto2d == 2)
                     {
-                        double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
-                        double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
-                        startx = startx + (rotationdifferencestart * rotation[0]);
-                        endx = endx + (rotationdifferenceend * rotation[0]);
+                        x1 = startx;
+                        x2 = endx;
+                        y1 = starty;
+                        y2 = endy;
 
 
                     }
@@ -535,60 +497,81 @@ namespace Neon3D
                     else if (conv3dto2d == 4)
                     {
 
-                        double rotationdifferencestart = (((startz * -1) - (startx * -1)) / 90);
-                        double rotationdifferenceend = (((endz * -1) - (endx * -1)) / 90);
-                        startx = (startz + (rotationdifferencestart * rotation[0]));
-                        endx = (endz + (rotationdifferenceend * rotation[0]));
+                        x1 = startz;
+                        x2 = endz;
 
                     }
                     else if (conv3dto2d == 5)
                     {
 
-                        double rotationdifferencestart = (((startz * -1) - (startx * -1)) / 90);
-                        double rotationdifferenceend = (((endz * -1) - (endx * -1)) / 90);
-                        startx = -(startz + (rotationdifferencestart * rotation[0]));
-                        endx = -(endz + (rotationdifferenceend * rotation[0]));
+                        x1 = -startz;
+                        x2 = -endz;
 
                     } else if(conv3dto2d == 6)
                     {
-                        if (rotation[1] != 180 && rotation[1] != 0)
-                        {
-                            // y axle rotation x axle
-                            x1 = startx * Math.Cos(rotation[0] / 57.4) + startz * Math.Sin(rotation[0] / 57.4);
-                            x2 = endx * Math.Cos(rotation[0] / 57.4) + endz * Math.Sin(rotation[0] / 57.4);
-                            y1 = starty * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
-                            y2 = endy * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
 
-                        }
-                        else
+                        // x axle rotation
+                        if(rotation[0] == 0)
                         {
+                          
+                            firstRotateY = true;
+                            firstRotateX = false;
                             //x axle rotation
                             x1 = startx * Math.Cos(rotation[0] / 57.4) - starty * Math.Sin(rotation[0] / 57.4);
                             x2 = endx * Math.Cos(rotation[0] / 57.4) - endy * Math.Sin(rotation[0] / 57.4);
                             y1 = starty * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
                             y2 = endy * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
-                        }
-
-                        if (rotation[0] != 180 && rotation[0] != 0)
-                        {
-
-                            // y rotation on z axle
-                            x1 = startx * Math.Cos(rotation[0] / 57.4) - starty * Math.Sin(rotation[0] / 57.4);
-                            x2 = endx * Math.Cos(rotation[0] / 57.4) - endy * Math.Sin(rotation[0] / 57.4);
-
-                            //−x sin θ + z cos θ
-                            y1 = -startx * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
-                            y2 = -endx * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
-
-                        }
-                        else
-                        {
+                            
+                        } else if(rotation[1] == 0){
+                            
+                            firstRotateY = false;
+                            firstRotateX = true;
 
                             x1 = startx * Math.Cos(rotation[0] / 57.4) - starty * Math.Sin(rotation[0] / 57.4);
                             x2 = endx * Math.Cos(rotation[0] / 57.4) - endy * Math.Sin(rotation[0] / 57.4);
                             y1 = starty * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
                             y2 = endy * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
                         }
+
+
+                        if (firstRotateY)
+                        {
+                            if (rotation[1] != 180 && rotation[1] != 0)
+                            {
+
+                                x1 = startx * Math.Cos(rotation[0] / 57.4) + startz * Math.Sin(rotation[0] / 57.4);
+                                x2 = endx * Math.Cos(rotation[0] / 57.4) + endy * Math.Sin(rotation[0] / 57.4);
+                                z1 = starty * Math.Sin(rotation[1] / 57.4) - startz * Math.Cos(rotation[1] / 57.4);
+                                z2 = endy * Math.Sin(rotation[1] / 57.4) - endz * Math.Cos(rotation[1] / 57.4);
+
+                                y1 = starty * Math.Cos(rotation[1] / 57.4) - z1 * Math.Sin(rotation[1] / 57.4);
+                                y2 = endy * Math.Cos(rotation[1] / 57.4) - z2 * Math.Sin(rotation[1] / 57.4);
+
+
+                            }
+                        }
+                        else if (firstRotateX)
+                        {
+                            if (rotation[0] != 180 && rotation[0] != 0)
+                            {
+
+                                // y rotation on z axle
+                                x1 = startx * Math.Cos(rotation[0] / 57.4) - starty * Math.Sin(rotation[0] / 57.4);
+                                x2 = endx * Math.Cos(rotation[0] / 57.4) - endy * Math.Sin(rotation[0] / 57.4);
+
+                                //−x sin θ + z cos θ
+
+                                x1 = x1 * Math.Cos(rotation[1] / 57.4) + startz * Math.Sin(rotation[1] / 57.4);
+                                x2 = x2 * Math.Cos(rotation[1] / 57.4) + endz * Math.Sin(rotation[1] / 57.4);
+                                y1 = -startx * Math.Sin(rotation[1] / 57.4) + startz * Math.Cos(rotation[1] / 57.4);
+                                y2 = -endx * Math.Sin(rotation[1] / 57.4) + endz * Math.Cos(rotation[1] / 57.4);
+
+                            }
+                        }
+
+
+                       
+
                     }
 
                     switch (screen)
@@ -683,6 +666,8 @@ namespace Neon3D
                     }
                     break;
             }
+            previousXRotation = rotation[0];
+            previousYRotation = rotation[1];
             isStillDrawing = false;
         }
     }
