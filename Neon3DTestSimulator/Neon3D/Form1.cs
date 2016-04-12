@@ -55,7 +55,8 @@ namespace Neon3D
         int rawClickedYpos = 0;
 
 
-
+        public int wHeight;
+        public int wWidth;
 
         public static Form2 newForm;
         Thread wekeepdrawing;
@@ -65,8 +66,8 @@ namespace Neon3D
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            int wHeight = Screen.PrimaryScreen.Bounds.Height / 2;
-            int wWidth = Screen.PrimaryScreen.Bounds.Width / 2;
+            wHeight = Screen.PrimaryScreen.Bounds.Height / 2;
+            wWidth = Screen.PrimaryScreen.Bounds.Width / 2;
 
             fullScrMP[0] = wWidth;
             fullScrMP[1] = wHeight;
@@ -393,7 +394,7 @@ namespace Neon3D
             Brush aBrush = (Brush)Brushes.White;
             Graphics g = this.CreateGraphics();
 
-            g.FillRectangle(aBrush, 0, 0, 1920, 1080);
+            g.FillRectangle(aBrush, 0, 0, wWidth*2, wHeight*2);
             zoomBottomLeft = 1;
             zoomBottomRight = 1;
             zoomTopLeft = 1;
@@ -628,10 +629,10 @@ namespace Neon3D
             Brush aBrush = (Brush)Brushes.White;
             Graphics g = this.CreateGraphics();
 
-            g.FillRectangle(aBrush, 0, 0, 1920, 1080);
+            g.FillRectangle(aBrush, wWidth+6, wHeight+6, wWidth*2, wHeight*2);
 
-            drawer.drawAxMatrix(0, 255, 0, 0, 6);
-            drawInsideAxles(4);
+            //drawer.drawAxMatrix(0, 255, 0, 0, 6);
+            //drawInsideAxles(4);
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
