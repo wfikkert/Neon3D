@@ -24,10 +24,10 @@ namespace Neon3D
         public double zoomTopRight = 1;
         public double zoomBottomLeft = 1;
         public double zoomBottomRight = 1;
-        
+
         public int[] rotationBottomRight = new int[3];
 
-        
+
 
         public int[] fullScrMP = new int[2];
         public int[] topLeftMP = new int[2];
@@ -36,12 +36,12 @@ namespace Neon3D
         public int[] bottomRightMP = new int[2];
         public int[][] screenInformation = new int[5][];
         public bool zoomed = false;
-        public bool upKeyIsPressed = false;
-        public bool downKeyIsPressed = false;
-        public bool leftKeyIsPressed = false;
-        public bool rightKeyIsPressed = false;
-        public bool ctrlLeftKeyIsPressed = false;
-        public bool ctrlRightKeyIsPressed = false;
+        public static bool upKeyIsPressed = false; //+y
+        public static bool downKeyIsPressed = false; //-y
+        public static bool leftKeyIsPressed = false; //+x
+        public static bool rightKeyIsPressed = false; //-x
+        public static bool ctrlLeftKeyIsPressed = false; //+z
+        public static bool ctrlRightKeyIsPressed = false; //-z
         public int rotation = 0;
 
         public int tempStartX = 0;
@@ -65,19 +65,19 @@ namespace Neon3D
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            int wHeight = Screen.PrimaryScreen.Bounds.Height / 2; 
+            int wHeight = Screen.PrimaryScreen.Bounds.Height / 2;
             int wWidth = Screen.PrimaryScreen.Bounds.Width / 2;
 
             fullScrMP[0] = wWidth;
             fullScrMP[1] = wHeight;
-            topLeftMP[0] =      fullScrMP[0] / 2;
-            topLeftMP[1] =      fullScrMP[1] / 2;
-            topRightMP[0] =     (fullScrMP[0] / 2) * 3;
-            topRightMP[1] =     fullScrMP[1] / 2;
-            bottomLeftMP[0] =   fullScrMP[0] / 2;
-            bottomLeftMP[1] =   (fullScrMP[1] / 2) * 3;
-            bottomRightMP[0] =  (fullScrMP[0] / 2) * 3;
-            bottomRightMP[1] =  (fullScrMP[1] / 2) * 3;
+            topLeftMP[0] = fullScrMP[0] / 2;
+            topLeftMP[1] = fullScrMP[1] / 2;
+            topRightMP[0] = (fullScrMP[0] / 2) * 3;
+            topRightMP[1] = fullScrMP[1] / 2;
+            bottomLeftMP[0] = fullScrMP[0] / 2;
+            bottomLeftMP[1] = (fullScrMP[1] / 2) * 3;
+            bottomRightMP[0] = (fullScrMP[0] / 2) * 3;
+            bottomRightMP[1] = (fullScrMP[1] / 2) * 3;
             screenInformation[0] = fullScrMP;
             screenInformation[1] = topLeftMP;
             screenInformation[2] = topRightMP;
@@ -106,7 +106,7 @@ namespace Neon3D
             RotationBR.Location = new System.Drawing.Point(wWidth + 13, wHeight + 41);
 
 
-            drawer = new Drawer(this,debugCallback,100,screenInformation);
+            drawer = new Drawer(this, debugCallback, 100, screenInformation);
             newForm = new Form2(this);
 
 
@@ -130,7 +130,7 @@ namespace Neon3D
                         }
                     }
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -164,7 +164,7 @@ namespace Neon3D
         {
             resetScreen();
         }
-        
+
         private void keepTrackOfRotation()
         {
             while (true)
@@ -223,7 +223,8 @@ namespace Neon3D
                         rotationBottomRight[2] = 0;
                     }
                     rotationBottomRight[2]++;
-                } else if (ctrlRightKeyIsPressed)
+                }
+                else if (ctrlRightKeyIsPressed)
                 {
                     ctrlLeftKeyIsPressed = false;
                     ctrlRightKeyIsPressed = false;
@@ -276,7 +277,7 @@ namespace Neon3D
                 }
                 Thread.Sleep(13);
             }
-            
+
         }
 
         private void Form1_MouseWheel(object sender, MouseEventArgs e)
@@ -352,7 +353,7 @@ namespace Neon3D
                     break;
             }
             zoomed = true;
-            
+
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -372,7 +373,7 @@ namespace Neon3D
                 drawer.drawNodes(4, 2, zoomTopRight, new int[] { 0, 0, 0 }); //top right "RIGHT"
                 drawer.drawNodes(6, 4, zoomBottomRight, rotationBottomRight); // bottom right "3D"
             }
-            
+
         }
 
         public void resetNodes()
@@ -410,11 +411,12 @@ namespace Neon3D
             drawInsideAxles(4);
         }
 
-        public void drawInsideAxles(int size) {
+        public void drawInsideAxles(int size)
+        {
             drawer.drawAxMatrix(1, 180, 168, 168, size);
             drawer.drawAxMatrix(2, 180, 168, 168, size);
             drawer.drawAxMatrix(3, 180, 168, 168, size);
-            drawer.drawAxMatrix(4, 180, 168, 168, size);
+            
         }
 
 
@@ -447,7 +449,7 @@ namespace Neon3D
                     else if (previousScreenSelected == 2)
                     {
                         tempX = localScreenClickedX;
-                        
+
                         drawer.allNodes[clicked, 0] = tempX;
                         drawInsideAxles(4);
                         newForm.PrintDebug("NODE CREATED NODE CREATED IN TOP LEFT SCREEN(x) \n AT-> X: " + tempX + ", Y: " + tempY + ", Z: " + tempZ + "\n");
@@ -469,7 +471,8 @@ namespace Neon3D
                         tempZ = 0;
                         newNode = true;
                         clicked++;
-                    } else
+                    }
+                    else
                     {
                         MessageBox.Show("You need to define Y in front or right view!", "Hint");
                     }
@@ -498,7 +501,8 @@ namespace Neon3D
                         newNode = true;
                         clicked++;
 
-                    } else if(previousScreenSelected == 3)
+                    }
+                    else if (previousScreenSelected == 3)
                     {
                         tempZ = localScreenClickedX;
                         drawer.allNodes[clicked, 2] = tempZ;
@@ -509,14 +513,16 @@ namespace Neon3D
                         tempZ = 0;
                         newNode = true;
                         clicked++;
-                    } else
+                    }
+                    else
                     {
                         MessageBox.Show("You need to define X in front or top view!", "Hint");
                     }
-                    
+
                     break;
                 case 3: //bottom left
-                    if (newNode) {
+                    if (newNode)
+                    {
                         tempY = localScreenClickedY;
                         tempX = localScreenClickedX;
                         newNode = false;
@@ -531,7 +537,7 @@ namespace Neon3D
                     else if (previousScreenSelected == 1)
                     {
                         tempY = localScreenClickedY;
-                        
+
                         drawer.allNodes[clicked, 1] = tempY;
 
                         drawInsideAxles(4);
@@ -541,10 +547,11 @@ namespace Neon3D
                         tempZ = 0;
                         newNode = true;
                         clicked++;
-                    }else if (previousScreenSelected == 2)
+                    }
+                    else if (previousScreenSelected == 2)
                     {
                         tempX = localScreenClickedX;
-                        
+
                         drawer.allNodes[clicked, 0] = tempX;
 
                         drawInsideAxles(4);
@@ -554,7 +561,8 @@ namespace Neon3D
                         tempZ = 0;
                         newNode = true;
                         clicked++;
-                    } else
+                    }
+                    else
                     {
                         MessageBox.Show("You need to define Z in top or right view!", "Hint");
                     }
@@ -564,7 +572,7 @@ namespace Neon3D
             }
 
         }
-        
+
         private void Form1_MouseClick(object sender, MouseEventArgs e)
         {
 
@@ -584,7 +592,7 @@ namespace Neon3D
                 newForm.PrintDebug("AMOUNT OF INDEXES: " + drawer.allNodes.Length / 3 + "\n");
                 for (int i = 0; i < (drawer.allNodes.Length / 3); i++)
                 {
-                    
+
 
                     if (((localScreenClickedX > drawer.allNodes[i, 0] - range &&
                         localScreenClickedX < drawer.allNodes[i, 0] + range) &&
@@ -593,7 +601,7 @@ namespace Neon3D
                         (localScreenClickedX > drawer.allNodes[i, 0] - range &&
                         localScreenClickedX < drawer.allNodes[i, 0] + range) &&
                         (localScreenClickedY > drawer.allNodes[i, 1] - range &&
-                        localScreenClickedY < drawer.allNodes[i, 1] + range)) || 
+                        localScreenClickedY < drawer.allNodes[i, 1] + range)) ||
                         ((localScreenClickedY > drawer.allNodes[i, 1] - range &&
                         localScreenClickedY < drawer.allNodes[i, 1] + range) &&
                         (localScreenClickedX > drawer.allNodes[i, 2] - range &&
@@ -603,18 +611,18 @@ namespace Neon3D
                         newForm.PrintDebug("NODE WITH INDEX: " + i + " SELECTED!\n");
                         drawer.selectedNodes[drawer.selectedArrayLastIndex] = i;
                         drawer.selectedArrayLastIndex++;
-                    } 
+                    }
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 newForm.PrintDebug("ERROR: " + ex.ToString() + "\n");
             }
-                
-              
+
+
         }
-        
+
         private void refreshScreen()
         {
             Brush aBrush = (Brush)Brushes.White;
@@ -631,29 +639,35 @@ namespace Neon3D
             if (e.KeyData == Keys.Enter)
             {
                 drawer.createLines();
-            } else if (e.KeyData == Keys.R)
+            }
+            else if (e.KeyData == Keys.R)
             {
                 resetScreen();
-            } else if (e.KeyData == (Keys.Control | Keys.R))
+            }
+            else if (e.KeyData == (Keys.Control | Keys.R))
             {
                 resetNodes();
                 resetScreen();
-            } else if (e.KeyData == Keys.Right)
+            }
+            else if (e.KeyData == Keys.Right)
             {
-                
+
                 leftKeyIsPressed = false;
                 rightKeyIsPressed = true;
-            } else if (e.KeyData == Keys.Left)
+            }
+            else if (e.KeyData == Keys.Left)
             {
 
                 rightKeyIsPressed = false;
                 leftKeyIsPressed = true;
-            }else if(e.KeyData == Keys.Up)
+            }
+            else if (e.KeyData == Keys.Up)
             {
                 upKeyIsPressed = true;
                 downKeyIsPressed = false;
 
-            }else if(e.KeyData == Keys.Down)
+            }
+            else if (e.KeyData == Keys.Down)
             {
                 upKeyIsPressed = false;
                 downKeyIsPressed = true;
@@ -668,7 +682,7 @@ namespace Neon3D
                 ctrlLeftKeyIsPressed = true;
                 ctrlRightKeyIsPressed = false;
             }
-            else if(e.KeyData == Keys.NumPad6)
+            else if (e.KeyData == Keys.NumPad6)
             {
                 rotationBottomRight[0] = 90;
                 refreshScreen();
@@ -710,13 +724,15 @@ namespace Neon3D
                 refreshScreen();
                 rightKeyIsPressed = false;
                 leftKeyIsPressed = false;
-            }else if(e.KeyData == Keys.Up)
+            }
+            else if (e.KeyData == Keys.Up)
             {
                 while (drawer.isStillDrawing) ;
                 refreshScreen();
                 upKeyIsPressed = false;
                 downKeyIsPressed = false;
-            }else if(e.KeyData == Keys.Down)
+            }
+            else if (e.KeyData == Keys.Down)
             {
                 while (drawer.isStillDrawing) ;
                 refreshScreen();
@@ -822,7 +838,7 @@ namespace Neon3D
                 newForm = new Form2(this);
                 newForm.Show();
             }
-            
+
         }
     }
 }
