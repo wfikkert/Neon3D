@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -154,7 +155,13 @@ namespace Neon3D
             Graphics g = mainForm.CreateGraphics();
             if (x != 0 && y != 0)
             {
-                g.FillRectangle(brushColor, x, y, size, size);
+                try
+                {
+                    g.FillRectangle(brushColor, x, y, size, size);
+                } catch(Exception e)
+                {
+
+                }
             }
         }
 
@@ -177,6 +184,28 @@ namespace Neon3D
         }
 
         public void drawLine(double x1, double y1, double x2, double y2, double midX, double midY, int redValue, int greenValue, int blueValue, int size, bool remove)
+        {
+            ThreadPool.QueueUserWorkItem(drawLineQue, new object[] { x1, y1, x2, y2, midX, midY, redValue, greenValue, blueValue, size, remove });
+        }
+
+        public void drawLineQue(object param)
+        {
+            object[] parameters = param as object[];
+            double x1 = Double.Parse(parameters[0].ToString());
+            double y1= Double.Parse(parameters[1].ToString());
+            double x2 = Double.Parse(parameters[2].ToString());
+            double y2 = Double.Parse(parameters[3].ToString());
+            double midx = Double.Parse(parameters[4].ToString());
+            double midy = Double.Parse(parameters[5].ToString());
+            int redValue = Int32.Parse(parameters[6].ToString());
+            int greenValue = Int32.Parse(parameters[7].ToString());
+            int blueValue = Int32.Parse(parameters[8].ToString());
+            int size = Int32.Parse(parameters[9].ToString());
+            bool remove = Convert.ToBoolean(parameters[10].ToString());
+            drawLineLogic(x1, y1, x2, y2, midx, midy, redValue, greenValue, blueValue, size, remove);
+        }
+
+        public void drawLineLogic(double x1, double y1, double x2, double y2, double midX, double midY, int redValue, int greenValue, int blueValue, int size, bool remove)
         {
 
             y1 = y1 * -1;
@@ -205,7 +234,7 @@ namespace Neon3D
             double prevY = 0;
             double prevX = 0;
             //for loop for drawing beam
-            for (x = (int)x1; x <= (int)x2; x++)
+            for (x = x1; x <= x2; x++)
             {
                 double y = 0;
                 try
@@ -213,7 +242,7 @@ namespace Neon3D
                     //formula for drawing beam between nodes
                     if ((x2 - x1) == 0)
                     {
-                        int count;
+                        double count;
 
                         if (y2 > y1)
                         {
@@ -221,16 +250,16 @@ namespace Neon3D
                             y1 = y2;
                             y2 = tempY;
                         }
-                        for (count = (int)y2; count <= y1; count++)
+                        for (count = y2; count <= y1; count++)
                         {
 
                             if (!remove)
                             {
-                                drawPixel((int)x, count, size, redValue, greenValue, blueValue);
+                                drawPixel((int)x, (int)count, size, redValue, greenValue, blueValue);
                             }
                             else
                             {
-                                removePixel((int)x, count, size);
+                                removePixel((int)x, (int)count, size);
                             }
                         }
 
@@ -251,31 +280,31 @@ namespace Neon3D
                 if (y - prevY > 0 && x != 0)
                 {
 
-                    int counter;
-                    for (counter = (int)prevY; counter <= (int)y; counter++)
+                    double counter;
+                    for (counter = prevY; counter <= y; counter++)
                     {
                         if (!remove)
                         {
-                            drawPixel((int)prevX, counter, size, redValue, greenValue, blueValue);
+                            drawPixel((int)prevX, (int)counter, size, redValue, greenValue, blueValue);
                         }
                         else
                         {
-                            removePixel((int)prevX, counter, size);
+                            removePixel((int)prevX, (int)counter, size);
                         }
                     }
                 }
                 else if (prevY - y > 0 && x != 0)
                 {
-                    int counter;
-                    for (counter = (int)y; counter <= (int)prevY; counter++)
+                    double counter;
+                    for (counter = y; counter <= prevY; counter++)
                     {
                         if (!remove)
                         {
-                            drawPixel((int)prevX, counter, size, redValue, greenValue, blueValue);
+                            drawPixel((int)prevX, (int)counter, size, redValue, greenValue, blueValue);
                         }
                         else
                         {
-                            removePixel((int)prevX, counter, size);
+                            removePixel((int)prevX, (int)counter, size);
                         }
                     }
                 }
@@ -340,12 +369,6 @@ namespace Neon3D
         public double previousYRotation = 0;
 
 
-        public double prevx1 = 0;
-        public double prevy1 = 0;
-        public double prevz1 = 0;
-        public double prevx2 = 0;
-        public double prevy2 = 0;
-        public double prevz2 = 0;
 
 
         public bool firstRotateX = false;
@@ -522,8 +545,6 @@ namespace Neon3D
 
                             drawLine((x1 * prevousZoomScreenBR), (y1 * prevousZoomScreenBR), (x2 * prevousZoomScreenBR), (y2 * prevousZoomScreenBR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, false);
 
-                            previousXRotation = rotation[0];
-                            previousYRotation = rotation[1];
                         }
 
                             x1 = ((startx * Math.Cos(rotation[0] / 57.4) - starty * Math.Sin(rotation[0] / 57.4)) * (Math.Cos(rotation[1] / 57.4))) + startz * Math.Sin(rotation[1] / 57.4) ;
@@ -599,9 +620,6 @@ namespace Neon3D
                             }
                             break;
                     }
-                    
-
-                   
                 }
             }
             switch (screen)
@@ -629,6 +647,8 @@ namespace Neon3D
                     {
                         prevousZoomScreenBR = zoomscreen;
                     }
+                    previousXRotation = rotation[0];
+                    previousYRotation = rotation[1];
                     break;
             }
             
