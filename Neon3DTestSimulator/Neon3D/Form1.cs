@@ -174,7 +174,7 @@ namespace Neon3D
                 {
                     rightKeyIsPressed = false;
                     leftKeyIsPressed = false;
-                    if (rotationBottomRight[0] == 361)
+                    if (rotationBottomRight[0] == 360)
                     {
                         rotationBottomRight[0] = 0;
                     }
@@ -184,7 +184,7 @@ namespace Neon3D
                 {
                     rightKeyIsPressed = false;
                     leftKeyIsPressed = false;
-                    if (rotationBottomRight[0] == -1)
+                    if (rotationBottomRight[0] == 0)
                     {
                         rotationBottomRight[0] = 360;
                     }
@@ -196,7 +196,7 @@ namespace Neon3D
                     upKeyIsPressed = false;
                     downKeyIsPressed = false;
 
-                    if (rotationBottomRight[1] == 361)
+                    if (rotationBottomRight[1] == 360)
                     {
                         rotationBottomRight[1] = 0;
                     }
@@ -206,7 +206,7 @@ namespace Neon3D
                 {
                     upKeyIsPressed = false;
                     downKeyIsPressed = false;
-                    if (rotationBottomRight[1] == -1)
+                    if (rotationBottomRight[1] == 0)
                     {
                         rotationBottomRight[1] = 360;
                     }
@@ -219,7 +219,7 @@ namespace Neon3D
                     ctrlLeftKeyIsPressed = false;
                     ctrlRightKeyIsPressed = false;
 
-                    if (rotationBottomRight[2] == 361)
+                    if (rotationBottomRight[2] == 360)
                     {
                         rotationBottomRight[2] = 0;
                     }
@@ -229,7 +229,7 @@ namespace Neon3D
                 {
                     ctrlLeftKeyIsPressed = false;
                     ctrlRightKeyIsPressed = false;
-                    if (rotationBottomRight[2] == -1)
+                    if (rotationBottomRight[2] == 0)
                     {
                         rotationBottomRight[2] = 360;
                     }
@@ -361,6 +361,9 @@ namespace Neon3D
         {
             base.OnFormClosing(e);
             wekeepdrawing.Abort();
+            wekeeptrackofourcursor.Abort();
+            wekeeptrackofourrotation.Abort();
+            
         }
 
         public void keepdrawingScreens()
@@ -368,11 +371,11 @@ namespace Neon3D
 
             while (true)
             {
-
-                drawer.drawNodes(2, 3, zoomBottomLeft, new int[] { 0, 0, 0 }); //bottom left "FRONT"
-                drawer.drawNodes(0, 1, zoomTopLeft, new int[] { 0, 0, 0 }); // top left "TOP"
-                drawer.drawNodes(4, 2, zoomTopRight, new int[] { 0, 0, 0 }); //top right "RIGHT"
-                drawer.drawNodes(6, 4, zoomBottomRight, rotationBottomRight); // bottom right "3D"
+                
+                drawer.drawNodesAndBeams(0, 1, zoomTopLeft, new int[] { 0, 0, 0 }); // top left "TOP"
+                drawer.drawNodesAndBeams(4, 2, zoomTopRight, new int[] { 0, 0, 0 }); //top right "RIGHT"
+                drawer.drawNodesAndBeams(2, 3, zoomBottomLeft, new int[] { 0, 0, 0 }); //bottom left "FRONT"
+                drawer.drawNodesAndBeams(6, 4, zoomBottomRight, rotationBottomRight); // bottom right "3D"
             }
 
         }
@@ -714,47 +717,30 @@ namespace Neon3D
         {
             if (e.KeyData == Keys.Right)
             {
-                while (drawer.isStillDrawing) ;
-                refreshScreen();
+                
                 leftKeyIsPressed = false;
                 rightKeyIsPressed = false;
             }
             else if (e.KeyData == Keys.Left)
             {
-                while (drawer.isStillDrawing) ;
-                refreshScreen();
+               
                 rightKeyIsPressed = false;
                 leftKeyIsPressed = false;
             }
             else if (e.KeyData == Keys.Up)
             {
-                while (drawer.isStillDrawing) ;
-                refreshScreen();
+                
                 upKeyIsPressed = false;
                 downKeyIsPressed = false;
             }
             else if (e.KeyData == Keys.Down)
             {
-                while (drawer.isStillDrawing) ;
-                refreshScreen();
+                
 
                 upKeyIsPressed = false;
                 downKeyIsPressed = false;
             }
-            else if (e.KeyData == (Keys.Control | Keys.Right))
-            {
-                while (drawer.isStillDrawing) ;
-                refreshScreen();
-                ctrlLeftKeyIsPressed = false;
-                ctrlRightKeyIsPressed = false;
-            }
-            else if (e.KeyData == (Keys.Control | Keys.Left))
-            {
-                while (drawer.isStillDrawing) ;
-                refreshScreen();
-                ctrlLeftKeyIsPressed = false;
-                ctrlRightKeyIsPressed = false;
-            }
+           
         }
 
         private void OpenFile_Click(object sender, EventArgs e)

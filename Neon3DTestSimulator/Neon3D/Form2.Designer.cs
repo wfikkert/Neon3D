@@ -28,35 +28,14 @@
         /// </summary>
         public void InitializeComponent()
         {
-            this.resetNodes = new System.Windows.Forms.Button();
-            this.ResetScr = new System.Windows.Forms.Button();
+            
             this.Debug = new System.Windows.Forms.RichTextBox();
-            this.drawLines = new System.Windows.Forms.Button();
-            this.OpenFile = new System.Windows.Forms.Button();
-            this.SaveAs = new System.Windows.Forms.Button();
+            
             this.SuspendLayout();
-            // 
-            // resetNodes
-            // 
-            this.resetNodes.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.resetNodes.Location = new System.Drawing.Point(26, 322);
-            this.resetNodes.Name = "resetNodes";
-            this.resetNodes.Size = new System.Drawing.Size(310, 23);
-            this.resetNodes.TabIndex = 13;
-            this.resetNodes.Text = "Reset Nodes";
-            this.resetNodes.UseVisualStyleBackColor = true;
-            this.resetNodes.Click += new System.EventHandler(this.resetNodes_Click);
-            // 
-            // ResetScr
-            // 
-            this.ResetScr.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.ResetScr.Location = new System.Drawing.Point(26, 293);
-            this.ResetScr.Name = "ResetScr";
-            this.ResetScr.Size = new System.Drawing.Size(312, 23);
-            this.ResetScr.TabIndex = 12;
-            this.ResetScr.Text = "Reset Screen";
-            this.ResetScr.UseVisualStyleBackColor = true;
-            this.ResetScr.Click += new System.EventHandler(this.ResetScr_Click);
+            
+            
+            
+            
             // 
             // Debug
             // 
@@ -67,36 +46,11 @@
             this.Debug.TabIndex = 11;
             this.Debug.Text = "";
             this.Debug.TextChanged += new System.EventHandler(this.Debug_TextChanged);
-            // 
-            // drawLines
-            // 
-            this.drawLines.Location = new System.Drawing.Point(26, 352);
-            this.drawLines.Name = "drawLines";
-            this.drawLines.Size = new System.Drawing.Size(310, 23);
-            this.drawLines.TabIndex = 14;
-            this.drawLines.Text = "Draw Lines";
-            this.drawLines.UseVisualStyleBackColor = true;
-            this.drawLines.Click += new System.EventHandler(this.drawLines_Click);
-            // 
-            // OpenFile
-            // 
-            this.OpenFile.Location = new System.Drawing.Point(26, 381);
-            this.OpenFile.Name = "OpenFile";
-            this.OpenFile.Size = new System.Drawing.Size(310, 23);
-            this.OpenFile.TabIndex = 15;
-            this.OpenFile.Text = "Open File";
-            this.OpenFile.UseVisualStyleBackColor = true;
-            this.OpenFile.Click += new System.EventHandler(this.OpenFile_Click);
-            // 
-            // SaveAs
-            // 
-            this.SaveAs.Location = new System.Drawing.Point(26, 410);
-            this.SaveAs.Name = "SaveAs";
-            this.SaveAs.Size = new System.Drawing.Size(310, 23);
-            this.SaveAs.TabIndex = 16;
-            this.SaveAs.Text = "Save As";
-            this.SaveAs.UseVisualStyleBackColor = true;
-            this.SaveAs.Click += new System.EventHandler(this.SaveAs_Click);
+           
+            
+            
+            
+            
             // 
             // Form2
             // 

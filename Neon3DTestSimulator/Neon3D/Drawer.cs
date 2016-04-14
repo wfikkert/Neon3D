@@ -374,7 +374,7 @@ namespace Neon3D
         public bool firstRotateX = false;
         public bool firstRotateY = false;
 
-        public void drawNodes(int conv3dto2d, int screen, double zoomscreen, int[] rotation)
+        public void drawNodesAndBeams(int conv3dto2d, int screen, double zoomscreen, int[] rotation)
         {
             isStillDrawing = true;
             int linesDrawn;
