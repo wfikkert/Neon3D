@@ -37,3 +37,6 @@ C:\Users\Willem\Documents\GitHub\Neon3D\Neon3DTestSimulator\Neon3D\obj\Debug\Neo
 C:\Users\Willem\Documents\GitHub\Neon3D\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.Form2.resources
 C:\Users\Willem\Documents\GitHub\Neon3D\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.Properties.Resources.resources
 C:\Users\Willem\Documents\GitHub\Neon3D\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.csproj.GenerateResource.Cache
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\bin\Debug\Neon3D.exe.config
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.exe
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.pdb
