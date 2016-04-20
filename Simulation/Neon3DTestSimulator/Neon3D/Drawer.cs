@@ -112,6 +112,51 @@ namespace Neon3D
             }
         }
 
+        public string generateStringFPGA()
+        {
+            /*
+            array example
+            {0,100,0,100,0,100,0,100,0,100,0,-100,0,100,0,-100,0,100,0,100,0,-100,0,-100,-100,0,-100,-100,0,100,100,0,-100,100,0,100,-100,0,-100,100,0,-100,-100,0,100,100,0,100};
+            */
+            int bound0 = starteEndnodes.GetUpperBound(0);
+            int bound1 = starteEndnodes.GetUpperBound(1);
+            int bound2 = starteEndnodes.GetUpperBound(2);
+
+            StringBuilder buildAstring = new StringBuilder();
+
+            buildAstring.Append("{" );
+
+            for (int variable0 =0; variable0 <= bound0; variable0++)
+            {
+                if (starteEndnodes[variable0, 0, 0] != null)
+                {
+                    for (int variable1 = 0; variable1 <= bound1; variable1++)
+                    {
+                        
+                        for (int variable2 = 0; variable2 <= bound2; variable2++)
+                        {
+                            double? value = starteEndnodes[variable0, variable1, variable2];
+
+                            if (variable2 == 0 && variable1 == 0 && variable0 == 0) {
+                                buildAstring.Append(value);
+                            }
+                            else
+                            {
+                                buildAstring.Append("," + value);
+                            }      
+                        }
+                        
+                    }
+                    
+                }
+                
+            
+                }
+            buildAstring.Append("}" + Environment.NewLine);
+
+            return buildAstring.ToString();
+        }
+
         public string generateString()
         {
             /* array example */
@@ -140,10 +185,7 @@ namespace Neon3D
                         buildAstring.Append("]");
                     }
                     buildAstring.Append("]" + Environment.NewLine);
-                } else
-                {
-                    break;
-                }
+                } 
             }
             return buildAstring.ToString();
         }

@@ -151,6 +151,11 @@ namespace Neon3D
             return drawer.generateString();
         }
 
+        public string generateStringFPGA()
+        {
+            return drawer.generateStringFPGA();
+        }
+
         public void setArrays(string array)
         {
             drawer.setArrays(array);
@@ -790,6 +795,12 @@ namespace Neon3D
             {
                 string name = saveFileDialog1.FileName;
                 newForm.PrintDebug("SAVING FILE TO: " + name + "\n");
+                using (FileStream fs = File.Create(name+"FPGA"))
+                {
+                    Byte[] info = new UTF8Encoding(true).GetBytes(generateStringFPGA());
+                    // Add some information to the file.
+                    fs.Write(info, 0, info.Length);
+                }
                 using (FileStream fs = File.Create(name))
                 {
                     Byte[] info = new UTF8Encoding(true).GetBytes(generateString());
