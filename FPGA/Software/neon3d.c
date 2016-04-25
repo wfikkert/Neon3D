@@ -13,13 +13,14 @@ OS_STK    task3_stk[TASK_STACKSIZE];
 #define TASK1_PRIORITY      1
 #define TASK2_PRIORITY      2
 #define TASK3_PRIORITY      3
-#define VALUES 48
+#define VALUES 1200
 
 ALT_SEM(sem_objectDrawn)
 
 int *startEndnodes;
 int *rotation;
 float *zoomscreenpointer;
+int amountOfLines;
 /****************************************************************************************
  * Subroutine to send a string of text to the VGA monitor
 ****************************************************************************************/
@@ -180,34 +181,102 @@ void drawLine(float x1, float y1, float x2, float y2, float midX, float midY, in
 void task1(void* pdata)
 {
   int KEY_value;
+
+
+	volatile int* UART_DATA_ptr = (int*) 0x10001010; // JTAG UART address
+	volatile int* UART_CONTROL_ptr = (int *) 0x10001014;
+
+
+	int dataSerial;
+	int integerPos = 0;
+	int amountOfIntegersReceived;
+	char integer[4];
+
+	int test[VALUES];
+	startEndnodes = malloc(sizeof(int) * VALUES);
+	startEndnodes = test;
   while (1)
   {
 	  printf("Start task Serial Input");
 
 
-	  	volatile int* JTAG_UART_ptr = (int*) 0x10001000; // JTAG UART address
-	  	int dataSerial;
+		VGA_box (0, 0, 319, 239, 0);
 	  	while(1){
-	  		//serial lezen en doorsturen
-/*
-	  				dataSerial = *(JTAG_UART_ptr);		 		// read the JTAG_UART data register
-	  				if (dataSerial & 0x00008000)					// check RVALID to see if there is new data
-	  				{
-	  					dataSerial = dataSerial & 0x000000FF;			// the data is in the least significant byte
-	  					printf("%c", (char)dataSerial);
 
-	  					char customString[2] = {(char)dataSerial, '\0'};
 
-	  					if(customString[0] == 'd'){
+	  		ALT_SEM_PEND(sem_objectDrawn, 0);
+	  		dataSerial = *(UART_DATA_ptr);
+	  		if(dataSerial & 0x8000){
+	  			char customString[2] = {(char)dataSerial, '\0'};
 
-	  						printf("Data is D");
-	  					}
-	  				}*/
+	  			if(customString[0] == '-'){
+
+
+					if(integerPos > 0){
+
+						int total;
+						if(integerPos == 1){
+							total = integer[0] * -1;
+						} else if(integerPos == 2){
+							total = (integer[0] * 10 + integer[1]) *-1;
+						} else if(integerPos == 3){
+							total = (integer[0] * 100 + integer[1] * 10 + integer[2]) * -1;
+						} else if(integerPos == 4){
+							total = (integer[0] * 1000 + integer[1] * 100 + integer[2] * 10 + integer[3]) * -1;
+						}
+						test[amountOfIntegersReceived] = total;
+						startEndnodes = test;
+
+						amountOfIntegersReceived++;
+					}
+
+					char beforeDataString[40] = "+NODE RC: ";
+					char customString[5] = {integer[0], integer[1], integer[2], integer[3], '\0'};
+					VGA_text (1, 6, " ");
+					VGA_text (1, 6, beforeDataString);
+	  				VGA_text (14, 6, "                            ");
+					VGA_text (14, 6, customString);
+					integerPos = 0;
+	  			}
+	  			else if(customString[0] == '+'){
+	  				if(integerPos > 0){
+
+						int total;
+						if(integerPos == 1){
+							total = integer[0] * -1;
+						} else if(integerPos == 2){
+							total = (integer[0] * 10 + integer[1]);
+						} else if(integerPos == 3){
+							total = (integer[0] * 100 + integer[1] * 10 + integer[2]);
+						} else if(integerPos == 4){
+							total = (integer[0] * 1000 + integer[1] * 100 + integer[2] * 10 + integer[3]);
+						}
+						test[amountOfIntegersReceived] = total;
+						startEndnodes = test;
+
+						amountOfIntegersReceived++;
+					}
+
+	  				char beforeDataString[40] = "+NODE RC: ";
+	  				char customString[5] = {integer[0], integer[1], integer[2], integer[3], '\0'};
+	  				VGA_text (1, 6, " ");
+	  				VGA_text (1, 6, beforeDataString);
+	  				VGA_text (14, 6, "                            ");
+					VGA_text (14, 6, customString);
+					integerPos = 0;
+	  			}
+	  			else {
+	  				integer[integerPos] = customString[0] + 0x30;
+					char beforeDataString[40] = "SERIAL DATA:";
+					VGA_text (1, 5, beforeDataString);
+					VGA_text (14, 5, customString);
+					integerPos++;
+	  			}
+
+	  		}
 
 	  		volatile int * KEY_ptr = (int *) 0x10000040;
 	  		KEY_value = *(KEY_ptr);
-
-	  		ALT_SEM_PEND(sem_objectDrawn, 0);
 
 	  		int xRotation = rotation[0];
 	  		int yRotation = rotation[1];
@@ -223,6 +292,10 @@ void task1(void* pdata)
 				rotation[0] = xRotation;
 				zoom = 0.8;
 				*zoomscreenpointer = zoom;
+
+				int test[VALUES];
+				startEndnodes = test;
+				amountOfLines = 0;
 
 			}
 	  		if (KEY_value & 0x2)					// check KEY0
@@ -305,9 +378,8 @@ void task2(void* pdata)
 	char text_bottom_row2[40];
 	char text_bottom_row3[40] = "SOFTWARE MODE \0";
 	sprintf(text_top_row, "NEON 3D Copyright W.Fikkert & E.Zenderink :D");
-	sprintf(text_bottom_row1, "3D amount of lines: %d", VALUES / 6);
+
 	VGA_text(1,0,text_top_row);
-	VGA_text (1, 1, text_bottom_row1);
 	VGA_text (1, 4, text_bottom_row3);
 
 	while(1){
@@ -322,7 +394,7 @@ void task2(void* pdata)
 		float endy = 0;
 		float endz = 0;
 
-		ALT_SEM_PEND(sem_objectDrawn, 0);
+		//ALT_SEM_PEND(sem_objectDrawn, 0);
 
 		int localRotationX = rotation[0];
 		int localRotationY = rotation[1];
@@ -334,8 +406,8 @@ void task2(void* pdata)
 		VGA_text (1, 2, text_bottom_row);
 		sprintf(text_bottom_row2, "Rotation X,Y: %d,%d", rotation[0], rotation[1]);
 		VGA_text (1, 3, text_bottom_row2);
-
-
+		sprintf(text_bottom_row1, "3D amount of lines: %d", amountOfLines );
+		VGA_text (1, 1, text_bottom_row1);
 		for(i = 0;  i < VALUES; i++){
 			tempArray[i] = (startEndnodes)[i];
 		}
@@ -354,6 +426,12 @@ void task2(void* pdata)
 			float x2 = endx = (startEndnodes)[indexOfArray + 3];
 			float y2 = endy = (startEndnodes)[indexOfArray + 4];
 			float z2 = endz = (startEndnodes)[indexOfArray + 5];
+
+
+			if(x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0 && z1 == 0 && z2 == 0){
+				amountOfLines = indexOfArray - 1;
+				break;
+			}
 
 			if(previousXRotation != localRotationX || previousYRotation != localRotationY || zoomscreen != prevousZoomScreenBR)
 			{
@@ -394,7 +472,7 @@ void task2(void* pdata)
 		previousXRotation = localRotationX;
 		previousYRotation = localRotationY;
 
-		ALT_SEM_POST(sem_objectDrawn);
+		//ALT_SEM_POST(sem_objectDrawn);
 
 	}
 
@@ -522,9 +600,7 @@ void task3(void* pdata)
 /* The main function creates two task and starts multi-tasking */
 int main(void)
 {
-	int test[VALUES] = {0,100,0,100,0,100,0,100,0,100,0,-100,0,100,0,-100,0,100,0,100,0,-100,0,-100,-100,0,-100,-100,0,100,100,0,-100,100,0,100,-100,0,-100,100,0,-100,-100,0,100,100,0,100};
-	startEndnodes = malloc(sizeof(int) * VALUES);
-	startEndnodes = test;
+	amountOfLines = 0;
 	int rotatevalue[2] = {0,0};
 	rotation = malloc(sizeof(int)*2);
 	rotation = rotatevalue;
@@ -548,7 +624,7 @@ int main(void)
                   0);
 
 
-  OSTaskCreateExt(task2,
+ /* OSTaskCreateExt(task2,
                   NULL,
                   (void *)&task2_stk[TASK_STACKSIZE-1],
                   TASK2_PRIORITY,
@@ -556,7 +632,7 @@ int main(void)
                   task2_stk,
                   TASK_STACKSIZE,
                   NULL,
-                  0);
+                  0);*/
   /*
   OSTaskCreateExt(task3,
                    NULL,
