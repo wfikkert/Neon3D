@@ -123,8 +123,9 @@ namespace Neon3D
             int bound2 = starteEndnodes.GetUpperBound(2);
 
             StringBuilder buildAstring = new StringBuilder();
+            string valuestr = "";
 
-            buildAstring.Append("{" );
+
 
             for (int variable0 =0; variable0 <= bound0; variable0++)
             {
@@ -136,23 +137,30 @@ namespace Neon3D
                         for (int variable2 = 0; variable2 <= bound2; variable2++)
                         {
                             double? value = starteEndnodes[variable0, variable1, variable2];
-
-                            if (variable2 == 0 && variable1 == 0 && variable0 == 0) {
-                                buildAstring.Append(value);
-                            }
-                            else
-                            {
-                                buildAstring.Append("," + value);
+                        if(value >= 0)
+                        {
+                            
+                            valuestr = "+" + value;
+                        }else
+                        {
+                            valuestr = value.ToString();
+                        }
+                                    
+                                
+                                
+                                
+                        buildAstring.Append(valuestr);
+                                
                             }      
                         }
                         
-                    }
+                    
                     
                 }
                 
             
                 }
-            buildAstring.Append("}" + Environment.NewLine);
+            buildAstring.Append(Environment.NewLine);
 
             return buildAstring.ToString();
         }

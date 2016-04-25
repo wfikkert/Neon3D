@@ -60,20 +60,23 @@
             this.DeleteAllNodes = new System.Windows.Forms.ToolStripButton();
             this.DrawLine = new System.Windows.Forms.ToolStripButton();
             this.OpenDebug = new System.Windows.Forms.ToolStripButton();
+            this.UploadFPGA = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // TopLabel
             // 
             this.TopLabel.AutoSize = true;
+            this.TopLabel.Location = new System.Drawing.Point(0, 0);
             this.TopLabel.Name = "TopLabel";
-            this.TopLabel.Size = new System.Drawing.Size(26, 13);
+            this.TopLabel.Size = new System.Drawing.Size(52, 13);
             this.TopLabel.TabIndex = 0;
             this.TopLabel.Text = "TopLabel";
             // 
             // Front
             // 
             this.Front.AutoSize = true;
+            this.Front.Location = new System.Drawing.Point(0, 0);
             this.Front.Name = "Front";
             this.Front.Size = new System.Drawing.Size(31, 13);
             this.Front.TabIndex = 1;
@@ -82,6 +85,7 @@
             // Right
             // 
             this.Right.AutoSize = true;
+            this.Right.Location = new System.Drawing.Point(0, 0);
             this.Right.Name = "Right";
             this.Right.Size = new System.Drawing.Size(32, 13);
             this.Right.TabIndex = 2;
@@ -90,6 +94,7 @@
             // dried
             // 
             this.dried.AutoSize = true;
+            this.dried.Location = new System.Drawing.Point(0, 0);
             this.dried.Name = "dried";
             this.dried.Size = new System.Drawing.Size(21, 13);
             this.dried.TabIndex = 3;
@@ -98,6 +103,7 @@
             // zoomTL
             // 
             this.zoomTL.AutoSize = true;
+            this.zoomTL.Location = new System.Drawing.Point(0, 0);
             this.zoomTL.Name = "zoomTL";
             this.zoomTL.Size = new System.Drawing.Size(51, 13);
             this.zoomTL.TabIndex = 4;
@@ -106,6 +112,7 @@
             // zoomBL
             // 
             this.zoomBL.AutoSize = true;
+            this.zoomBL.Location = new System.Drawing.Point(0, 0);
             this.zoomBL.Name = "zoomBL";
             this.zoomBL.Size = new System.Drawing.Size(51, 13);
             this.zoomBL.TabIndex = 5;
@@ -114,6 +121,7 @@
             // zoomBR
             // 
             this.zoomBR.AutoSize = true;
+            this.zoomBR.Location = new System.Drawing.Point(0, 0);
             this.zoomBR.Name = "zoomBR";
             this.zoomBR.Size = new System.Drawing.Size(51, 13);
             this.zoomBR.TabIndex = 6;
@@ -122,14 +130,37 @@
             // zoomTR
             // 
             this.zoomTR.AutoSize = true;
+            this.zoomTR.Location = new System.Drawing.Point(0, 0);
             this.zoomTR.Name = "zoomTR";
             this.zoomTR.Size = new System.Drawing.Size(51, 13);
             this.zoomTR.TabIndex = 7;
             this.zoomTR.Text = "Zoom: 1x";
-            //
+            // 
+            // RotationTL
+            // 
+            this.RotationTL.Location = new System.Drawing.Point(0, 0);
+            this.RotationTL.Name = "RotationTL";
+            this.RotationTL.Size = new System.Drawing.Size(100, 23);
+            this.RotationTL.TabIndex = 15;
+            // 
+            // RotationBL
+            // 
+            this.RotationBL.Location = new System.Drawing.Point(0, 0);
+            this.RotationBL.Name = "RotationBL";
+            this.RotationBL.Size = new System.Drawing.Size(100, 23);
+            this.RotationBL.TabIndex = 14;
+            // 
+            // RotationTR
+            // 
+            this.RotationTR.Location = new System.Drawing.Point(0, 0);
+            this.RotationTR.Name = "RotationTR";
+            this.RotationTR.Size = new System.Drawing.Size(100, 23);
+            this.RotationTR.TabIndex = 13;
+            // 
             // RotationBR
             // 
             this.RotationBR.AutoSize = true;
+            this.RotationBR.Location = new System.Drawing.Point(0, 0);
             this.RotationBR.Name = "RotationBR";
             this.RotationBR.Size = new System.Drawing.Size(59, 13);
             this.RotationBR.TabIndex = 11;
@@ -143,7 +174,8 @@
             this.ResetScr,
             this.DeleteAllNodes,
             this.DrawLine,
-            this.OpenDebug});
+            this.OpenDebug,
+            this.UploadFPGA});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1279, 25);
@@ -212,6 +244,16 @@
             this.OpenDebug.Text = "Open Debug";
             this.OpenDebug.Click += new System.EventHandler(this.OpenDebug_Click);
             // 
+            // UploadFPGA
+            // 
+            this.UploadFPGA.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.UploadFPGA.Image = ((System.Drawing.Image)(resources.GetObject("UploadFPGA.Image")));
+            this.UploadFPGA.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.UploadFPGA.Name = "UploadFPGA";
+            this.UploadFPGA.Size = new System.Drawing.Size(95, 22);
+            this.UploadFPGA.Text = "Upload to FPGA";
+            this.UploadFPGA.Click += new System.EventHandler(this.UploadFPGA_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -267,6 +309,7 @@
         private System.Windows.Forms.ToolStripButton DeleteAllNodes;
         private System.Windows.Forms.ToolStripButton DrawLine;
         private System.Windows.Forms.ToolStripButton OpenDebug;
+        private System.Windows.Forms.ToolStripButton UploadFPGA;
     }
 }
 

@@ -4,6 +4,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.IO.Ports;
+
 namespace Neon3D
 {
     public partial class Form1 : Form
@@ -795,12 +797,7 @@ namespace Neon3D
             {
                 string name = saveFileDialog1.FileName;
                 newForm.PrintDebug("SAVING FILE TO: " + name + "\n");
-                using (FileStream fs = File.Create(name+"FPGA"))
-                {
-                    Byte[] info = new UTF8Encoding(true).GetBytes(generateStringFPGA());
-                    // Add some information to the file.
-                    fs.Write(info, 0, info.Length);
-                }
+                
                 using (FileStream fs = File.Create(name))
                 {
                     Byte[] info = new UTF8Encoding(true).GetBytes(generateString());
@@ -837,6 +834,37 @@ namespace Neon3D
                 newForm.Show();
             }
 
+        }
+
+        private void UploadFPGA_Click(object sender, EventArgs e)
+        {
+            string[] names = SerialPort.GetPortNames();
+            if(names.Length != 0)
+            {
+                SerialPort comPort = new SerialPort();
+                comPort.PortName = names[0];
+                comPort.BaudRate = 115000;
+                comPort.Handshake = 0;
+                comPort.Open();
+                comPort.RtsEnable = true;
+                comPort.DtrEnable = true;
+
+                
+                    string fpgaArray = generateStringFPGA();
+                    
+                    char[] FPGA = fpgaArray.ToCharArray(0, fpgaArray.Length - 1);
+                    int i;
+                    for(i = 0; i < FPGA.Length; i++)
+                    {
+                        newForm.PrintDebug(FPGA[i] +"\n");
+                        comPort.Write(FPGA[i].ToString());
+                    }
+                
+            }
+            else
+            {
+                MessageBox.Show("FPGA not found!");
+            }
         }
     }
 }
