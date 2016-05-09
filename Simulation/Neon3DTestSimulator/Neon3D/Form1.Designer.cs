@@ -61,6 +61,7 @@
             this.DrawLine = new System.Windows.Forms.ToolStripButton();
             this.OpenDebug = new System.Windows.Forms.ToolStripButton();
             this.UploadFPGA = new System.Windows.Forms.ToolStripButton();
+            this.FPGAProgress = new System.Windows.Forms.ProgressBar();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -254,12 +255,20 @@
             this.UploadFPGA.Text = "Upload to FPGA";
             this.UploadFPGA.Click += new System.EventHandler(this.UploadFPGA_Click);
             // 
+            // FPGAProgress
+            // 
+            this.FPGAProgress.Location = new System.Drawing.Point(509, 0);
+            this.FPGAProgress.Name = "FPGAProgress";
+            this.FPGAProgress.Size = new System.Drawing.Size(360, 23);
+            this.FPGAProgress.TabIndex = 16;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1279, 648);
+            this.Controls.Add(this.FPGAProgress);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.RotationBR);
             this.Controls.Add(this.RotationTR);
@@ -310,6 +319,7 @@
         private System.Windows.Forms.ToolStripButton DrawLine;
         private System.Windows.Forms.ToolStripButton OpenDebug;
         private System.Windows.Forms.ToolStripButton UploadFPGA;
+        private System.Windows.Forms.ProgressBar FPGAProgress;
     }
 }
 

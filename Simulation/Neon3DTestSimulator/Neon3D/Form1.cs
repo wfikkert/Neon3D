@@ -89,6 +89,7 @@ namespace Neon3D
             rotationBottomRight[0] = 0;
             rotationBottomRight[1] = 0;
             rotationBottomRight[2] = 0;
+            FPGAProgress.Hide();
 
             TopLabel.Location = new System.Drawing.Point(13, 39);
 
@@ -835,12 +836,13 @@ namespace Neon3D
             }
 
         }
-
+        public bool received = false;
         private void UploadFPGA_Click(object sender, EventArgs e)
         {
             string[] names = SerialPort.GetPortNames();
             if(names.Length != 0)
             {
+                
                 SerialPort comPort = new SerialPort();
                 comPort.PortName = names[0];
                 comPort.BaudRate = 115000;
@@ -848,23 +850,78 @@ namespace Neon3D
                 comPort.Open();
                 comPort.RtsEnable = true;
                 comPort.DtrEnable = true;
+                comPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
 
-                
-                    string fpgaArray = generateStringFPGA();
+
+
+
+
+                string fpgaArray = generateStringFPGA();
                     
-                    char[] FPGA = fpgaArray.ToCharArray(0, fpgaArray.Length - 1);
-                    int i;
-                    for(i = 0; i < FPGA.Length; i++)
+                char[] FPGA = fpgaArray.ToCharArray(0, fpgaArray.Length - 1);
+                int i;
+                int j;
+                FPGAProgress.Show();
+
+                comPort.Write("0");
+                double percentFPGA = FPGA.Length / 100;
+                FPGAProgress.Value = 0;
+                for (i = 0; i < FPGA.Length+5; i++)
+                {
+                    while (!received && i <= FPGA.Length + 4) ;
+                    if (i < 4)
                     {
-                        newForm.PrintDebug(FPGA[i] +"\n");
-                        comPort.Write(FPGA[i].ToString());
+                        comPort.Write("0");
+                        
                     }
-                
+                    else
+                    {
+                        if (i == 4)
+                        {
+                            comPort.Write("n");
+                        }
+                        else
+                        {
+                            newForm.PrintDebug(FPGA[i-5] + "\n");
+                            double currentProgress = i-5 / percentFPGA;
+                            if (currentProgress <= 100)
+                            {
+                                FPGAProgress.Value = (int)currentProgress;
+
+                            }
+                            comPort.Write(FPGA[i - 5].ToString());
+                        }
+                       
+
+                    }
+
+                    received = false;
+                    
+                        
+                        
+                }
+                Thread.Sleep(100);
+                comPort.Write("d");
+                FPGAProgress.Value = 0;
+                FPGAProgress.Hide();
+
+                comPort.Close();
+
             }
             else
             {
                 MessageBox.Show("FPGA not found!");
             }
+        }
+
+        private void DataReceivedHandler(
+                         object sender,
+                         SerialDataReceivedEventArgs e)
+        {
+            SerialPort sp = (SerialPort)sender;
+            string indata = sp.ReadExisting();
+            received = true;
+
         }
     }
 }

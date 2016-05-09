@@ -140,10 +140,11 @@ namespace Neon3D
                         if(value >= 0)
                         {
                             
-                            valuestr = "+" + value;
+                            valuestr = value + "p";
                         }else
                         {
-                            valuestr = value.ToString();
+                                value = value * -1;
+                                valuestr = value + "m";
                         }
                                     
                                 
