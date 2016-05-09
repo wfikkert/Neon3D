@@ -262,7 +262,10 @@ namespace Neon3D
                 {
                     ctrlLeftKeyIsPressed = false;
                     ctrlRightKeyIsPressed = false;
-
+                    if (comPort.IsOpen)
+                    {
+                        comPort.Write("z");  //beneden dutch word 
+                    }
                     if (rotationBottomRight[2] == 360)
                     {
                         rotationBottomRight[2] = 0;
@@ -273,6 +276,10 @@ namespace Neon3D
                 {
                     ctrlLeftKeyIsPressed = false;
                     ctrlRightKeyIsPressed = false;
+                    if (comPort.IsOpen)
+                    {
+                        comPort.Write("x");  //beneden dutch word 
+                    }
                     if (rotationBottomRight[2] == 0)
                     {
                         rotationBottomRight[2] = 360;
@@ -788,6 +795,16 @@ namespace Neon3D
                 upKeyIsPressed = false;
                 downKeyIsPressed = false;
             }
+            else if (e.KeyData == (Keys.Control | Keys.Right))
+            {
+                ctrlLeftKeyIsPressed = false;
+                ctrlRightKeyIsPressed = false;
+            }
+            else if (e.KeyData == (Keys.Control | Keys.Left))
+            {
+                ctrlLeftKeyIsPressed = false;
+                ctrlRightKeyIsPressed = false;
+            }
 
         }
 
@@ -950,7 +967,13 @@ namespace Neon3D
                 received = false;
             }
             Thread.Sleep(100);
-            comPort.Write("d");
+
+            for (int x = 0; x < 3; x++) {
+                while (!received);
+                comPort.Write("d");
+                received = false;
+            }
+
             FPGAProgress.Value = 0;
             FPGAProgress.Hide();
 

@@ -50,3 +50,10 @@ C:\Users\Willem\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\ob
 C:\Users\Willem\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.csproj.GenerateResource.Cache
 C:\Users\Willem\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.exe
 C:\Users\Willem\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.pdb
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\bin\Debug\Neon3D.exe
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\bin\Debug\Neon3D.pdb
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.csprojResolveAssemblyReference.cache
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.Form1.resources
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.Form2.resources
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.Properties.Resources.resources
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.csproj.GenerateResource.Cache
