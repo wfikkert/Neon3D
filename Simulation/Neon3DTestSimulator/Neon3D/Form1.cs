@@ -66,8 +66,27 @@ namespace Neon3D
         Thread wekeeptrackofourrotation;
         Drawer drawer;
 
+        public SerialPort comPort = new SerialPort();
+
         private void Form1_Load(object sender, EventArgs e)
         {
+            string[] names = SerialPort.GetPortNames();
+           
+            if (names.Length != 0 && !comPort.IsOpen)
+            {
+                comPort.PortName = names[0];
+                comPort.BaudRate = 115000;
+                comPort.Handshake = 0;
+                comPort.Open();
+                comPort.RtsEnable = true;
+                comPort.DtrEnable = true;
+                comPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            }
+            else
+            {
+                MessageBox.Show("FPGA not found");
+            }
+
             wHeight = Screen.PrimaryScreen.Bounds.Height / 2;
             wWidth = Screen.PrimaryScreen.Bounds.Width / 2;
 
@@ -176,12 +195,18 @@ namespace Neon3D
 
         private void keepTrackOfRotation()
         {
+            
             while (true)
             {
                 if (rightKeyIsPressed)
                 {
                     rightKeyIsPressed = false;
                     leftKeyIsPressed = false;
+                    
+                    if (comPort.IsOpen)
+                    {
+                        comPort.Write("r");
+                    }
                     if (rotationBottomRight[0] == 360)
                     {
                         rotationBottomRight[0] = 0;
@@ -192,6 +217,10 @@ namespace Neon3D
                 {
                     rightKeyIsPressed = false;
                     leftKeyIsPressed = false;
+                    if (comPort.IsOpen)
+                    {
+                        comPort.Write("l");
+                    }
                     if (rotationBottomRight[0] == 0)
                     {
                         rotationBottomRight[0] = 360;
@@ -203,7 +232,10 @@ namespace Neon3D
                 {
                     upKeyIsPressed = false;
                     downKeyIsPressed = false;
-
+                    if (comPort.IsOpen)
+                    {
+                        comPort.Write("u");
+                    }
                     if (rotationBottomRight[1] == 360)
                     {
                         rotationBottomRight[1] = 0;
@@ -214,6 +246,10 @@ namespace Neon3D
                 {
                     upKeyIsPressed = false;
                     downKeyIsPressed = false;
+                    if (comPort.IsOpen)
+                    {
+                        comPort.Write("b");  //beneden dutch word 
+                    }
                     if (rotationBottomRight[1] == 0)
                     {
                         rotationBottomRight[1] = 360;
@@ -371,7 +407,7 @@ namespace Neon3D
             wekeepdrawing.Abort();
             wekeeptrackofourcursor.Abort();
             wekeeptrackofourrotation.Abort();
-            
+
         }
 
         public void keepdrawingScreens()
@@ -379,7 +415,7 @@ namespace Neon3D
 
             while (true)
             {
-                
+
                 drawer.drawNodesAndBeams(0, 1, zoomTopLeft, new int[] { 0, 0, 0 }); // top left "TOP"
                 drawer.drawNodesAndBeams(4, 2, zoomTopRight, new int[] { 0, 0, 0 }); //top right "RIGHT"
                 drawer.drawNodesAndBeams(2, 3, zoomBottomLeft, new int[] { 0, 0, 0 }); //bottom left "FRONT"
@@ -405,7 +441,7 @@ namespace Neon3D
             Brush aBrush = (Brush)Brushes.White;
             Graphics g = this.CreateGraphics();
 
-            g.FillRectangle(aBrush, 0, 0, wWidth*2, wHeight*2);
+            g.FillRectangle(aBrush, 0, 0, wWidth * 2, wHeight * 2);
             zoomBottomLeft = 1;
             zoomBottomRight = 1;
             zoomTopLeft = 1;
@@ -428,7 +464,7 @@ namespace Neon3D
             drawer.drawAxMatrix(1, 180, 168, 168, size);
             drawer.drawAxMatrix(2, 180, 168, 168, size);
             drawer.drawAxMatrix(3, 180, 168, 168, size);
-            
+
         }
 
 
@@ -640,7 +676,7 @@ namespace Neon3D
             Brush aBrush = (Brush)Brushes.White;
             Graphics g = this.CreateGraphics();
 
-            g.FillRectangle(aBrush, wWidth+6, wHeight+6, wWidth*2, wHeight*2);
+            g.FillRectangle(aBrush, wWidth + 6, wHeight + 6, wWidth * 2, wHeight * 2);
 
             //drawer.drawAxMatrix(0, 255, 0, 0, 6);
             //drawInsideAxles(4);
@@ -655,6 +691,10 @@ namespace Neon3D
             else if (e.KeyData == Keys.R)
             {
                 resetScreen();
+                if (comPort.IsOpen)
+                {
+                    comPort.Write("s"); //swipe
+                }
             }
             else if (e.KeyData == (Keys.Control | Keys.R))
             {
@@ -725,30 +765,30 @@ namespace Neon3D
         {
             if (e.KeyData == Keys.Right)
             {
-                
+
                 leftKeyIsPressed = false;
                 rightKeyIsPressed = false;
             }
             else if (e.KeyData == Keys.Left)
             {
-               
+
                 rightKeyIsPressed = false;
                 leftKeyIsPressed = false;
             }
             else if (e.KeyData == Keys.Up)
             {
-                
+
                 upKeyIsPressed = false;
                 downKeyIsPressed = false;
             }
             else if (e.KeyData == Keys.Down)
             {
-                
+
 
                 upKeyIsPressed = false;
                 downKeyIsPressed = false;
             }
-           
+
         }
 
         private void OpenFile_Click(object sender, EventArgs e)
@@ -798,7 +838,7 @@ namespace Neon3D
             {
                 string name = saveFileDialog1.FileName;
                 newForm.PrintDebug("SAVING FILE TO: " + name + "\n");
-                
+
                 using (FileStream fs = File.Create(name))
                 {
                     Byte[] info = new UTF8Encoding(true).GetBytes(generateString());
@@ -839,80 +879,86 @@ namespace Neon3D
         public bool received = false;
         private void UploadFPGA_Click(object sender, EventArgs e)
         {
-            string[] names = SerialPort.GetPortNames();
-            if(names.Length != 0)
+            newForm.PrintDebug("button clicked");
+
+
+            newForm.PrintDebug("connection with serial");
+
+
+
+            string fpgaArray = generateStringFPGA();
+            string amountOfChar = fpgaArray.Length.ToString();
+
+            char[] FPGA = fpgaArray.ToCharArray(0, fpgaArray.Length - 1);
+            char[] amountOfCharArray = amountOfChar.ToCharArray(0, amountOfChar.Length);
+
+            newForm.PrintDebug("amount of character defined \n");
+
+            int i;
+            int j;
+            FPGAProgress.Show();
+
+            comPort.Write("0");
+            double percentFPGA = FPGA.Length / 100;
+            FPGAProgress.Value = 0;
+            for (i = 0; i < FPGA.Length + 10; i++)
             {
-                
-                SerialPort comPort = new SerialPort();
-                comPort.PortName = names[0];
-                comPort.BaudRate = 115000;
-                comPort.Handshake = 0;
-                comPort.Open();
-                comPort.RtsEnable = true;
-                comPort.DtrEnable = true;
-                comPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
-
-
-
-
-
-                string fpgaArray = generateStringFPGA();
-                    
-                char[] FPGA = fpgaArray.ToCharArray(0, fpgaArray.Length - 1);
-                int i;
-                int j;
-                FPGAProgress.Show();
-
-                comPort.Write("0");
-                double percentFPGA = FPGA.Length / 100;
-                FPGAProgress.Value = 0;
-                for (i = 0; i < FPGA.Length+5; i++)
+                while (!received && i <= (FPGA.Length + 10)) ;
+                if (i < 4)
                 {
-                    while (!received && i <= FPGA.Length + 4) ;
-                    if (i < 4)
-                    {
-                        comPort.Write("0");
-                        
-                    }
-                    else
-                    {
-                        if (i == 4)
-                        {
-                            comPort.Write("n");
-                        }
-                        else
-                        {
-                            newForm.PrintDebug(FPGA[i-5] + "\n");
-                            double currentProgress = i-5 / percentFPGA;
-                            if (currentProgress <= 100)
-                            {
-                                FPGAProgress.Value = (int)currentProgress;
-
-                            }
-                            comPort.Write(FPGA[i - 5].ToString());
-                        }
-                       
-
-                    }
-
-                    received = false;
-                    
-                        
-                        
+                    newForm.PrintDebug("0 \n");
+                    comPort.Write("1");
                 }
-                Thread.Sleep(100);
-                comPort.Write("d");
-                FPGAProgress.Value = 0;
-                FPGAProgress.Hide();
+                else if (i == 4)
+                {
+                    newForm.PrintDebug("t \n");
+                    comPort.Write("t");
+                }
+                else if (i >= 5 && i < 8)
+                {
+                    if (i < amountOfCharArray.Length + 6)
+                    {
+                        newForm.PrintDebug(amountOfCharArray[i - 5] + "\n");
+                        comPort.Write(amountOfCharArray[i - 5].ToString());
+                    }
 
-                comPort.Close();
 
+
+                }
+
+                else if (i == 8)
+                {
+                    newForm.PrintDebug("t \n");
+                    comPort.Write("t");
+                }
+                else if (i == 9)
+                {
+                    newForm.PrintDebug("n \n");
+                    comPort.Write("n");
+                }
+                else
+                {
+                    newForm.PrintDebug(FPGA[i - 10] + "\n");
+                    double currentProgress = i - 10 / percentFPGA;
+                    if (currentProgress <= 100)
+                    {
+                        FPGAProgress.Value = (int)currentProgress;
+
+                    }
+                    comPort.Write(FPGA[i - 10].ToString());
+                }
+                received = false;
             }
-            else
-            {
-                MessageBox.Show("FPGA not found!");
-            }
+            Thread.Sleep(100);
+            comPort.Write("d");
+            FPGAProgress.Value = 0;
+            FPGAProgress.Hide();
+
+            
+
         }
+        
+    
 
         private void DataReceivedHandler(
                          object sender,
