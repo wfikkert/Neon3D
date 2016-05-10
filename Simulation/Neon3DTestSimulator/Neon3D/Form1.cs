@@ -916,7 +916,7 @@ namespace Neon3D
             FPGAProgress.Show();
 
             comPort.Write("0");
-            double percentFPGA = FPGA.Length / 100;
+            FPGAProgress.Maximum = FPGA.Length + 10;
             FPGAProgress.Value = 0;
             for (i = 0; i < FPGA.Length + 10; i++)
             {
@@ -931,22 +931,19 @@ namespace Neon3D
                     newForm.PrintDebug("t \n");
                     comPort.Write("t");
                 }
-                else if (i >= 5 && i < 8)
+                else if (i >= 5 && i <= 8)
                 {
-                    if (i < amountOfCharArray.Length + 6)
+                    
+                    try
                     {
+
                         newForm.PrintDebug(amountOfCharArray[i - 5] + "\n");
                         comPort.Write(amountOfCharArray[i - 5].ToString());
                     }
-
-
-
-                }
-
-                else if (i == 8)
-                {
-                    newForm.PrintDebug("t \n");
-                    comPort.Write("t");
+                    catch (Exception derp) {
+                        newForm.PrintDebug("t \n");
+                        comPort.Write("t");
+                    }
                 }
                 else if (i == 9)
                 {
@@ -955,20 +952,14 @@ namespace Neon3D
                 }
                 else
                 {
-                    newForm.PrintDebug(FPGA[i - 10] + "\n");
-                    double currentProgress = i - 10 / percentFPGA;
-                    if (currentProgress <= 100)
-                    {
-                        FPGAProgress.Value = (int)currentProgress;
-
-                    }
+                    FPGAProgress.Value = i;
                     comPort.Write(FPGA[i - 10].ToString());
                 }
                 received = false;
             }
             Thread.Sleep(100);
 
-            for (int x = 0; x < 3; x++) {
+            for (int x = 0; x < 1; x++) {
                 while (!received);
                 comPort.Write("d");
                 received = false;

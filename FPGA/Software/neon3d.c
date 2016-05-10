@@ -75,7 +75,9 @@ void resetScreen(){
 
 void drawPixel(int x, int y, int size, short pixel_color )
 {
-	VGA_box (x, y, x + size - 1, y + size - 1, pixel_color);
+	if(x != 0){
+		VGA_box (x, y, x + size - 1, y + size - 1, pixel_color);
+	}
 }
 
 void removePixel(int x, int y, int size)
@@ -115,6 +117,8 @@ void drawLine(float x1, float y1, float x2, float y2, float midX, float midY, in
     //for loop for drawing beam
     for (x = x1; x <= x2; x++)
     {
+    	if(y1 != y2)
+    	{
     		y = 0;
             //formula for drawing beam between nodes
 			if ((x2 - x1) == 0)
@@ -186,7 +190,18 @@ void drawLine(float x1, float y1, float x2, float y2, float midX, float midY, in
 			prevY = y;
 			prevX = x;
 
+        } else {
+
+			if (!remove)
+			{
+				drawPixel((int)x, (int)y1, size, pixel_color);
+			}
+			else
+			{
+				removePixel((int)x, (int)y1, size);
+			}
         }
+    }
 
 }
 
@@ -204,6 +219,7 @@ void task1(void* pdata)
 
 	int xRotation = rotation[0];
 	int yRotation = rotation[1];
+	int zRotation = rotation[2];
 	float zoom = *zoomscreenpointer;
 
 
@@ -276,7 +292,10 @@ void task1(void* pdata)
 	  				resetScreen();
 	  				int i;
 
-
+	  				char text_top_row[40] = "NEON 3D Inc.";
+					VGA_text(1,0,text_top_row);
+					char text_bottom_row3[40] = "SOFTWARE MODE \0";
+					VGA_text (56, 0, text_bottom_row3);
 	  				test[VALUES];
 	  				for(i = 0; i < VALUES; i++){
 	  					test[i] = 0;
@@ -290,11 +309,12 @@ void task1(void* pdata)
 					integerPos = 0;
 					amountOfIntegersReceived = 0;
 
-					yRotation = 0;
-					rotation[1] = yRotation;
 					xRotation = 0;
 					rotation[0] = xRotation;
-					zoom = 0.8;
+					yRotation = 0;
+					rotation[1] = yRotation;
+					zRotation = 0;
+					rotation[2] = zRotation;
 					*zoomscreenpointer = zoom;
 
 
@@ -303,6 +323,10 @@ void task1(void* pdata)
 	  			} else if(customString[0] == 'd' || customString[0] == ' '){
 	  				resetScreen();
 
+	  				char text_top_row[40] = "NEON 3D Inc.";
+	  				VGA_text(1,0,text_top_row);
+	  				char text_bottom_row3[40] = "SOFTWARE MODE \0";
+					VGA_text (56, 0, text_bottom_row3);
 	  				int amountOfLines = amountOfIntegersReceived / 6;
 					char text_bottom_row1[40];
 					sprintf(text_bottom_row1, "3D amount of lines: %d", amountOfLines );
@@ -396,11 +420,26 @@ void task1(void* pdata)
 						xRotation = 0;
 					}
 					rotation[0] = xRotation;
-	  			} else if(customString[0] == 's'){
-	  				yRotation = 0;
-					rotation[1] = yRotation;
+	  			} else if(customString[0] == 'z'){
+					zRotation = zRotation - 1;
+					if(zRotation < 1){
+						zRotation = 360;
+					}
+					rotation[2] = zRotation;
+				} else if(customString[0] == 'x'){
+					zRotation = zRotation + 1;
+					if(zRotation > 359){
+						zRotation = 0;
+					}
+					rotation[2] = zRotation;
+				} else if(customString[0] == 's'){
+
 					xRotation = 0;
 					rotation[0] = xRotation;
+	  				yRotation = 0;
+					rotation[1] = yRotation;
+					zRotation = 0;
+					rotation[2] = zRotation;
 					zoom = 0.8;
 					*zoomscreenpointer = zoom;
 	  			}
@@ -425,6 +464,8 @@ void task1(void* pdata)
 					rotation[1] = yRotation;
 					xRotation = 0;
 					rotation[0] = xRotation;
+					zRotation = 0;
+					rotation[2] = zRotation;
 					zoom = 0.8;
 					*zoomscreenpointer = zoom;
 
@@ -467,6 +508,26 @@ void task1(void* pdata)
 
 				}
 
+				if (KEY_value & 0x20)					// check KEY04
+				{
+					zRotation = zRotation - 1;
+					if(zRotation < 1){
+						zRotation = 360;
+					}
+					rotation[2] = zRotation;
+
+				}
+
+				if (KEY_value & 0x40)					// check KEY04
+				{
+					zRotation = zRotation + 1;
+					if(zRotation > 359){
+						zRotation = 0;
+					}
+					rotation[2] = zRotation;
+
+				}
+
 				if(KEY_value & 0x20000){
 					if(zoom <= 1.49){
 						zoom = zoom + 0.01;
@@ -482,6 +543,15 @@ void task1(void* pdata)
 				}
 	  		}
 
+
+	  		char text_bottom_row[40];
+	  		char text_bottom_row2[40];
+			VGA_text (6, 2, "                                          \0");
+			VGA_text (15, 3, "                                          \0");
+			sprintf(text_bottom_row, "Zoom: %f", *zoomscreenpointer);
+			VGA_text (1, 2, text_bottom_row);
+			sprintf(text_bottom_row2, "Rotation X,Y,Z: %d,%d,%d", rotation[0], rotation[1], rotation[2]);
+			VGA_text (1, 3, text_bottom_row2);
 
 	  		ALT_SEM_POST(sem_objectDrawn);
 	  		OSTimeDly(1);
@@ -501,20 +571,23 @@ void task2(void* pdata)
 	float prevousZoomScreenBR = 0;
 	int previousXRotation = 0;
 	int previousYRotation = 0;
+	int previousZRotation = 0;
 	int i;
 	int tempArray[VALUES];
 
 
 
 
-	char text_top_row[40];
-	char text_bottom_row[40];
-	char text_bottom_row2[40];
-	char text_bottom_row3[40] = "SOFTWARE MODE \0";
-	sprintf(text_top_row, "NEON 3D");
+	char text_top_row[40] = "NEON 3D Inc.";
 
 	VGA_text(1,0,text_top_row);
-	VGA_text (1, 4, text_bottom_row3);
+	char text_bottom_row1[40];
+	sprintf(text_bottom_row1, "3D amount of lines: %d", 0);
+	VGA_text (1, 1, text_bottom_row1);
+
+
+	char text_bottom_row3[40] = "SOFTWARE MODE \0";
+	VGA_text (56, 0, text_bottom_row3);
 
 	while(1){
 
@@ -532,14 +605,8 @@ void task2(void* pdata)
 
 		int localRotationX = rotation[0];
 		int localRotationY = rotation[1];
+		int localRotationZ = rotation[2];
 		float zoomscreen = *zoomscreenpointer;
-		VGA_text (6, 2, "                                          \0");
-		VGA_text (15, 3, "                                          \0");
-
-		sprintf(text_bottom_row, "Zoom: %f", zoomscreen);
-		VGA_text (1, 2, text_bottom_row);
-		sprintf(text_bottom_row2, "Rotation X,Y: %d,%d", rotation[0], rotation[1]);
-		VGA_text (1, 3, text_bottom_row2);
 
 		for(i = 0;  i < VALUES; i++){
 			tempArray[i] = (startEndnodes)[i];
@@ -566,31 +633,27 @@ void task2(void* pdata)
 					break;
 				}
 
-				if(previousXRotation != localRotationX || previousYRotation != localRotationY || zoomscreen != prevousZoomScreenBR)
+				if(previousXRotation != localRotationX || previousYRotation != localRotationY || previousZRotation != localRotationZ || zoomscreen != prevousZoomScreenBR)
 				{
-					x1 = ((startx * cos(previousXRotation / 57.4) - starty * sin(previousXRotation / 57.4)) * (cos(previousYRotation / 57.4))) + startz * sin(previousYRotation / 57.4);
-					x2 = ((endx * cos(previousXRotation / 57.4) - endy * sin(previousXRotation / 57.4)) * (cos(previousYRotation / 57.4))) + endz * sin(previousYRotation / 57.4);
+					 x1 = ((startx * cos(previousXRotation / 57.4) - (starty * cos(previousZRotation / 57.4) - startz * sin(previousZRotation / 57.4)) * sin(previousXRotation / 57.4)) * (cos(previousYRotation / 57.4))) + (starty * sin(previousZRotation / 57.4) + startz * cos(previousZRotation / 57.4)) * sin(previousYRotation / 57.4);
+					 x2 = ((endx * cos(previousXRotation / 57.4) - (endy * cos(previousZRotation / 57.4) - endz * sin(previousZRotation / 57.4)) * sin(previousXRotation / 57.4)) * (cos(previousYRotation / 57.4))) + (endy * sin(previousZRotation / 57.4) + endz * cos(previousZRotation / 57.4)) * sin(previousYRotation / 57.4);
 
-					z1 = ((-(startx * cos(previousXRotation / 57.4) - starty * sin(previousXRotation / 57.4))) * (sin(previousYRotation / 57.4)) + startz * cos(previousYRotation / 57.4));
-					z2 = ((-(endx * cos(previousXRotation / 57.4) - endy * sin(previousXRotation / 57.4))) * (sin(previousYRotation / 57.4)) + endz * cos(previousYRotation / 57.4));
+					 y1 = ((-(startx * cos(previousXRotation / 57.4) - (starty * cos(previousZRotation / 57.4) - startz * sin(previousZRotation / 57.4)) * sin(previousXRotation / 57.4))) * (sin(previousYRotation / 57.4)) + (starty * sin(previousZRotation / 57.4) + startz * cos(previousZRotation / 57.4)) * cos(previousYRotation / 57.4));
+					 y2 = ((-(endx * cos(previousXRotation / 57.4) - (endy * cos(previousZRotation / 57.4) - endz * sin(previousZRotation / 57.4)) * sin(previousXRotation / 57.4))) * (sin(previousYRotation / 57.4)) + (endy * sin(previousZRotation / 57.4) + endz * cos(previousZRotation / 57.4)) * cos(previousYRotation / 57.4));
 
-					y1 = z1;
-					y2 = z2;
 
-					drawLine((x1 * prevousZoomScreenBR), (y1 * prevousZoomScreenBR), (x2 * prevousZoomScreenBR), (y2 * prevousZoomScreenBR), midX, midY, 1 , 1, 0x0000);
+					drawLine((x1 * prevousZoomScreenBR), (y1 * prevousZoomScreenBR), (x2 * prevousZoomScreenBR), (y2 * prevousZoomScreenBR), midX, midY,1 , 1, color);
 
 				}
 
-				x1 = ((startx * cos(localRotationX / 57.4) - starty * sin(localRotationX / 57.4)) * (cos(localRotationY / 57.4))) + startz * sin(localRotationY / 57.4) ;
-				x2 = ((endx * cos(localRotationX / 57.4) - endy * sin(localRotationX / 57.4))*(cos(localRotationY / 57.4))) + endz * sin(localRotationY / 57.4);
+				 x1 = ((startx * cos(localRotationX / 57.4) - (starty * cos(localRotationZ / 57.4) - startz * sin(localRotationZ / 57.4)) * sin(localRotationX / 57.4)) * (cos(localRotationY / 57.4))) + (starty * sin(localRotationZ / 57.4) + startz * cos(localRotationZ / 57.4)) * sin(localRotationY / 57.4);
+				 x2 = ((endx * cos(localRotationX / 57.4) - (endy * cos(localRotationZ / 57.4) - endz * sin(localRotationZ / 57.4)) * sin(localRotationX / 57.4)) * (cos(localRotationY / 57.4))) + (endy * sin(localRotationZ / 57.4) + endz * cos(localRotationZ / 57.4)) * sin(localRotationY / 57.4);
 
-				z1 = ((-(startx * cos(localRotationX / 57.4) - starty * sin(localRotationX / 57.4))) *(sin(localRotationY / 57.4)) + startz * cos(localRotationY / 57.4));
-				z2 = ((-(endx * cos(localRotationX / 57.4) - endy * sin(localRotationX / 57.4))) * (sin(localRotationY / 57.4)) + endz * cos(localRotationY / 57.4));
+				 y1 = ((-(startx * cos(localRotationX / 57.4) - (starty * cos(localRotationZ / 57.4) - startz * sin(localRotationZ / 57.4)) * sin(localRotationX / 57.4))) * (sin(localRotationY / 57.4)) + (starty * sin(localRotationZ / 57.4) + startz * cos(localRotationZ / 57.4)) * cos(localRotationY / 57.4));
+				 y2 = ((-(endx * cos(localRotationX / 57.4) - (endy * cos(localRotationZ / 57.4) - endz * sin(localRotationZ / 57.4)) * sin(localRotationX / 57.4))) * (sin(localRotationY / 57.4)) + (endy * sin(localRotationZ / 57.4) + endz * cos(localRotationZ / 57.4)) * cos(localRotationY / 57.4));
 
 
 
-				y1 = z1;
-				y2 = z2;
 				drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), midX, midY, 1 , 0, color);
 
 
@@ -604,6 +667,7 @@ void task2(void* pdata)
 
 			previousXRotation = localRotationX;
 			previousYRotation = localRotationY;
+			previousZRotation = localRotationZ;
 
 
 		}
@@ -619,8 +683,8 @@ void task2(void* pdata)
 int main(void)
 {
 	amountOfLines = 0;
-	int rotatevalue[2] = {0,0};
-	rotation = malloc(sizeof(int)*2);
+	int rotatevalue[3] = {0,0,0};
+	rotation = malloc(sizeof(int)*3);
 	rotation = rotatevalue;
 
 	float zoom = 0.8;
