@@ -69,8 +69,9 @@
             // 
             this.TopLabel.AutoSize = true;
             this.TopLabel.Location = new System.Drawing.Point(0, 0);
+            this.TopLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.TopLabel.Name = "TopLabel";
-            this.TopLabel.Size = new System.Drawing.Size(52, 13);
+            this.TopLabel.Size = new System.Drawing.Size(67, 16);
             this.TopLabel.TabIndex = 0;
             this.TopLabel.Text = "TopLabel";
             // 
@@ -78,8 +79,9 @@
             // 
             this.Front.AutoSize = true;
             this.Front.Location = new System.Drawing.Point(0, 0);
+            this.Front.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Front.Name = "Front";
-            this.Front.Size = new System.Drawing.Size(31, 13);
+            this.Front.Size = new System.Drawing.Size(38, 16);
             this.Front.TabIndex = 1;
             this.Front.Text = "Front";
             // 
@@ -87,8 +89,9 @@
             // 
             this.Right.AutoSize = true;
             this.Right.Location = new System.Drawing.Point(0, 0);
+            this.Right.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Right.Name = "Right";
-            this.Right.Size = new System.Drawing.Size(32, 13);
+            this.Right.Size = new System.Drawing.Size(39, 16);
             this.Right.TabIndex = 2;
             this.Right.Text = "Right";
             // 
@@ -96,8 +99,9 @@
             // 
             this.dried.AutoSize = true;
             this.dried.Location = new System.Drawing.Point(0, 0);
+            this.dried.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.dried.Name = "dried";
-            this.dried.Size = new System.Drawing.Size(21, 13);
+            this.dried.Size = new System.Drawing.Size(25, 16);
             this.dried.TabIndex = 3;
             this.dried.Text = "3D";
             // 
@@ -105,8 +109,9 @@
             // 
             this.zoomTL.AutoSize = true;
             this.zoomTL.Location = new System.Drawing.Point(0, 0);
+            this.zoomTL.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.zoomTL.Name = "zoomTL";
-            this.zoomTL.Size = new System.Drawing.Size(51, 13);
+            this.zoomTL.Size = new System.Drawing.Size(62, 16);
             this.zoomTL.TabIndex = 4;
             this.zoomTL.Text = "Zoom: 1x";
             // 
@@ -114,8 +119,9 @@
             // 
             this.zoomBL.AutoSize = true;
             this.zoomBL.Location = new System.Drawing.Point(0, 0);
+            this.zoomBL.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.zoomBL.Name = "zoomBL";
-            this.zoomBL.Size = new System.Drawing.Size(51, 13);
+            this.zoomBL.Size = new System.Drawing.Size(62, 16);
             this.zoomBL.TabIndex = 5;
             this.zoomBL.Text = "Zoom: 1x";
             // 
@@ -123,8 +129,9 @@
             // 
             this.zoomBR.AutoSize = true;
             this.zoomBR.Location = new System.Drawing.Point(0, 0);
+            this.zoomBR.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.zoomBR.Name = "zoomBR";
-            this.zoomBR.Size = new System.Drawing.Size(51, 13);
+            this.zoomBR.Size = new System.Drawing.Size(62, 16);
             this.zoomBR.TabIndex = 6;
             this.zoomBR.Text = "Zoom: 1x";
             // 
@@ -132,38 +139,43 @@
             // 
             this.zoomTR.AutoSize = true;
             this.zoomTR.Location = new System.Drawing.Point(0, 0);
+            this.zoomTR.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.zoomTR.Name = "zoomTR";
-            this.zoomTR.Size = new System.Drawing.Size(51, 13);
+            this.zoomTR.Size = new System.Drawing.Size(62, 16);
             this.zoomTR.TabIndex = 7;
             this.zoomTR.Text = "Zoom: 1x";
             // 
             // RotationTL
             // 
             this.RotationTL.Location = new System.Drawing.Point(0, 0);
+            this.RotationTL.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.RotationTL.Name = "RotationTL";
-            this.RotationTL.Size = new System.Drawing.Size(100, 23);
+            this.RotationTL.Size = new System.Drawing.Size(133, 28);
             this.RotationTL.TabIndex = 15;
             // 
             // RotationBL
             // 
             this.RotationBL.Location = new System.Drawing.Point(0, 0);
+            this.RotationBL.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.RotationBL.Name = "RotationBL";
-            this.RotationBL.Size = new System.Drawing.Size(100, 23);
+            this.RotationBL.Size = new System.Drawing.Size(133, 28);
             this.RotationBL.TabIndex = 14;
             // 
             // RotationTR
             // 
             this.RotationTR.Location = new System.Drawing.Point(0, 0);
+            this.RotationTR.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.RotationTR.Name = "RotationTR";
-            this.RotationTR.Size = new System.Drawing.Size(100, 23);
+            this.RotationTR.Size = new System.Drawing.Size(133, 28);
             this.RotationTR.TabIndex = 13;
             // 
             // RotationBR
             // 
             this.RotationBR.AutoSize = true;
             this.RotationBR.Location = new System.Drawing.Point(0, 0);
+            this.RotationBR.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.RotationBR.Name = "RotationBR";
-            this.RotationBR.Size = new System.Drawing.Size(59, 13);
+            this.RotationBR.Size = new System.Drawing.Size(71, 16);
             this.RotationBR.TabIndex = 11;
             this.RotationBR.Text = "Rotation: 0";
             // 
@@ -179,7 +191,7 @@
             this.UploadFPGA});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1279, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1705, 25);
             this.toolStrip1.TabIndex = 12;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -257,17 +269,18 @@
             // 
             // FPGAProgress
             // 
-            this.FPGAProgress.Location = new System.Drawing.Point(509, 0);
+            this.FPGAProgress.Location = new System.Drawing.Point(1225, 0);
+            this.FPGAProgress.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.FPGAProgress.Name = "FPGAProgress";
-            this.FPGAProgress.Size = new System.Drawing.Size(360, 23);
+            this.FPGAProgress.Size = new System.Drawing.Size(480, 25);
             this.FPGAProgress.TabIndex = 16;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1279, 648);
+            this.ClientSize = new System.Drawing.Size(1705, 798);
             this.Controls.Add(this.FPGAProgress);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.RotationBR);
@@ -282,6 +295,7 @@
             this.Controls.Add(this.Right);
             this.Controls.Add(this.Front);
             this.Controls.Add(this.TopLabel);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";

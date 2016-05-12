@@ -28,41 +28,29 @@
         /// </summary>
         public void InitializeComponent()
         {
-            
             this.Debug = new System.Windows.Forms.RichTextBox();
-            
             this.SuspendLayout();
-            
-            
-            
-            
             // 
             // Debug
             // 
-            this.Debug.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.Debug.Location = new System.Drawing.Point(26, 12);
+            this.Debug.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.Debug.Location = new System.Drawing.Point(13, 13);
+            this.Debug.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Debug.Name = "Debug";
-            this.Debug.Size = new System.Drawing.Size(312, 275);
+            this.Debug.Size = new System.Drawing.Size(441, 513);
             this.Debug.TabIndex = 11;
             this.Debug.Text = "";
             this.Debug.TextChanged += new System.EventHandler(this.Debug_TextChanged);
-           
-            
-            
-            
-            
             // 
             // Form2
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(350, 448);
-            this.Controls.Add(this.SaveAs);
-            this.Controls.Add(this.OpenFile);
-            this.Controls.Add(this.drawLines);
-            this.Controls.Add(this.resetNodes);
-            this.Controls.Add(this.ResetScr);
+            this.ClientSize = new System.Drawing.Size(467, 551);
             this.Controls.Add(this.Debug);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Form2";
             this.Text = "Form2";
             this.Load += new System.EventHandler(this.Form2_Load);
@@ -71,12 +59,7 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button resetNodes;
-        private System.Windows.Forms.Button ResetScr;
+        
         private System.Windows.Forms.RichTextBox Debug;
-        private System.Windows.Forms.Button drawLines;
-        private System.Windows.Forms.Button OpenFile;
-        private System.Windows.Forms.Button SaveAs;
     }
 }

@@ -203,16 +203,18 @@ namespace Neon3D
         {
             Color myColor = Color.FromArgb(redValue, greenValue, blueValue);
             SolidBrush brushColor = new SolidBrush(myColor);
-            Graphics g = mainForm.CreateGraphics();
-            if (x != 0 && y != 0)
-            {
-                try
-                {
-                    g.FillRectangle(brushColor, x, y, size, size);
-                } catch(Exception e)
-                {
 
+            try
+            {
+                Graphics g = mainForm.CreateGraphics();
+                if (x != 0 && y != 0)
+                {
+                    g.FillRectangle(brushColor, x, y, size, size);                
                 }
+            }
+            catch (Exception e)
+            {
+
             }
         }
 

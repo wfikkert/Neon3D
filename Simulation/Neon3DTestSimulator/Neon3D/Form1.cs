@@ -662,10 +662,40 @@ namespace Neon3D
                         (localScreenClickedX > drawer.allNodes[i, 2] - range &&
                         localScreenClickedX < drawer.allNodes[i, 2] + range)))
                     {
+                        bool isAlreadySelected = false;
+                        int a;
+                        for (a = 0; a < (drawer.selectedNodes.Length); a++)
+                        {
+                            if(drawer.selectedNodes[a] == i)
+                            {
+                                isAlreadySelected = true;                       
+                                break;
+                            }
+                        }
+                        if (!isAlreadySelected)
+                        {
+                            drawer.selectedNodes[drawer.selectedArrayLastIndex] = i;
+                            drawer.selectedArrayLastIndex++;
+                        } else
+                        {
+                            int?[] dest = new int?[drawer.selectedNodes.Length - 1];
 
-                        newForm.PrintDebug("NODE WITH INDEX: " + i + " SELECTED!\n");
-                        drawer.selectedNodes[drawer.selectedArrayLastIndex] = i;
-                        drawer.selectedArrayLastIndex++;
+                            if (a >= 0)
+                            {
+                                Array.Copy(drawer.selectedNodes, 0, dest, 0, a);
+                            }
+
+                            if (a < drawer.selectedNodes.Length - 1)
+                            {
+                                Array.Copy(drawer.selectedNodes, a + 1, dest, a, drawer.selectedNodes.Length - a - 1);
+                            }
+
+                            drawer.selectedNodes = dest;
+
+                            drawer.selectedArrayLastIndex--;
+                        }
+
+                        
                     }
 
                 }
@@ -901,78 +931,20 @@ namespace Neon3D
 
             newForm.PrintDebug("connection with serial");
 
-
-
-            string fpgaArray = generateStringFPGA();
-            string amountOfChar = fpgaArray.Length.ToString();
-
-            char[] FPGA = fpgaArray.ToCharArray(0, fpgaArray.Length - 1);
-            char[] amountOfCharArray = amountOfChar.ToCharArray(0, amountOfChar.Length);
-
-            newForm.PrintDebug("amount of character defined \n");
-
-            int i;
-            int j;
-            FPGAProgress.Show();
-
-            comPort.Write("0");
-            FPGAProgress.Maximum = FPGA.Length + 10;
-            FPGAProgress.Value = 0;
-            for (i = 0; i < FPGA.Length + 10; i++)
+            if (comPort.IsOpen)
             {
-                while (!received && i <= (FPGA.Length + 10)) ;
-                if (i < 4)
-                {
-                    newForm.PrintDebug("0 \n");
-                    comPort.Write("1");
-                }
-                else if (i == 4)
-                {
-                    newForm.PrintDebug("t \n");
-                    comPort.Write("t");
-                }
-                else if (i >= 5 && i <= 8)
-                {
-                    
-                    try
-                    {
-
-                        newForm.PrintDebug(amountOfCharArray[i - 5] + "\n");
-                        comPort.Write(amountOfCharArray[i - 5].ToString());
-                    }
-                    catch (Exception derp) {
-                        newForm.PrintDebug("t \n");
-                        comPort.Write("t");
-                    }
-                }
-                else if (i == 9)
-                {
-                    newForm.PrintDebug("n \n");
-                    comPort.Write("n");
-                }
-                else
-                {
-                    FPGAProgress.Value = i;
-                    comPort.Write(FPGA[i - 10].ToString());
-                }
-                received = false;
+                FpgaUpload uploadForm = new FpgaUpload(comPort, drawer.generateStringFPGA());
+                uploadForm.Show();
+            } else
+            {
+                FpgaUpload uploadForm = new FpgaUpload(drawer.generateStringFPGA());
+                uploadForm.Show();
             }
-            Thread.Sleep(100);
-
-            for (int x = 0; x < 1; x++) {
-                while (!received);
-                comPort.Write("d");
-                received = false;
-            }
-
-            FPGAProgress.Value = 0;
-            FPGAProgress.Hide();
 
             
 
         }
-        
-    
+
 
         private void DataReceivedHandler(
                          object sender,
@@ -983,5 +955,9 @@ namespace Neon3D
             received = true;
 
         }
+
+       
     }
+
+   
 }

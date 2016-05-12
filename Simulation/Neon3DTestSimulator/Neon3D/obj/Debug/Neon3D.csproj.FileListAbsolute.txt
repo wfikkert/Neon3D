@@ -57,3 +57,4 @@ C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj
 C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.Form2.resources
 C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.Properties.Resources.resources
 C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.csproj.GenerateResource.Cache
+C:\Users\Eldin\Documents\GitHub\Neon3D\Simulation\Neon3DTestSimulator\Neon3D\obj\Debug\Neon3D.FpgaUpload.resources

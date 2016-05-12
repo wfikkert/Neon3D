@@ -11,8 +11,8 @@ OS_STK    task3_stk[TASK_STACKSIZE];
 /* Definition of Task Priorities */
 
 #define TASK1_PRIORITY      1
-#define TASK2_PRIORITY      2
-#define TASK3_PRIORITY      3
+#define TASK2_PRIORITY      3
+#define TASK3_PRIORITY      2
 #define VALUES 240
 
 ALT_SEM(sem_objectDrawn)
@@ -678,6 +678,38 @@ void task2(void* pdata)
 
 }
 
+void task3(void* pdata){
+
+
+	int zRotation = 0;
+	*zoomscreenpointer = 0.5;
+
+	int test[VALUES] = {-48,0,-2,-48,39,0,-30,0,-2,-30,39,0,-19,0,0,-8,38,0,-20,-39,0,-8,18,0-21,18,0,-8,0,0,-19,0,0,6,37,0,6,0,0,25,0,0,37,0,6,37,0,25,37,0,39,0,0,38,37,0,38,37,0,56,0,0,56,0,0,56,37,0,0,-53,0,-24,-53,0,0,-53,0,0,-37,0,-23,-33,0,0,-13,0,-23,-12,0,0,-37,0,0,-13,0,0,-55,0,20,-56,0,0,-36,0,22,-35,0,0,-55,0,0,-36,0,22,-35,0,20,-56,0,22,-35,0,20,-56,0,22,-13,0,22,-35,0};
+	startEndnodes = malloc(sizeof(int) * VALUES);
+	startEndnodes = test;
+
+	for(zRotation = 0; zRotation <= 90; zRotation++){
+		ALT_SEM_PEND(sem_objectDrawn, 0);
+		rotation[2] = zRotation;
+		char text_bottom_row[40];
+		char text_bottom_row2[40];
+		VGA_text (6, 2, "                                          \0");
+		VGA_text (15, 3, "                                          \0");
+		sprintf(text_bottom_row, "Zoom: %f", *zoomscreenpointer);
+		VGA_text (1, 2, text_bottom_row);
+		sprintf(text_bottom_row2, "Rotation X,Y,Z: %d,%d,%d", rotation[0], rotation[1], rotation[2]);
+		VGA_text (1, 3, text_bottom_row2);
+
+		OSTimeDly(1);
+
+		ALT_SEM_POST(sem_objectDrawn);
+	}
+
+	OSTaskDel(OS_PRIO_SELF);
+
+
+}
+
 
 /* The main function creates two task and starts multi-tasking */
 int main(void)
@@ -691,10 +723,9 @@ int main(void)
 	zoomscreenpointer = malloc(sizeof(float));
 	zoomscreenpointer = &zoom;
 
-	printf("\n array set \n");
-
 	resetScreen();
 	int err = ALT_SEM_CREATE(&sem_objectDrawn, 1);
+	//gets serial input and switch input
 	OSTaskCreateExt(task1,
                   NULL,
                   (void *)&task1_stk[TASK_STACKSIZE-1],
@@ -705,7 +736,7 @@ int main(void)
                   NULL,
                   0);
 
-
+	//draws 3D object on screen
 	OSTaskCreateExt(task2,
                   NULL,
                   (void *)&task2_stk[TASK_STACKSIZE-1],
@@ -715,6 +746,17 @@ int main(void)
                   TASK_STACKSIZE,
                   NULL,
                   0);
+
+	//default start screen
+	OSTaskCreateExt(task3,
+	                  NULL,
+	                  (void *)&task3_stk[TASK_STACKSIZE-1],
+	                  TASK3_PRIORITY,
+	                  TASK3_PRIORITY,
+	                  task3_stk,
+	                  TASK_STACKSIZE,
+	                  NULL,
+	                  0);
   OSStart();
   return 0;
 }
