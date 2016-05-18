@@ -33,6 +33,7 @@ namespace Neon3D
         //midpoints
         public int[][] globalScreenInformation;
 
+        //initializes forms, arrays.
         public Drawer(Form form, Action<string> callback, int maxAmountOflines, int[][] globalScreenInformation)
         {
             DebugCallBack = callback;
@@ -44,9 +45,8 @@ namespace Neon3D
             maxLines = maxAmountOflines;
             lineCounter = 0;
             selectedArrayLastIndex = 0;
-
         }
-
+        //reads the arrays when you open a .n3d file.
         public void setArrays(string array)
         {
             /* array example */
@@ -59,12 +59,11 @@ namespace Neon3D
             DebugCallBack("first index of stringLines: " + stringLines[0] + " \n");
             foreach (string stringlines in stringLines)
             {
-                if(stringlines != "" || stringlines != null)
+                if (stringlines != "" || stringlines != null)
                 {
                     DebugCallBack("stringline: " + stringlines + " \n");
                     try
                     {
-
                         string[] parts = stringlines.Split('[');
                         int lineIndex = Int32.Parse(parts[1].Split(',')[0]);
                         int startNodeX = Int32.Parse(parts[3].Split(',')[1].Split(']')[0]);
@@ -111,7 +110,7 @@ namespace Neon3D
                 }
             }
         }
-
+        //generate a string to send the object to the FPGA, if it is below 0 then it sends a m if it is higher than 0 it sends a p after the coordinate is sent.
         public string generateStringFPGA()
         {
             /*
@@ -125,47 +124,37 @@ namespace Neon3D
             StringBuilder buildAstring = new StringBuilder();
             string valuestr = "";
 
-
-
-            for (int variable0 =0; variable0 <= bound0; variable0++)
+            for (int variable0 = 0; variable0 <= bound0; variable0++)
             {
                 if (starteEndnodes[variable0, 0, 0] != null)
                 {
                     for (int variable1 = 0; variable1 <= bound1; variable1++)
                     {
-                        
+
                         for (int variable2 = 0; variable2 <= bound2; variable2++)
                         {
                             double? value = starteEndnodes[variable0, variable1, variable2];
-                        if(value >= 0)
-                        {
-                            
-                            valuestr = value + "p";
-                        }else
-                        {
+                            if (value >= 0)
+                            {
+
+                                valuestr = value + "p";
+                            }
+                            else
+                            {
                                 value = value * -1;
                                 valuestr = value + "m";
+                            }
+                            buildAstring.Append(valuestr);
+
                         }
-                                    
-                                
-                                
-                                
-                        buildAstring.Append(valuestr);
-                                
-                            }      
-                        }
-                        
-                    
-                    
+                    }
                 }
-                
-            
-                }
+            }
             buildAstring.Append(Environment.NewLine);
 
             return buildAstring.ToString();
         }
-
+        //generates a string to save the object in a .n3d file.
         public string generateString()
         {
             /* array example */
@@ -180,7 +169,7 @@ namespace Neon3D
             StringBuilder buildAstring = new StringBuilder();
             for (int variable0 = 0; variable0 <= bound0; variable0++)
             {
-                if(starteEndnodes[variable0, 0, 0] != null)
+                if (starteEndnodes[variable0, 0, 0] != null)
                 {
                     buildAstring.Append("[" + variable0.ToString());
                     for (int variable1 = 0; variable1 <= bound1; variable1++)
@@ -194,22 +183,22 @@ namespace Neon3D
                         buildAstring.Append("]");
                     }
                     buildAstring.Append("]" + Environment.NewLine);
-                } 
+                }
             }
             return buildAstring.ToString();
         }
 
+        //draws a pixel at given location
         public void drawPixel(int x, int y, int size, int redValue, int greenValue, int blueValue)
         {
             Color myColor = Color.FromArgb(redValue, greenValue, blueValue);
             SolidBrush brushColor = new SolidBrush(myColor);
-
             try
             {
                 Graphics g = mainForm.CreateGraphics();
                 if (x != 0 && y != 0)
                 {
-                    g.FillRectangle(brushColor, x, y, size, size);                
+                    g.FillRectangle(brushColor, x, y, size, size);
                 }
             }
             catch (Exception e)
@@ -218,6 +207,7 @@ namespace Neon3D
             }
         }
 
+        //removes a pixel at given location
         public void removePixel(int x, int y, int size)
         {
 
@@ -228,7 +218,8 @@ namespace Neon3D
                 try
                 {
                     g.FillRectangle(aBrush, x, y, size, size);
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     DebugCallBack("derp");
                 }
@@ -236,16 +227,18 @@ namespace Neon3D
 
         }
 
+        //ques the drawline logic in a threadpool, which tries to runs everything in the pool simultainously
         public void drawLine(double x1, double y1, double x2, double y2, double midX, double midY, int redValue, int greenValue, int blueValue, int size, bool remove)
         {
             ThreadPool.QueueUserWorkItem(drawLineQue, new object[] { x1, y1, x2, y2, midX, midY, redValue, greenValue, blueValue, size, remove });
         }
 
+        //in between method needed to que the line for the threads
         public void drawLineQue(object param)
         {
             object[] parameters = param as object[];
             double x1 = Double.Parse(parameters[0].ToString());
-            double y1= Double.Parse(parameters[1].ToString());
+            double y1 = Double.Parse(parameters[1].ToString());
             double x2 = Double.Parse(parameters[2].ToString());
             double y2 = Double.Parse(parameters[3].ToString());
             double midx = Double.Parse(parameters[4].ToString());
@@ -258,9 +251,9 @@ namespace Neon3D
             drawLineLogic(x1, y1, x2, y2, midx, midy, redValue, greenValue, blueValue, size, remove);
         }
 
+        //draws a line between two given points, related to the mid point of the screen
         public void drawLineLogic(double x1, double y1, double x2, double y2, double midX, double midY, int redValue, int greenValue, int blueValue, int size, bool remove)
         {
-
             y1 = y1 * -1;
             y2 = y2 * -1;
 
@@ -268,7 +261,6 @@ namespace Neon3D
             x2 = x2 + midX;
             y1 = y1 + midY;
             y2 = y2 + midY;
-
 
             //switch points when first point is behind second point on x axel
             if (x2 < x1)
@@ -305,7 +297,6 @@ namespace Neon3D
                         }
                         for (count = y2; count <= y1; count++)
                         {
-
                             if (!remove)
                             {
                                 drawPixel((int)x, (int)count, size, redValue, greenValue, blueValue);
@@ -315,13 +306,11 @@ namespace Neon3D
                                 removePixel((int)x, (int)count, size);
                             }
                         }
-
                     }
                     else
                     {
                         y = Math.Round(((y2 - y1) / (x2 - x1)) * (x - x1) + y1);
                     }
-
                 }
                 catch (Exception e)
                 {
@@ -332,7 +321,6 @@ namespace Neon3D
                 //drawing all pixels of beam between nodes
                 if (y - prevY > 0 && x != 0)
                 {
-
                     double counter;
                     for (counter = prevY; counter <= y; counter++)
                     {
@@ -371,19 +359,19 @@ namespace Neon3D
                 {
                     removePixel((int)x, (int)y, size);
                 }
-
                 prevY = y;
                 prevX = x;
             }
         }
 
-
+        //draws a z and y axle in a view 
         public void drawAxMatrix(int screen, int r, int g, int b, int size)
         {
             drawLine(globalScreenInformation[screen][0], 0, -globalScreenInformation[screen][0], 0, globalScreenInformation[screen][0], globalScreenInformation[screen][1], r, g, b, size, false);
             drawLine(0, globalScreenInformation[screen][1], 0, -globalScreenInformation[screen][1], globalScreenInformation[screen][0], globalScreenInformation[screen][1], r, g, b, size, false);
         }
 
+        //creates a line between two nodes
         public void createLines()
         {
             for (int i = 0; i < selectedNodes.Length; i++)
@@ -422,8 +410,7 @@ namespace Neon3D
         public double previousYRotation = 0;
         public double previousZRotation = 0;
 
-
-
+        //draws the nodes and beams on screen for every view
         public void drawNodesAndBeams(int conv3dto2d, int screen, double zoomscreen, int[] rotation)
         {
             isStillDrawing = true;
@@ -435,13 +422,10 @@ namespace Neon3D
             double endy = 0;
             double endz = 0;
 
-            
-
             for (int i = 0; i < (allNodes.Length / 3); i++)
             {
                 if (allNodes[i, 0] != null && allNodes[i, 1] != null)
                 {
-
                     startx = allNodes[i, 0].Value;
                     starty = allNodes[i, 1].Value;
                     if (conv3dto2d == 0)
@@ -468,8 +452,6 @@ namespace Neon3D
 
                     for (int selectedcounter = 0; selectedcounter < selectedNodes.Length; selectedcounter++)
                     {
-
-
                         switch (screen)
                         {
                             case 1:
@@ -492,7 +474,7 @@ namespace Neon3D
                                 break;
                         }
 
-                        if(conv3dto2d != 6)
+                        if (conv3dto2d != 6)
                         {
                             if (selectedNodes[selectedcounter] != null)
                             {
@@ -510,9 +492,7 @@ namespace Neon3D
                             {
                                 drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
                             }
-                        } 
-
-                       
+                        }
                     }
                 }
             }
@@ -533,13 +513,10 @@ namespace Neon3D
 
                     if (conv3dto2d == 0)
                     {
-
                         x1 = startx;
                         x2 = endx;
                         y1 = startz;
                         y2 = endz;
-                        
-
                     }
                     else if (conv3dto2d == 1)
                     {
@@ -547,42 +524,34 @@ namespace Neon3D
                         x2 = -endx;
                         y1 = startz;
                         y2 = endz;
-
                     }
-                    else if(conv3dto2d == 2)
+                    else if (conv3dto2d == 2)
                     {
                         x1 = startx;
                         x2 = endx;
                         y1 = starty;
                         y2 = endy;
-
-
                     }
                     else if (conv3dto2d == 3)
                     {
-
                         double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
                         double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
                         startx = -startx;
                         endx = -endx;
-
                     }
                     else if (conv3dto2d == 4)
                     {
-
                         x1 = startz;
                         x2 = endz;
-
                     }
                     else if (conv3dto2d == 5)
                     {
-
                         x1 = -startz;
                         x2 = -endz;
-
-                    } else if(conv3dto2d == 6)
+                    }
+                    else if (conv3dto2d == 6)
                     {
-                        if(previousXRotation != rotation[0] || previousYRotation != rotation[1] || previousZRotation != rotation[2])
+                        if (previousXRotation != rotation[0] || previousYRotation != rotation[1] || previousZRotation != rotation[2])
                         {
                             x1 = ((startx * Math.Cos(previousXRotation / 57.4) - (starty * Math.Cos(previousZRotation / 57.4) - startz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4)) * (Math.Cos(previousYRotation / 57.4))) + (starty * Math.Sin(previousZRotation / 57.4) + startz * Math.Cos(previousZRotation / 57.4)) * Math.Sin(previousYRotation / 57.4);
                             x2 = ((endx * Math.Cos(previousXRotation / 57.4) - (endy * Math.Cos(previousZRotation / 57.4) - endz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4)) * (Math.Cos(previousYRotation / 57.4))) + (endy * Math.Sin(previousZRotation / 57.4) + endz * Math.Cos(previousZRotation / 57.4)) * Math.Sin(previousYRotation / 57.4);
@@ -591,17 +560,13 @@ namespace Neon3D
                             y2 = ((-(endx * Math.Cos(previousXRotation / 57.4) - (endy * Math.Cos(previousZRotation / 57.4) - endz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4))) * (Math.Sin(previousYRotation / 57.4)) + (endy * Math.Sin(previousZRotation / 57.4) + endz * Math.Cos(previousZRotation / 57.4)) * Math.Cos(previousYRotation / 57.4));
 
                             drawLine((x1 * prevousZoomScreenBR), (y1 * prevousZoomScreenBR), (x2 * prevousZoomScreenBR), (y2 * prevousZoomScreenBR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, false);
-
                         }
-
 
                         x1 = ((startx * Math.Cos(rotation[0] / 57.4) - (starty * Math.Cos(rotation[2] / 57.4) - startz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4)) * (Math.Cos(rotation[1] / 57.4))) + (starty * Math.Sin(rotation[2] / 57.4) + startz * Math.Cos(rotation[2] / 57.4)) * Math.Sin(rotation[1] / 57.4);
                         x2 = ((endx * Math.Cos(rotation[0] / 57.4) - (endy * Math.Cos(rotation[2] / 57.4) - endz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4)) * (Math.Cos(rotation[1] / 57.4))) + (endy * Math.Sin(rotation[2] / 57.4) + endz * Math.Cos(rotation[2] / 57.4)) * Math.Sin(rotation[1] / 57.4);
 
                         y1 = ((-(startx * Math.Cos(rotation[0] / 57.4) - (starty * Math.Cos(rotation[2] / 57.4) - startz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4))) * (Math.Sin(rotation[1] / 57.4)) + (starty * Math.Sin(rotation[2] / 57.4) + startz * Math.Cos(rotation[2] / 57.4)) * Math.Cos(rotation[1] / 57.4));
                         y2 = ((-(endx * Math.Cos(rotation[0] / 57.4) - (endy * Math.Cos(rotation[2] / 57.4) - endz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4))) * (Math.Sin(rotation[1] / 57.4)) + (endy * Math.Sin(rotation[2] / 57.4) + endz * Math.Cos(rotation[2] / 57.4)) * Math.Cos(rotation[1] / 57.4));
-
-
                     }
 
                     switch (screen)
@@ -612,40 +577,32 @@ namespace Neon3D
                                 drawLine((x1 * prevousZoomScreenTL), (y1 * prevousZoomScreenTL), (x2 * prevousZoomScreenTL), (y2 * prevousZoomScreenTL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
                                 drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
 
-                            } else
+                            }
+                            else
                             {
                                 drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
-
                             }
-
-
                             break;
                         case 2:
                             if (zoomscreen != prevousZoomScreenTR)
                             {
                                 drawLine((x1 * prevousZoomScreenTR), (y1 * prevousZoomScreenTR), (x2 * prevousZoomScreenTR), (y2 * prevousZoomScreenTR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
-                                
                                 drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
-
                             }
                             else
                             {
                                 drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
-
                             }
                             break;
                         case 3:
                             if (zoomscreen != prevousZoomScreenBL)
                             {
                                 drawLine((x1 * prevousZoomScreenBL), (y1 * prevousZoomScreenBL), (x2 * prevousZoomScreenBL), (y2 * prevousZoomScreenBL), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
-                             
                                 drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
-                               
                             }
                             else
                             {
                                 drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
-
                             }
 
                             break;
@@ -653,14 +610,11 @@ namespace Neon3D
                             if (zoomscreen != prevousZoomScreenBR)
                             {
                                 drawLine((x1 * prevousZoomScreenBR), (y1 * prevousZoomScreenBR), (x2 * prevousZoomScreenBR), (y2 * prevousZoomScreenBR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, true);
-
                                 drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
-
                             }
                             else
                             {
                                 drawLine((x1 * zoomscreen), (y1 * zoomscreen), (x2 * zoomscreen), (y2 * zoomscreen), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 0, 0, 0, 1, false);
-
                             }
                             break;
                     }
@@ -696,7 +650,6 @@ namespace Neon3D
                     previousZRotation = rotation[2];
                     break;
             }
-            
             isStillDrawing = false;
         }
     }

@@ -42,7 +42,7 @@
             this.Debug.Size = new System.Drawing.Size(441, 513);
             this.Debug.TabIndex = 11;
             this.Debug.Text = "";
-            this.Debug.TextChanged += new System.EventHandler(this.Debug_TextChanged);
+            
             // 
             // Form2
             // 
@@ -53,7 +53,6 @@
             this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Form2";
             this.Text = "Form2";
-            this.Load += new System.EventHandler(this.Form2_Load);
             this.ResumeLayout(false);
 
         }

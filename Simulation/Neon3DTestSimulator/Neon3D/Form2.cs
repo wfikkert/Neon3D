@@ -25,21 +25,7 @@ namespace Neon3D
             InitializeComponent();
         }
 
-
-        private void Debug_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form2_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        
-
-       
-
+        //prints message in textbox.
         public void PrintDebug(string tekst)
         {
             try
@@ -53,17 +39,11 @@ namespace Neon3D
                 {
                     Debug.AppendText(tekst);
                 }
-            } catch
-            {
-
             }
-           
+            catch
+            {
+            }
+
         }
-
-        
-       
-
-        
-       
     }
 }

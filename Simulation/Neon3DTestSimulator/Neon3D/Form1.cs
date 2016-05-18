@@ -15,63 +15,75 @@ namespace Neon3D
             InitializeComponent();
         }
 
-
+        //global variables
+        public bool zoomed = false;
+        //checks which screen the mousecursor is.
         public int whichScreenSelected { get; set; } // 0= top left, 1= top right, 2= bottom left, 3= bottom right
+        public int previousScreenSelected = 0;
 
-        string[] previousCor = { "0", "0", "0", "0" };
-
+        //checks in which screen is clicked
         public int clicked { get; set; }
 
+        //zoom for each screen
         public double zoomTopLeft = 1;
         public double zoomTopRight = 1;
         public double zoomBottomLeft = 1;
         public double zoomBottomRight = 1;
 
+        //rotation is only necessary for the 3D screen
         public int[] rotationBottomRight = new int[3];
 
-
-
+        //initializing of the screen.
         public int[] fullScrMP = new int[2];
         public int[] topLeftMP = new int[2];
         public int[] topRightMP = new int[2];
         public int[] bottomLeftMP = new int[2];
         public int[] bottomRightMP = new int[2];
         public int[][] screenInformation = new int[5][];
-        public bool zoomed = false;
+
+
+        //check which key is pressed.
         public static bool upKeyIsPressed = false; //+y
         public static bool downKeyIsPressed = false; //-y
         public static bool leftKeyIsPressed = false; //+x
         public static bool rightKeyIsPressed = false; //-x
         public static bool ctrlLeftKeyIsPressed = false; //+z
         public static bool ctrlRightKeyIsPressed = false; //-z
-        public int rotation = 0;
 
-        public int tempStartX = 0;
-        public int tempStartY = 0;
+        //global value where the mouse is located
+        int rawClickedXpos = 0;
+        int rawClickedYpos = 0;
+
+        //main form width and height
+        public int wHeight;
+        public int wWidth;
+
+        //global threads to perform in background
+        Thread wekeepdrawing;
+        Thread wekeeptrackofourcursor;
+        Thread wekeeptrackofourrotation;
+
+        //initializing the comport.
+        public SerialPort comPort = new SerialPort();
+        public bool received = false;
+
+        //bool to know if a new node needs to be created or if a current node needs its last coordinate
+        public bool newNode = true;
+
+        // opens debug form
+        public static Form2 newForm;
+        //drawer class init
+        Drawer drawer;
 
         int tempX = 0;
         int tempY = 0;
         int tempZ = 0;
 
-        int rawClickedXpos = 0;
-        int rawClickedYpos = 0;
-
-
-        public int wHeight;
-        public int wWidth;
-
-        public static Form2 newForm;
-        Thread wekeepdrawing;
-        Thread wekeeptrackofourcursor;
-        Thread wekeeptrackofourrotation;
-        Drawer drawer;
-
-        public SerialPort comPort = new SerialPort();
-
+        //everything in here starts while the program starts.
         private void Form1_Load(object sender, EventArgs e)
         {
             string[] names = SerialPort.GetPortNames();
-           
+            //checks if comport is available (if so it opens the comport else it shows a message)
             if (names.Length != 0 && !comPort.IsOpen)
             {
                 comPort.PortName = names[0];
@@ -89,9 +101,10 @@ namespace Neon3D
 
             wHeight = Screen.PrimaryScreen.Bounds.Height / 2;
             wWidth = Screen.PrimaryScreen.Bounds.Width / 2;
-
+            //changes to the best resolution.
             fullScrMP[0] = wWidth;
             fullScrMP[1] = wHeight;
+            //calculates where the 4 screens have to be placed.
             topLeftMP[0] = fullScrMP[0] / 2;
             topLeftMP[1] = fullScrMP[1] / 2;
             topRightMP[0] = (fullScrMP[0] / 2) * 3;
@@ -100,39 +113,35 @@ namespace Neon3D
             bottomLeftMP[1] = (fullScrMP[1] / 2) * 3;
             bottomRightMP[0] = (fullScrMP[0] / 2) * 3;
             bottomRightMP[1] = (fullScrMP[1] / 2) * 3;
+
+            //sets the midpoint for each view
             screenInformation[0] = fullScrMP;
             screenInformation[1] = topLeftMP;
             screenInformation[2] = topRightMP;
             screenInformation[3] = bottomLeftMP;
             screenInformation[4] = bottomRightMP;
+            //sets rotation to 0
             rotationBottomRight[0] = 0;
             rotationBottomRight[1] = 0;
             rotationBottomRight[2] = 0;
-            FPGAProgress.Hide();
+            //FPGAProgress.Hide();
 
+            //sets locatoin for text to be written
             TopLabel.Location = new System.Drawing.Point(13, 39);
-
             Front.Location = new System.Drawing.Point(13, wHeight + 13);
-
             Right.Location = new System.Drawing.Point(wWidth + 13, 39);
-
-            dried.Location = new System.Drawing.Point(wWidth + 13, wHeight + 13);
-
+            dried.Location = new System.Drawing.Point(wWidth + 13, wHeight + 13); // dried =drieD = 3D 
             zoomTL.Location = new System.Drawing.Point(13, 52);
-
             zoomBL.Location = new System.Drawing.Point(13, wHeight + 28);
-
             zoomBR.Location = new System.Drawing.Point(wWidth + 13, wHeight + 28);
-
             zoomTR.Location = new System.Drawing.Point(wWidth + 13, 52);
-
             RotationBR.Location = new System.Drawing.Point(wWidth + 13, wHeight + 41);
 
-
             drawer = new Drawer(this, debugCallback, 100, screenInformation);
+            //initializing debug form.
             newForm = new Form2(this);
 
-
+            //checks if piramide.n3d is available, if so then it opens the file.
             try
             {
                 if (File.Exists("piramide.n3d"))
@@ -153,13 +162,12 @@ namespace Neon3D
                         }
                     }
                 }
-
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
             }
-
+            //starting threads.
             wekeeptrackofourcursor = new Thread(new ThreadStart(() => checkCursorScreenPosition(screenInformation[0][0], screenInformation[0][1])));
             wekeeptrackofourcursor.Start();
             wekeepdrawing = new Thread(new ThreadStart(keepdrawingScreens));
@@ -168,41 +176,56 @@ namespace Neon3D
             wekeeptrackofourrotation.Start();
 
         }
-        public string generateString()
-        {
-            return drawer.generateString();
-        }
 
-        public string generateStringFPGA()
-        {
-            return drawer.generateStringFPGA();
-        }
-
-        public void setArrays(string array)
-        {
-            drawer.setArrays(array);
-        }
-
-        private void debugCallback(string msg)
-        {
-            newForm.PrintDebug(msg);
-        }
-
+        //if loading is done the screen will reset.
         private void Form1_Shown(object sender, EventArgs e)
         {
             resetScreen();
         }
 
+        //if you shut down the application it will abort all threads.
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+
+            base.OnFormClosing(e);
+            wekeepdrawing.Abort();
+            wekeeptrackofourcursor.Abort();
+            wekeeptrackofourrotation.Abort();
+
+        }
+
+        //see drawer.cs
+        public string generateString()
+        {
+            return drawer.generateString();
+        }
+        //see drawer.cs
+        public string generateStringFPGA()
+        {
+            return drawer.generateStringFPGA();
+        }
+        //see drawer.cs
+        public void setArrays(string array)
+        {
+            drawer.setArrays(array);
+        }
+        //see Form2.cs
+        private void debugCallback(string msg)
+        {
+            newForm.PrintDebug(msg);
+        }
+
+        //checks if the keys are still pressed, increase or decrease rotation if so and send a value to the FPGA if it is connected.
         private void keepTrackOfRotation()
         {
-            
+
             while (true)
             {
                 if (rightKeyIsPressed)
                 {
                     rightKeyIsPressed = false;
                     leftKeyIsPressed = false;
-                    
+
                     if (comPort.IsOpen)
                     {
                         comPort.Write("r");
@@ -248,7 +271,7 @@ namespace Neon3D
                     downKeyIsPressed = false;
                     if (comPort.IsOpen)
                     {
-                        comPort.Write("b");  //beneden dutch word 
+                        comPort.Write("b");
                     }
                     if (rotationBottomRight[1] == 0)
                     {
@@ -264,7 +287,7 @@ namespace Neon3D
                     ctrlRightKeyIsPressed = false;
                     if (comPort.IsOpen)
                     {
-                        comPort.Write("z");  //beneden dutch word 
+                        comPort.Write("z");
                     }
                     if (rotationBottomRight[2] == 360)
                     {
@@ -278,7 +301,7 @@ namespace Neon3D
                     ctrlRightKeyIsPressed = false;
                     if (comPort.IsOpen)
                     {
-                        comPort.Write("x");  //beneden dutch word 
+                        comPort.Write("x");
                     }
                     if (rotationBottomRight[2] == 0)
                     {
@@ -290,6 +313,7 @@ namespace Neon3D
                 {
                     this.Invoke((MethodInvoker)delegate
                     {
+                        //changes the text of rotation
                         RotationBR.Text = "RotationX,Y,Z: " + rotationBottomRight[0].ToString() + ", " + rotationBottomRight[1].ToString() + ", " + rotationBottomRight[2].ToString();
                     });
                 }
@@ -297,11 +321,12 @@ namespace Neon3D
                 Thread.Sleep(100);
             }
         }
-
+        //checks in which screen the cursor is located.
         private void checkCursorScreenPosition(int midpointx, int midpointy)
         {
             while (true)
             {
+                //substract 10 and 32 because we wanted it at the top of the cursor.
                 rawClickedXpos = (Cursor.Position.X - this.Left) - 10;
                 rawClickedYpos = (Cursor.Position.Y - this.Top) - 32;
 
@@ -332,6 +357,64 @@ namespace Neon3D
 
         }
 
+
+        //continuesly draws the 3d model on all screens and views
+        public void keepdrawingScreens()
+        {
+            while (true)
+            {
+                drawer.drawNodesAndBeams(0, 1, zoomTopLeft, new int[] { 0, 0, 0 }); // top left "TOP"
+                drawer.drawNodesAndBeams(4, 2, zoomTopRight, new int[] { 0, 0, 0 }); //top right "RIGHT"
+                drawer.drawNodesAndBeams(2, 3, zoomBottomLeft, new int[] { 0, 0, 0 }); //bottom left "FRONT"
+                drawer.drawNodesAndBeams(6, 4, zoomBottomRight, rotationBottomRight); // bottom right "3D"
+            }
+        }
+
+        //clears all node arrays
+        public void resetNodes()
+        {
+            drawer.starteEndnodes = new double?[drawer.maxLines, 2, 3];
+            drawer.allNodes = new double?[drawer.maxLines * 2, 3];
+            drawer.selectedNodes = new int?[drawer.maxLines * 2];
+
+            drawer.lineCounter = 0;
+            drawer.selectedArrayLastIndex = 0;
+            clicked = 0;
+            resetScreen();
+        }
+
+        // resets the screen and information on the screen by drawing a white space over everything
+        public void resetScreen()
+        {
+            Brush aBrush = (Brush)Brushes.White;
+            Graphics g = this.CreateGraphics();
+
+            g.FillRectangle(aBrush, 0, 0, wWidth * 2, wHeight * 2);
+            zoomBottomLeft = 1;
+            zoomBottomRight = 1;
+            zoomTopLeft = 1;
+            zoomTopRight = 1;
+            rotationBottomRight[0] = 0;
+            rotationBottomRight[1] = 0;
+            rotationBottomRight[2] = 0;
+            RotationBR.Text = "RotationX,Y,Z: " + rotationBottomRight[0].ToString() + ", " + rotationBottomRight[1].ToString() + ", " + rotationBottomRight[2].ToString();
+            zoomBL.Text = "Zoom: " + zoomBottomLeft.ToString();
+            zoomBR.Text = "Zoom: " + zoomBottomRight.ToString();
+            zoomTR.Text = "Zoom: " + zoomTopRight.ToString();
+            zoomTL.Text = "Zoom: " + zoomTopLeft.ToString();
+
+            drawer.drawAxMatrix(0, 255, 0, 0, 6);
+            drawInsideAxles(4);
+        }
+
+        //draws axes on screen to devide the screen
+        public void drawInsideAxles(int size)
+        {
+            drawer.drawAxMatrix(1, 180, 168, 168, size);
+            drawer.drawAxMatrix(2, 180, 168, 168, size);
+            drawer.drawAxMatrix(3, 180, 168, 168, size);
+        }
+        //on mouswheel move: check which screen selecrted and update zoom for that screen
         private void Form1_MouseWheel(object sender, MouseEventArgs e)
         {
 
@@ -408,78 +491,9 @@ namespace Neon3D
 
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            base.OnFormClosing(e);
-            wekeepdrawing.Abort();
-            wekeeptrackofourcursor.Abort();
-            wekeeptrackofourrotation.Abort();
-
-        }
-
-        public void keepdrawingScreens()
-        {
-
-            while (true)
-            {
-
-                drawer.drawNodesAndBeams(0, 1, zoomTopLeft, new int[] { 0, 0, 0 }); // top left "TOP"
-                drawer.drawNodesAndBeams(4, 2, zoomTopRight, new int[] { 0, 0, 0 }); //top right "RIGHT"
-                drawer.drawNodesAndBeams(2, 3, zoomBottomLeft, new int[] { 0, 0, 0 }); //bottom left "FRONT"
-                drawer.drawNodesAndBeams(6, 4, zoomBottomRight, rotationBottomRight); // bottom right "3D"
-            }
-
-        }
-
-        public void resetNodes()
-        {
-            drawer.starteEndnodes = new double?[drawer.maxLines, 2, 3];
-            drawer.allNodes = new double?[drawer.maxLines * 2, 3];
-            drawer.selectedNodes = new int?[drawer.maxLines * 2];
-
-            drawer.lineCounter = 0;
-            drawer.selectedArrayLastIndex = 0;
-            clicked = 0;
-            resetScreen();
-        }
-
-        public void resetScreen()
-        {
-            Brush aBrush = (Brush)Brushes.White;
-            Graphics g = this.CreateGraphics();
-
-            g.FillRectangle(aBrush, 0, 0, wWidth * 2, wHeight * 2);
-            zoomBottomLeft = 1;
-            zoomBottomRight = 1;
-            zoomTopLeft = 1;
-            zoomTopRight = 1;
-            rotationBottomRight[0] = 0;
-            rotationBottomRight[1] = 0;
-            rotationBottomRight[2] = 0;
-            RotationBR.Text = "RotationX,Y,Z: " + rotationBottomRight[0].ToString() + ", " + rotationBottomRight[1].ToString() + ", " + rotationBottomRight[2].ToString();
-            zoomBL.Text = "Zoom: " + zoomBottomLeft.ToString();
-            zoomBR.Text = "Zoom: " + zoomBottomRight.ToString();
-            zoomTR.Text = "Zoom: " + zoomTopRight.ToString();
-            zoomTL.Text = "Zoom: " + zoomTopLeft.ToString();
-
-            drawer.drawAxMatrix(0, 255, 0, 0, 6);
-            drawInsideAxles(4);
-        }
-
-        public void drawInsideAxles(int size)
-        {
-            drawer.drawAxMatrix(1, 180, 168, 168, size);
-            drawer.drawAxMatrix(2, 180, 168, 168, size);
-            drawer.drawAxMatrix(3, 180, 168, 168, size);
-
-        }
-
-
-        public int previousScreenSelected = 0;
-        public bool newNode = true;
+        //on doubleclick: check which screen and create corresponding node
         private void Form1_DoubleClick(object sender, EventArgs e)
         {
-            //createNode((Cursor.Position.X - this.Left) - 960 , 540 - (Cursor.Position.Y - this.TopLabel), 0);
 
             int localScreenClickedX = rawClickedXpos - screenInformation[whichScreenSelected][0];
             int localScreenClickedY = screenInformation[whichScreenSelected][1] - rawClickedYpos;
@@ -625,12 +639,29 @@ namespace Neon3D
                 case 4: //bottom right
                     break;
             }
-
         }
 
+        //refreshes screen by removing all drawn objects on screen
+        private void refreshScreen()
+        {
+            Brush aBrush = (Brush)Brushes.White;
+            Graphics g = this.CreateGraphics();
+
+            g.FillRectangle(aBrush, wWidth + 6, wHeight + 6, wWidth * 2, wHeight * 2);
+
+            //drawer.drawAxMatrix(0, 255, 0, 0, 6);
+            //drawInsideAxles(4);
+        }
+
+        //executes method in drawer.cs for creating line
+        public void createLines()
+        {
+            drawer.createLines();
+        }
+
+        //mouse click event handler, checks if location where clicked is location where node exists, if so, add it to selected nodes array, if selected, remove it from selected node array
         private void Form1_MouseClick(object sender, MouseEventArgs e)
         {
-
             int customRawClickedXpos = rawClickedXpos;
             int customRawClickedYpos = rawClickedYpos;
             int clickedX = rawClickedXpos - screenInformation[0][0];
@@ -647,8 +678,6 @@ namespace Neon3D
                 newForm.PrintDebug("AMOUNT OF INDEXES: " + drawer.allNodes.Length / 3 + "\n");
                 for (int i = 0; i < (drawer.allNodes.Length / 3); i++)
                 {
-
-
                     if (((localScreenClickedX > drawer.allNodes[i, 0] - range &&
                         localScreenClickedX < drawer.allNodes[i, 0] + range) &&
                         (localScreenClickedY > drawer.allNodes[i, 2] - range &&
@@ -666,9 +695,9 @@ namespace Neon3D
                         int a;
                         for (a = 0; a < (drawer.selectedNodes.Length); a++)
                         {
-                            if(drawer.selectedNodes[a] == i)
+                            if (drawer.selectedNodes[a] == i)
                             {
-                                isAlreadySelected = true;                       
+                                isAlreadySelected = true;
                                 break;
                             }
                         }
@@ -676,7 +705,8 @@ namespace Neon3D
                         {
                             drawer.selectedNodes[drawer.selectedArrayLastIndex] = i;
                             drawer.selectedArrayLastIndex++;
-                        } else
+                        }
+                        else
                         {
                             int?[] dest = new int?[drawer.selectedNodes.Length - 1];
 
@@ -694,31 +724,16 @@ namespace Neon3D
 
                             drawer.selectedArrayLastIndex--;
                         }
-
-                        
                     }
-
                 }
             }
             catch (Exception ex)
             {
                 newForm.PrintDebug("ERROR: " + ex.ToString() + "\n");
             }
-
-
         }
 
-        private void refreshScreen()
-        {
-            Brush aBrush = (Brush)Brushes.White;
-            Graphics g = this.CreateGraphics();
-
-            g.FillRectangle(aBrush, wWidth + 6, wHeight + 6, wWidth * 2, wHeight * 2);
-
-            //drawer.drawAxMatrix(0, 255, 0, 0, 6);
-            //drawInsideAxles(4);
-        }
-
+        //key down event handler
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyData == Keys.Enter)
@@ -793,11 +808,7 @@ namespace Neon3D
             }
         }
 
-        public void createLines()
-        {
-            drawer.createLines();
-        }
-
+        //key up event handler
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyData == Keys.Right)
@@ -835,9 +846,9 @@ namespace Neon3D
                 ctrlLeftKeyIsPressed = false;
                 ctrlRightKeyIsPressed = false;
             }
-
         }
 
+        //button to open window where you can select a file and then reads it
         private void OpenFile_Click(object sender, EventArgs e)
         {
             resetNodes();
@@ -875,6 +886,7 @@ namespace Neon3D
             }
         }
 
+        //button for opening window where you can select a location for the to be saved file
         private void SaveAs_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
@@ -895,21 +907,25 @@ namespace Neon3D
             }
         }
 
+        //button to perform a reset on screen
         private void ResetScr_Click(object sender, EventArgs e)
         {
             resetScreen();
         }
 
+        //button to perform a reset on all nodes and screen
         private void DeleteAllNodes_Click(object sender, EventArgs e)
         {
             resetNodes();
         }
 
+        // button to creates line between two selected nodes
         private void DrawLine_Click(object sender, EventArgs e)
         {
             createLines();
         }
 
+        //shows debug window
         private void OpenDebug_Click(object sender, EventArgs e)
         {
             try
@@ -921,9 +937,9 @@ namespace Neon3D
                 newForm = new Form2(this);
                 newForm.Show();
             }
-
         }
-        public bool received = false;
+
+        //opens form where the actual upload will be performed
         private void UploadFPGA_Click(object sender, EventArgs e)
         {
             newForm.PrintDebug("button clicked");
@@ -935,17 +951,15 @@ namespace Neon3D
             {
                 FpgaUpload uploadForm = new FpgaUpload(comPort, drawer.generateStringFPGA());
                 uploadForm.Show();
-            } else
+            }
+            else
             {
                 FpgaUpload uploadForm = new FpgaUpload(drawer.generateStringFPGA());
                 uploadForm.Show();
             }
-
-            
-
         }
 
-
+        //event method for receving serial information
         private void DataReceivedHandler(
                          object sender,
                          SerialDataReceivedEventArgs e)
@@ -953,11 +967,6 @@ namespace Neon3D
             SerialPort sp = (SerialPort)sender;
             string indata = sp.ReadExisting();
             received = true;
-
         }
-
-       
     }
-
-   
 }
