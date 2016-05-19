@@ -124,6 +124,9 @@ namespace Neon3D
             StringBuilder buildAstring = new StringBuilder();
             string valuestr = "";
 
+            StringBuilder buildAstring2 = new StringBuilder();
+            string valuestr2 = "";
+            buildAstring2.Append("{");
             for (int variable0 = 0; variable0 <= bound0; variable0++)
             {
                 if (starteEndnodes[variable0, 0, 0] != null)
@@ -138,13 +141,17 @@ namespace Neon3D
                             {
 
                                 valuestr = value + "p";
+                                valuestr2 = value.ToString() + ",";
                             }
                             else
                             {
+                                valuestr2 = "-" + value.ToString() + ",";
                                 value = value * -1;
                                 valuestr = value + "m";
+                                
                             }
                             buildAstring.Append(valuestr);
+                            buildAstring2.Append(valuestr2);
 
                         }
                     }
@@ -152,7 +159,9 @@ namespace Neon3D
             }
             buildAstring.Append(Environment.NewLine);
 
-            return buildAstring.ToString();
+            string fpgaArray = buildAstring2.ToString();
+            string fpgaArray2 = fpgaArray.Substring(0, fpgaArray.Length - 2) + "}";
+            return buildAstring.ToString() + "~" + fpgaArray2;
         }
         //generates a string to save the object in a .n3d file.
         public string generateString()

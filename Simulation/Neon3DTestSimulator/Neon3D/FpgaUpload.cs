@@ -21,7 +21,7 @@ namespace Neon3D
             this.data = data;
             FpgaUploadInformation.AppendText("Not connected to FPGA! \n");
             FpgaUploadInformation.AppendText("Data to be send over:  \n");
-            FpgaUploadInformation.AppendText(data + "\n");
+            FpgaUploadInformation.AppendText(data.Split('~')[1] + "\n");
         }
 
         public FpgaUpload(SerialPort comPort, string data)
@@ -32,13 +32,29 @@ namespace Neon3D
             StartUpload.Enabled = true;
             FpgaUploadInformation.AppendText("Connected to FPGA! \n");
             FpgaUploadInformation.AppendText("Data to be send over:  \n");
-            FpgaUploadInformation.AppendText(data + "\n");
+            FpgaUploadInformation.AppendText(data.Split('~')[1] + "\n");
         }
 
-        private void setProgressBar(int maxValue, int startValue)
+        private void setProgressBar(int maxValue)
         {
-            FPGAProgress.Maximum = maxValue;
-            FPGAProgress.Value = startValue;
+            try
+            {
+                if (InvokeRequired)
+                {
+                    
+                    
+                    this.Invoke(new Action<int>(setProgressBar), new object[] { maxValue });
+                    return;
+                }
+                else
+                {
+                    FPGAProgress.Maximum = maxValue;
+                    FPGAProgress.Value = 0;
+                }
+            }
+            catch { }
+            
+            
         }
 
         private void updateProgressBar(int currentValue)
@@ -64,6 +80,24 @@ namespace Neon3D
 
         private void StartUpload_Click(object sender, EventArgs e)
         {
+            comPort.Close();
+
+            string[] names = SerialPort.GetPortNames();
+            //checks if comport is available (if so it opens the comport else it shows a message)
+            if (names.Length != 0 && !comPort.IsOpen)
+            {
+                comPort.PortName = names[0];
+                comPort.BaudRate = 115000;
+                comPort.Handshake = 0;
+                comPort.Open();
+                comPort.RtsEnable = true;
+                comPort.DtrEnable = true;
+                comPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            }
+            else
+            {
+                MessageBox.Show("FPGA not found");
+            }
             Thread uploadThread = new Thread(new ThreadStart(() => uploadThreadProgramm()));
             uploadThread.Start();
         }
@@ -71,8 +105,8 @@ namespace Neon3D
         private void uploadThreadProgramm()
         {
             isUploading = true;
-            StartUpload.Enabled = false;
-            string fpgaArray = data;
+            StartUpload.Enabled = true;
+            string fpgaArray = data.Split('~')[0];
             string amountOfChar = fpgaArray.Length.ToString();
 
             char[] FPGA = fpgaArray.ToCharArray(0, fpgaArray.Length - 1);
@@ -81,7 +115,7 @@ namespace Neon3D
             int i;
 
             comPort.Write("0");
-            setProgressBar(FPGA.Length + 10, 0);
+            setProgressBar(FPGA.Length + 10);
             for (i = 0; i < FPGA.Length + 10; i++)
             {
                 while (!received && i <= (FPGA.Length + 10) && !abortUpload) ;
@@ -152,6 +186,15 @@ namespace Neon3D
             {
                 this.Close();
             }
+        }
+        //event method for receving serial information
+        private void DataReceivedHandler(
+                         object sender,
+                         SerialDataReceivedEventArgs e)
+        {
+            SerialPort sp = (SerialPort)sender;
+            string indata = sp.ReadExisting();
+            received = true;
         }
     }
 }
