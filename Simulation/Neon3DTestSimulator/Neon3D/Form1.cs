@@ -875,6 +875,7 @@ namespace Neon3D
                             {
                                 string data = myReader.ReadToEnd();
                                 setArrays(data);
+                                resetScreen();
                             }
                         }
                     }

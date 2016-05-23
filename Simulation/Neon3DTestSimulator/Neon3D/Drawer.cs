@@ -145,7 +145,7 @@ namespace Neon3D
                             }
                             else
                             {
-                                valuestr2 = "-" + value.ToString() + ",";
+                                valuestr2 =  value.ToString() + ",";
                                 value = value * -1;
                                 valuestr = value + "m";
                                 
