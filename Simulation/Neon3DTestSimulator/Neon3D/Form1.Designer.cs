@@ -68,10 +68,10 @@
             // 
             this.TopLabel.AutoSize = true;
             this.TopLabel.Location = new System.Drawing.Point(0, 0);
-            this.TopLabel.Name = "TopLabel";
+            this.TopLabel.Name = "Top";
             this.TopLabel.Size = new System.Drawing.Size(52, 13);
             this.TopLabel.TabIndex = 0;
-            this.TopLabel.Text = "TopLabel";
+            this.TopLabel.Text = "Top";
             // 
             // Front
             // 

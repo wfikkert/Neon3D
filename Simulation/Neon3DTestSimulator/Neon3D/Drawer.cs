@@ -160,7 +160,7 @@ namespace Neon3D
             buildAstring.Append(Environment.NewLine);
 
             string fpgaArray = buildAstring2.ToString();
-            string fpgaArray2 = fpgaArray.Substring(0, fpgaArray.Length - 2) + "}";
+            string fpgaArray2 = fpgaArray.Substring(0, fpgaArray.Length - 1) + "}";
             return buildAstring.ToString() + "~" + fpgaArray2;
         }
         //generates a string to save the object in a .n3d file.

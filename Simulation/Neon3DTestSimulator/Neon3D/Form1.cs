@@ -423,11 +423,16 @@ namespace Neon3D
                 case 1: //top left
                     if (e.Delta > 0)
                     {
-                        zoomTopLeft = zoomTopLeft + 0.1;
+                        if(zoomTopLeft < 1.5)
+                        {
+                            zoomTopLeft = zoomTopLeft + 0.1;
+                        }
+                        
                     }
                     else if (e.Delta < 0)
                     {
-                        if (zoomTopLeft > 0.1)
+                        //zooming works now until zoom is 0.1
+                        if (zoomTopLeft > 0.2)
                         {
                             zoomTopLeft = zoomTopLeft - 0.1;
                         }
@@ -439,12 +444,16 @@ namespace Neon3D
 
                 case 2: //top right
                     if (e.Delta > 0)
-                    {
-                        zoomTopRight = zoomTopRight + 0.1;
+                    {   
+                        if(zoomTopRight < 1.5)
+                        {
+                            zoomTopRight = zoomTopRight + 0.1;
+                        }
+                        
                     }
                     else if (e.Delta < 0)
                     {
-                        if (zoomTopRight > 0.1)
+                        if (zoomTopRight > 0.2)
                         {
                             zoomTopRight = zoomTopRight - 0.1;
                         }
@@ -457,11 +466,15 @@ namespace Neon3D
                 case 3://bottom left
                     if (e.Delta > 0)
                     {
-                        zoomBottomLeft = zoomBottomLeft + 0.1;
+                        if(zoomBottomLeft < 1.5)
+                        {
+                            zoomBottomLeft = zoomBottomLeft + 0.1;
+                        }
+                        
                     }
                     else if (e.Delta < 0)
                     {
-                        if (zoomBottomLeft > 0.1)
+                        if (zoomBottomLeft > 0.2)
                         {
                             zoomBottomLeft = zoomBottomLeft - 0.1;
                         }
@@ -473,11 +486,15 @@ namespace Neon3D
                 case 4://bottom right
                     if (e.Delta > 0)
                     {
-                        zoomBottomRight = zoomBottomRight + 0.1;
+                        if(zoomBottomRight < 1.5)
+                        {
+                            zoomBottomRight = zoomBottomRight + 0.1;
+                        }
+                        
                     }
                     else if (e.Delta < 0)
                     {
-                        if (zoomBottomRight > 0.1)
+                        if (zoomBottomRight > 0.2)
                         {
                             zoomBottomRight = zoomBottomRight - 0.1;
                         }

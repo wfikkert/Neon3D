@@ -22,6 +22,7 @@ namespace Neon3D
             FpgaUploadInformation.AppendText("Not connected to FPGA! \n");
             FpgaUploadInformation.AppendText("Data to be send over:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1] + "\n");
+            radioAllObjects.Checked = true;
         }
 
         public FpgaUpload(SerialPort comPort, string data)
@@ -33,6 +34,7 @@ namespace Neon3D
             FpgaUploadInformation.AppendText("Connected to FPGA! \n");
             FpgaUploadInformation.AppendText("Data to be send over:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1] + "\n");
+            radioAllObjects.Checked = true;
         }
 
         private void setProgressBar(int maxValue)
@@ -115,10 +117,10 @@ namespace Neon3D
             int i;
 
             comPort.Write("0");
-            setProgressBar(FPGA.Length + 10);
-            for (i = 0; i < FPGA.Length + 10; i++)
+            setProgressBar(FPGA.Length + 12);
+            for (i = 0; i < FPGA.Length + 12; i++)
             {
-                while (!received && i <= (FPGA.Length + 10) && !abortUpload) ;
+                while (!received && i <= (FPGA.Length + 12) && !abortUpload) ;
                 if (abortUpload)
                 {
                     break;
@@ -130,27 +132,42 @@ namespace Neon3D
                 else if (i == 4)
                 {
                     comPort.Write("t");
+                }else if(i == 5)
+                {
+                    if (radioAllObjects.Checked)
+                    {
+                        comPort.Write("0");
+                    }else if (radioObject1.Checked)
+                    {
+                        comPort.Write("1");
+                    }else if (radioObject2.Checked)
+                    {
+                        comPort.Write("2");
+                    }
+                }else if(i == 6)
+                {
+                    comPort.Write("i");
                 }
-                else if (i >= 5 && i <= 8)
+                else if (i >= 7 && i <= 10)
                 {
 
                     try
                     {
-                        comPort.Write(amountOfCharArray[i - 5].ToString());
+                        comPort.Write(amountOfCharArray[i - 7].ToString());
                     }
                     catch (Exception derp)
                     {
                         comPort.Write("t");
                     }
                 }
-                else if (i == 9)
+                else if (i == 11)
                 {
                     comPort.Write("n");
                 }
                 else
                 {
                     updateProgressBar(i);
-                    comPort.Write(FPGA[i - 10].ToString());
+                    comPort.Write(FPGA[i - 12].ToString());
                 }
                 received = false;
             }
