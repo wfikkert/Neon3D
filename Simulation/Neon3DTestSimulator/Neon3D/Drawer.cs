@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -19,8 +20,8 @@ namespace Neon3D
         public Action<string> DebugCallBack;
 
         //array for nodes and lines
-        public double?[,,] starteEndnodes { get; set; }
-        public double?[,] allNodes { get; set; }
+        public float?[,,] starteEndnodes { get; set; }
+        public float?[,] allNodes { get; set; }
         public int?[] selectedNodes { get; set; }
 
         //global trackers
@@ -39,8 +40,8 @@ namespace Neon3D
             DebugCallBack = callback;
             mainForm = form as Form1;
             this.globalScreenInformation = globalScreenInformation;
-            starteEndnodes = new double?[maxAmountOflines, 2, 3];
-            allNodes = new double?[maxAmountOflines * 2, 3];
+            starteEndnodes = new float?[maxAmountOflines, 2, 3];
+            allNodes = new float?[maxAmountOflines * 2, 3];
             selectedNodes = new int?[maxAmountOflines * 2];
             maxLines = maxAmountOflines;
             lineCounter = 0;
@@ -55,60 +56,151 @@ namespace Neon3D
                 [1, [0,[0,78],[1,133],[2,102]], [1,[0,222],[1,144],[2,185]]]
                 [2, [0,[0,-159],[1,112],[2,115]], [1,[0,222],[1,144],[2,185]]]
             */
-            string[] stringLines = array.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-            DebugCallBack("first index of stringLines: " + stringLines[0] + " \n");
-            foreach (string stringlines in stringLines)
-            {
-                if (stringlines != "" || stringlines != null)
-                {
-                    DebugCallBack("stringline: " + stringlines + " \n");
-                    try
-                    {
-                        string[] parts = stringlines.Split('[');
-                        int lineIndex = Int32.Parse(parts[1].Split(',')[0]);
-                        int startNodeX = Int32.Parse(parts[3].Split(',')[1].Split(']')[0]);
-                        int startNodeY = Int32.Parse(parts[4].Split(',')[1].Split(']')[0]);
-                        int startNodeZ = Int32.Parse(parts[5].Split(',')[1].Split(']')[0]);
-                        int endNodeX = Int32.Parse(parts[7].Split(',')[1].Split(']')[0]);
-                        int endNodeY = Int32.Parse(parts[8].Split(',')[1].Split(']')[0]);
-                        int endNodeZ = Int32.Parse(parts[9].Split(',')[1].Split(']')[0]);
-                        starteEndnodes[lineCounter + lineIndex, 0, 0] = startNodeX;
-                        starteEndnodes[lineCounter + lineIndex, 0, 1] = startNodeY;
-                        starteEndnodes[lineCounter + lineIndex, 0, 2] = startNodeZ;
-                        starteEndnodes[lineCounter + lineIndex, 1, 0] = endNodeX;
-                        starteEndnodes[lineCounter + lineIndex, 1, 1] = endNodeY;
-                        starteEndnodes[lineCounter + lineIndex, 1, 2] = endNodeZ;
 
-                        bool added = false;
-                        for (int i = 0; i < (allNodes.Length); i++)
+            if (array.Contains('v'))
+            {
+                DebugCallBack("FILE IS OBJ FILE\n");
+                string[] stringLines = array.Split(new string[] { Environment.NewLine, "\r\n", "\n" }, StringSplitOptions.None);
+                int ammountOfNodes = 0;
+
+                int?[,] faces = new int?[1000, 100];
+                foreach (string stringlines in stringLines)
+                {
+                    if (stringlines.Contains("v "))
+                    {
+                        string newStringLine = stringlines.Replace("v ", "");
+                        string[] coordinates = newStringLine.Split(' ');
+                        allNodes[ammountOfNodes, 0] = float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat);
+                        allNodes[ammountOfNodes, 1] = float.Parse(coordinates[1], CultureInfo.InvariantCulture.NumberFormat);
+                        allNodes[ammountOfNodes, 2] = float.Parse(coordinates[2], CultureInfo.InvariantCulture.NumberFormat);
+                        DebugCallBack("ADDED COORDINATE (" + coordinates[0] + "," + coordinates[1] + "," + coordinates[2] + ") \n");
+
+                        ammountOfNodes++;
+                    }
+
+                    if (stringlines.Contains("f "))
+                    {
+                        string newStringLine = stringlines.Replace("f ", "");
+                        string[] nodes = newStringLine.Split(' ');
+                        for(int i = 0; i < nodes.Length; i++)
                         {
-                            if (allNodes[i, 0] == null)
+                            string node;
+                            if (nodes[i].Contains('/'))
                             {
-                                allNodes[i, 0] = startNodeX;
-                                allNodes[i, 1] = startNodeY;
-                                allNodes[i, 2] = startNodeZ;
-                                allNodes[i + 1, 0] = startNodeX;
-                                allNodes[i + 1, 1] = startNodeY;
-                                allNodes[i + 1, 2] = startNodeZ;
-                                lineCounter = i;
-                                added = true;
-                                break;
+                                node = nodes[i].Split('/')[0];
+                            } else
+                            {
+                                node = nodes[i];
+                            }
+                            int currentNode = int.Parse(nodes[i]) - 1;
+                            int nextNode = 0;
+                            try
+                            {
+                                nextNode = int.Parse(nodes[i + 1]) - 1;
+                            } catch(Exception e)
+                            {
+                                nextNode = 0;
+                            }
+
+                            float startNodeX = (float)allNodes[currentNode, 0];
+                            float startNodeY = (float)allNodes[currentNode, 1];
+                            float startNodeZ = (float)allNodes[currentNode, 2];
+                            float endNodeX = (float)allNodes[nextNode, 0];
+                            float endNodeY = (float)allNodes[nextNode, 1];
+                            float endNodeZ = (float)allNodes[nextNode, 2];
+
+                            DebugCallBack("LINE OF FACE (" + startNodeX + "," + startNodeY + "," + startNodeZ + " | " + endNodeX + ", " + endNodeY + "," + endNodeZ + ") \n");
+                            bool found = false;
+                            for (int a = 0; a < maxLines; a++)
+                            {
+                                if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[lineCounter, 0, 1] == startNodeY && starteEndnodes[lineCounter, 0, 2] == startNodeY && starteEndnodes[lineCounter, 1, 0] == endNodeX && starteEndnodes[lineCounter, 1, 1] == endNodeY && starteEndnodes[lineCounter, 1, 2] == endNodeZ)
+                                {
+                                    DebugCallBack("LINE ALREADY EXISTS \n");
+                                    found = true;
+                                    break;
+                                }
+                                else if(starteEndnodes[a, 0, 0] == null)
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (!found)
+                            {
+                                DebugCallBack("ADDING LINE\n");
+                                starteEndnodes[lineCounter, 0, 0] = startNodeX;
+                                starteEndnodes[lineCounter, 0, 1] = startNodeY;
+                                starteEndnodes[lineCounter, 0, 2] = startNodeZ;
+                                starteEndnodes[lineCounter, 1, 0] = endNodeX;
+                                starteEndnodes[lineCounter, 1, 1] = endNodeY;
+                                starteEndnodes[lineCounter, 1, 2] = endNodeZ;
+                                lineCounter++;
                             }
                         }
+                      
+                    }                    
 
-                        if (!added)
-                        {
-                            DebugCallBack("Could not add node to nodelist, array reached limit! \n");
-                        }
-
-                    }
-                    catch (Exception e)
+                }
+            } else
+            {
+                string[] stringLines = array.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                DebugCallBack("first index of stringLines: " + stringLines[0] + " \n");
+                lineCounter = 0;
+                foreach (string stringlines in stringLines)
+                {
+                    if (stringlines != "" || stringlines != null)
                     {
-                        DebugCallBack("Cannot read line and nodes! \n");
-                        DebugCallBack(e.ToString() + "\n");
+                        DebugCallBack("stringline: " + stringlines + " \n");
+                        try
+                        {
+                            string[] parts = stringlines.Split('[');
+                            //int lineIndex = Int32.Parse(parts[1].Split(',')[0]);
+                            float startNodeX = float.Parse(parts[3].Split(',')[1].Split(']')[0]);
+                            float startNodeY = float.Parse(parts[4].Split(',')[1].Split(']')[0]);
+                            float startNodeZ = float.Parse(parts[5].Split(',')[1].Split(']')[0]);
+                            float endNodeX = float.Parse(parts[7].Split(',')[1].Split(']')[0]);
+                            float endNodeY = float.Parse(parts[8].Split(',')[1].Split(']')[0]);
+                            float endNodeZ = float.Parse(parts[9].Split(',')[1].Split(']')[0]);
+                            starteEndnodes[lineCounter, 0, 0] = startNodeX;
+                            starteEndnodes[lineCounter, 0, 1] = startNodeY;
+                            starteEndnodes[lineCounter, 0, 2] = startNodeZ;
+                            starteEndnodes[lineCounter, 1, 0] = endNodeX;
+                            starteEndnodes[lineCounter, 1, 1] = endNodeY;
+                            starteEndnodes[lineCounter, 1, 2] = endNodeZ;
+                            lineCounter++;
+                            bool added = false;
+                            for (int i = 0; i < (allNodes.Length); i++)
+                            {
+                                if (allNodes[i, 0] == null)
+                                {
+                                    allNodes[i, 0] = startNodeX;
+                                    allNodes[i, 1] = startNodeY;
+                                    allNodes[i, 2] = startNodeZ;
+                                    allNodes[i + 1, 0] = startNodeX;
+                                    allNodes[i + 1, 1] = startNodeY;
+                                    allNodes[i + 1, 2] = startNodeZ;
+                                    lineCounter = i;
+                                    added = true;
+                                    break;
+                                }
+                            }
+
+                            if (!added)
+                            {
+                                DebugCallBack("Could not add node to nodelist, array reached limit! \n");
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+                            DebugCallBack("Cannot read line and nodes! \n");
+                            DebugCallBack(e.ToString() + "\n");
+                        }
                     }
                 }
             }
+
+           
         }
         //generate a string to send the object to the FPGA, if it is below 0 then it sends a m if it is higher than 0 it sends a p after the coordinate is sent.
         public string generateStringFPGA()
@@ -136,7 +228,7 @@ namespace Neon3D
 
                         for (int variable2 = 0; variable2 <= bound2; variable2++)
                         {
-                            double? value = starteEndnodes[variable0, variable1, variable2];
+                            float? value = starteEndnodes[variable0, variable1, variable2];
                             if (value >= 0)
                             {
 
@@ -186,7 +278,7 @@ namespace Neon3D
                         buildAstring.Append(", [" + variable1.ToString());
                         for (int variable2 = 0; variable2 <= bound2; variable2++)
                         {
-                            double? value = starteEndnodes[variable0, variable1, variable2];
+                            float? value = starteEndnodes[variable0, variable1, variable2];
                             buildAstring.Append(",[" + variable2.ToString() + "," + value + "]");
                         }
                         buildAstring.Append("]");
@@ -208,11 +300,13 @@ namespace Neon3D
                 if (x != 0 && y != 0)
                 {
                     g.FillRectangle(brushColor, x, y, size, size);
+                    g.Dispose();
+                    brushColor.Dispose();
                 }
             }
             catch (Exception e)
             {
-
+                DebugCallBack("EXCEPTION WHILE DRAWING PIXEL:\n " + e.ToString() + "\n");
             }
         }
 
@@ -220,24 +314,27 @@ namespace Neon3D
         public void removePixel(int x, int y, int size)
         {
 
-            Brush aBrush = (Brush)Brushes.White;
-            Graphics g = mainForm.CreateGraphics();
-            if (x != 0 && y != 0)
+            Color myColor = Color.FromArgb(255, 255, 255);
+            SolidBrush brushColor = new SolidBrush(myColor);
+            try
             {
-                try
+                Graphics g = mainForm.CreateGraphics();
+                if (x != 0 && y != 0)
                 {
-                    g.FillRectangle(aBrush, x, y, size, size);
+                    g.FillRectangle(brushColor, x, y, size, size);
+                    g.Dispose();
+                    brushColor.Dispose();
                 }
-                catch (Exception e)
-                {
-                    DebugCallBack("derp");
-                }
+            }
+            catch (Exception e)
+            {
+                DebugCallBack("EXCEPTION WHILE REMOVING PIXEL:\n " + e.ToString() + "\n");
             }
 
         }
 
         //ques the drawline logic in a threadpool, which tries to runs everything in the pool simultainously
-        public void drawLine(double x1, double y1, double x2, double y2, double midX, double midY, int redValue, int greenValue, int blueValue, int size, bool remove)
+        public void drawLine(float x1, float y1, float x2, float y2, float midX, float midY, int redValue, int greenValue, int blueValue, int size, bool remove)
         {
             ThreadPool.QueueUserWorkItem(drawLineQue, new object[] { x1, y1, x2, y2, midX, midY, redValue, greenValue, blueValue, size, remove });
         }
@@ -246,12 +343,12 @@ namespace Neon3D
         public void drawLineQue(object param)
         {
             object[] parameters = param as object[];
-            double x1 = Double.Parse(parameters[0].ToString());
-            double y1 = Double.Parse(parameters[1].ToString());
-            double x2 = Double.Parse(parameters[2].ToString());
-            double y2 = Double.Parse(parameters[3].ToString());
-            double midx = Double.Parse(parameters[4].ToString());
-            double midy = Double.Parse(parameters[5].ToString());
+            float x1 = float.Parse(parameters[0].ToString());
+            float y1 = float.Parse(parameters[1].ToString());
+            float x2 = float.Parse(parameters[2].ToString());
+            float y2 = float.Parse(parameters[3].ToString());
+            float midx = float.Parse(parameters[4].ToString());
+            float midy = float.Parse(parameters[5].ToString());
             int redValue = Int32.Parse(parameters[6].ToString());
             int greenValue = Int32.Parse(parameters[7].ToString());
             int blueValue = Int32.Parse(parameters[8].ToString());
@@ -261,7 +358,7 @@ namespace Neon3D
         }
 
         //draws a line between two given points, related to the mid point of the screen
-        public void drawLineLogic(double x1, double y1, double x2, double y2, double midX, double midY, int redValue, int greenValue, int blueValue, int size, bool remove)
+        public void drawLineLogic(float x1, float y1, float x2, float y2, float midX, float midY, int redValue, int greenValue, int blueValue, int size, bool remove)
         {
             y1 = y1 * -1;
             y2 = y2 * -1;
@@ -274,8 +371,8 @@ namespace Neon3D
             //switch points when first point is behind second point on x axel
             if (x2 < x1)
             {
-                double tempX = x1;
-                double tempY = y1;
+                float tempX = x1;
+                float tempY = y1;
                 x1 = x2;
                 y1 = y2;
 
@@ -284,23 +381,23 @@ namespace Neon3D
             }
 
             //setup vars for loop
-            double x;
-            double prevY = 0;
-            double prevX = 0;
+            float x;
+            float prevY = 0;
+            float prevX = 0;
             //for loop for drawing beam
             for (x = x1; x <= x2; x++)
             {
-                double y = 0;
+                float y = 0;
                 try
                 {
                     //formula for drawing beam between nodes
                     if ((x2 - x1) == 0)
                     {
-                        double count;
+                        float count;
 
                         if (y2 > y1)
                         {
-                            double tempY = y1;
+                            float tempY = y1;
                             y1 = y2;
                             y2 = tempY;
                         }
@@ -318,7 +415,7 @@ namespace Neon3D
                     }
                     else
                     {
-                        y = Math.Round(((y2 - y1) / (x2 - x1)) * (x - x1) + y1);
+                        y = ((y2 - y1) / (x2 - x1)) * (x - x1) + y1;
                     }
                 }
                 catch (Exception e)
@@ -330,7 +427,7 @@ namespace Neon3D
                 //drawing all pixels of beam between nodes
                 if (y - prevY > 0 && x != 0)
                 {
-                    double counter;
+                    float counter;
                     for (counter = prevY; counter <= y; counter++)
                     {
                         if (!remove)
@@ -345,7 +442,7 @@ namespace Neon3D
                 }
                 else if (prevY - y > 0 && x != 0)
                 {
-                    double counter;
+                    float counter;
                     for (counter = y; counter <= prevY; counter++)
                     {
                         if (!remove)
@@ -411,25 +508,25 @@ namespace Neon3D
             }
         }
 
-        public double prevousZoomScreenTL = 0;
-        public double prevousZoomScreenTR = 0;
-        public double prevousZoomScreenBR = 0;
-        public double prevousZoomScreenBL = 0;
-        public double previousXRotation = 0;
-        public double previousYRotation = 0;
-        public double previousZRotation = 0;
+        public float prevousZoomScreenTL = 0;
+        public float prevousZoomScreenTR = 0;
+        public float prevousZoomScreenBR = 0;
+        public float prevousZoomScreenBL = 0;
+        public float previousXRotation = 0;
+        public float previousYRotation = 0;
+        public float previousZRotation = 0;
 
         //draws the nodes and beams on screen for every view
-        public void drawNodesAndBeams(int conv3dto2d, int screen, double zoomscreen, int[] rotation)
+        public void drawNodesAndBeams(int conv3dto2d, int screen, float zoomscreen, int[] rotation)
         {
             isStillDrawing = true;
             int linesDrawn;
-            double startx = 0;
-            double starty = 0;
-            double startz = 0;
-            double endx = 0;
-            double endy = 0;
-            double endz = 0;
+            float startx = 0;
+            float starty = 0;
+            float startz = 0;
+            float endx = 0;
+            float endy = 0;
+            float endz = 0;
 
             for (int i = 0; i < (allNodes.Length / 3); i++)
             {
@@ -512,13 +609,13 @@ namespace Neon3D
             {
                 if (starteEndnodes[linesDrawn, 0, 0] != null && starteEndnodes[linesDrawn, 0, 1] != null && starteEndnodes[linesDrawn, 1, 0] != null && starteEndnodes[linesDrawn, 1, 1] != null)
                 {
-                    double x1 = startx = starteEndnodes[linesDrawn, 0, 0].Value;
-                    double y1 = starty = starteEndnodes[linesDrawn, 0, 1].Value;
-                    double z1 = startz = starteEndnodes[linesDrawn, 0, 2].Value;
+                    float x1 = startx = starteEndnodes[linesDrawn, 0, 0].Value;
+                    float y1 = starty = starteEndnodes[linesDrawn, 0, 1].Value;
+                    float z1 = startz = starteEndnodes[linesDrawn, 0, 2].Value;
 
-                    double x2 = endx = starteEndnodes[linesDrawn, 1, 0].Value;
-                    double y2 = endy = starteEndnodes[linesDrawn, 1, 1].Value;
-                    double z2 = endz = starteEndnodes[linesDrawn, 1, 2].Value;
+                    float x2 = endx = starteEndnodes[linesDrawn, 1, 0].Value;
+                    float y2 = endy = starteEndnodes[linesDrawn, 1, 1].Value;
+                    float z2 = endz = starteEndnodes[linesDrawn, 1, 2].Value;
 
                     if (conv3dto2d == 0)
                     {
@@ -543,8 +640,8 @@ namespace Neon3D
                     }
                     else if (conv3dto2d == 3)
                     {
-                        double rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
-                        double rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
+                        float rotationdifferencestart = (((startx * -1) - (startz * -1)) / 90);
+                        float rotationdifferenceend = (((endx * -1) - (endz * -1)) / 90);
                         startx = -startx;
                         endx = -endx;
                     }
@@ -562,20 +659,20 @@ namespace Neon3D
                     {
                         if (previousXRotation != rotation[0] || previousYRotation != rotation[1] || previousZRotation != rotation[2])
                         {
-                            x1 = ((startx * Math.Cos(previousXRotation / 57.4) - (starty * Math.Cos(previousZRotation / 57.4) - startz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4)) * (Math.Cos(previousYRotation / 57.4))) + (starty * Math.Sin(previousZRotation / 57.4) + startz * Math.Cos(previousZRotation / 57.4)) * Math.Sin(previousYRotation / 57.4);
-                            x2 = ((endx * Math.Cos(previousXRotation / 57.4) - (endy * Math.Cos(previousZRotation / 57.4) - endz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4)) * (Math.Cos(previousYRotation / 57.4))) + (endy * Math.Sin(previousZRotation / 57.4) + endz * Math.Cos(previousZRotation / 57.4)) * Math.Sin(previousYRotation / 57.4);
+                            x1 = (float)(((startx * Math.Cos(previousXRotation / 57.4) - (starty * Math.Cos(previousZRotation / 57.4) - startz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4)) * (Math.Cos(previousYRotation / 57.4))) + (starty * Math.Sin(previousZRotation / 57.4) + startz * Math.Cos(previousZRotation / 57.4)) * Math.Sin(previousYRotation / 57.4));
+                            x2 = (float)(((endx * Math.Cos(previousXRotation / 57.4) - (endy * Math.Cos(previousZRotation / 57.4) - endz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4)) * (Math.Cos(previousYRotation / 57.4))) + (endy * Math.Sin(previousZRotation / 57.4) + endz * Math.Cos(previousZRotation / 57.4)) * Math.Sin(previousYRotation / 57.4));
 
-                            y1 = ((-(startx * Math.Cos(previousXRotation / 57.4) - (starty * Math.Cos(previousZRotation / 57.4) - startz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4))) * (Math.Sin(previousYRotation / 57.4)) + (starty * Math.Sin(previousZRotation / 57.4) + startz * Math.Cos(previousZRotation / 57.4)) * Math.Cos(previousYRotation / 57.4));
-                            y2 = ((-(endx * Math.Cos(previousXRotation / 57.4) - (endy * Math.Cos(previousZRotation / 57.4) - endz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4))) * (Math.Sin(previousYRotation / 57.4)) + (endy * Math.Sin(previousZRotation / 57.4) + endz * Math.Cos(previousZRotation / 57.4)) * Math.Cos(previousYRotation / 57.4));
+                            y1 = (float)((-(startx * Math.Cos(previousXRotation / 57.4) - (starty * Math.Cos(previousZRotation / 57.4) - startz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4))) * (Math.Sin(previousYRotation / 57.4)) + (starty * Math.Sin(previousZRotation / 57.4) + startz * Math.Cos(previousZRotation / 57.4)) * Math.Cos(previousYRotation / 57.4));
+                            y2 = (float)((-(endx * Math.Cos(previousXRotation / 57.4) - (endy * Math.Cos(previousZRotation / 57.4) - endz * Math.Sin(previousZRotation / 57.4)) * Math.Sin(previousXRotation / 57.4))) * (Math.Sin(previousYRotation / 57.4)) + (endy * Math.Sin(previousZRotation / 57.4) + endz * Math.Cos(previousZRotation / 57.4)) * Math.Cos(previousYRotation / 57.4));
 
                             drawLine((x1 * prevousZoomScreenBR), (y1 * prevousZoomScreenBR), (x2 * prevousZoomScreenBR), (y2 * prevousZoomScreenBR), globalScreenInformation[screen][0], globalScreenInformation[screen][1], 255, 255, 255, 1, false);
                         }
 
-                        x1 = ((startx * Math.Cos(rotation[0] / 57.4) - (starty * Math.Cos(rotation[2] / 57.4) - startz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4)) * (Math.Cos(rotation[1] / 57.4))) + (starty * Math.Sin(rotation[2] / 57.4) + startz * Math.Cos(rotation[2] / 57.4)) * Math.Sin(rotation[1] / 57.4);
-                        x2 = ((endx * Math.Cos(rotation[0] / 57.4) - (endy * Math.Cos(rotation[2] / 57.4) - endz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4)) * (Math.Cos(rotation[1] / 57.4))) + (endy * Math.Sin(rotation[2] / 57.4) + endz * Math.Cos(rotation[2] / 57.4)) * Math.Sin(rotation[1] / 57.4);
+                        x1 = (float)(((startx * Math.Cos(rotation[0] / 57.4) - (starty * Math.Cos(rotation[2] / 57.4) - startz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4)) * (Math.Cos(rotation[1] / 57.4))) + (starty * Math.Sin(rotation[2] / 57.4) + startz * Math.Cos(rotation[2] / 57.4)) * Math.Sin(rotation[1] / 57.4));
+                        x2 = (float)(((endx * Math.Cos(rotation[0] / 57.4) - (endy * Math.Cos(rotation[2] / 57.4) - endz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4)) * (Math.Cos(rotation[1] / 57.4))) + (endy * Math.Sin(rotation[2] / 57.4) + endz * Math.Cos(rotation[2] / 57.4)) * Math.Sin(rotation[1] / 57.4));
 
-                        y1 = ((-(startx * Math.Cos(rotation[0] / 57.4) - (starty * Math.Cos(rotation[2] / 57.4) - startz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4))) * (Math.Sin(rotation[1] / 57.4)) + (starty * Math.Sin(rotation[2] / 57.4) + startz * Math.Cos(rotation[2] / 57.4)) * Math.Cos(rotation[1] / 57.4));
-                        y2 = ((-(endx * Math.Cos(rotation[0] / 57.4) - (endy * Math.Cos(rotation[2] / 57.4) - endz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4))) * (Math.Sin(rotation[1] / 57.4)) + (endy * Math.Sin(rotation[2] / 57.4) + endz * Math.Cos(rotation[2] / 57.4)) * Math.Cos(rotation[1] / 57.4));
+                        y1 = (float)((-(startx * Math.Cos(rotation[0] / 57.4) - (starty * Math.Cos(rotation[2] / 57.4) - startz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4))) * (Math.Sin(rotation[1] / 57.4)) + (starty * Math.Sin(rotation[2] / 57.4) + startz * Math.Cos(rotation[2] / 57.4)) * Math.Cos(rotation[1] / 57.4));
+                        y2 = (float)((-(endx * Math.Cos(rotation[0] / 57.4) - (endy * Math.Cos(rotation[2] / 57.4) - endz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4))) * (Math.Sin(rotation[1] / 57.4)) + (endy * Math.Sin(rotation[2] / 57.4) + endz * Math.Cos(rotation[2] / 57.4)) * Math.Cos(rotation[1] / 57.4));
                     }
 
                     switch (screen)

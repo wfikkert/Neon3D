@@ -68,8 +68,8 @@
             // 
             this.TopLabel.AutoSize = true;
             this.TopLabel.Location = new System.Drawing.Point(0, 0);
-            this.TopLabel.Name = "Top";
-            this.TopLabel.Size = new System.Drawing.Size(52, 13);
+            this.TopLabel.Name = "TopLabel";
+            this.TopLabel.Size = new System.Drawing.Size(26, 13);
             this.TopLabel.TabIndex = 0;
             this.TopLabel.Text = "Top";
             // 
@@ -275,7 +275,7 @@
             this.Controls.Add(this.TopLabel);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form1";
+            this.Text = "Neon3D";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);

@@ -25,10 +25,10 @@ namespace Neon3D
         public int clicked { get; set; }
 
         //zoom for each screen
-        public double zoomTopLeft = 1;
-        public double zoomTopRight = 1;
-        public double zoomBottomLeft = 1;
-        public double zoomBottomRight = 1;
+        public float zoomTopLeft = 1;
+        public float zoomTopRight = 1;
+        public float zoomBottomLeft = 1;
+        public float zoomBottomRight = 1;
 
         //rotation is only necessary for the 3D screen
         public int[] rotationBottomRight = new int[3];
@@ -373,8 +373,8 @@ namespace Neon3D
         //clears all node arrays
         public void resetNodes()
         {
-            drawer.starteEndnodes = new double?[drawer.maxLines, 2, 3];
-            drawer.allNodes = new double?[drawer.maxLines * 2, 3];
+            drawer.starteEndnodes = new float?[drawer.maxLines, 2, 3];
+            drawer.allNodes = new float?[drawer.maxLines * 2, 3];
             drawer.selectedNodes = new int?[drawer.maxLines * 2];
 
             drawer.lineCounter = 0;
@@ -425,7 +425,7 @@ namespace Neon3D
                     {
                         if(zoomTopLeft < 1.5)
                         {
-                            zoomTopLeft = zoomTopLeft + 0.1;
+                            zoomTopLeft = zoomTopLeft + (float)0.1;
                         }
                         
                     }
@@ -434,7 +434,7 @@ namespace Neon3D
                         //zooming works now until zoom is 0.1
                         if (zoomTopLeft > 0.2)
                         {
-                            zoomTopLeft = zoomTopLeft - 0.1;
+                            zoomTopLeft = zoomTopLeft - (float)0.1;
                         }
                     }
 
@@ -447,7 +447,7 @@ namespace Neon3D
                     {   
                         if(zoomTopRight < 1.5)
                         {
-                            zoomTopRight = zoomTopRight + 0.1;
+                            zoomTopRight = zoomTopRight + (float)0.1;
                         }
                         
                     }
@@ -455,7 +455,7 @@ namespace Neon3D
                     {
                         if (zoomTopRight > 0.2)
                         {
-                            zoomTopRight = zoomTopRight - 0.1;
+                            zoomTopRight = zoomTopRight - (float)0.1;
                         }
                     }
 
@@ -468,7 +468,7 @@ namespace Neon3D
                     {
                         if(zoomBottomLeft < 1.5)
                         {
-                            zoomBottomLeft = zoomBottomLeft + 0.1;
+                            zoomBottomLeft = zoomBottomLeft + (float)0.1;
                         }
                         
                     }
@@ -476,7 +476,7 @@ namespace Neon3D
                     {
                         if (zoomBottomLeft > 0.2)
                         {
-                            zoomBottomLeft = zoomBottomLeft - 0.1;
+                            zoomBottomLeft = zoomBottomLeft - (float)0.1;
                         }
                     }
                     zoomBL.Text = "Zoom: " + zoomBottomLeft + "x";
@@ -488,7 +488,7 @@ namespace Neon3D
                     {
                         if(zoomBottomRight < 1.5)
                         {
-                            zoomBottomRight = zoomBottomRight + 0.1;
+                            zoomBottomRight = zoomBottomRight + (float)0.1;
                         }
                         
                     }
@@ -496,7 +496,7 @@ namespace Neon3D
                     {
                         if (zoomBottomRight > 0.2)
                         {
-                            zoomBottomRight = zoomBottomRight - 0.1;
+                            zoomBottomRight = zoomBottomRight - (float)0.1;
                         }
                     }
 
@@ -874,7 +874,7 @@ namespace Neon3D
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
 
-            openFileDialog1.Filter = "Node3D Files (*.n3d*)|*.n3d*";
+            openFileDialog1.Filter = "Node3D Files (*.n3d*)|*.n3d*|Microsoft 3D Builder (*.obj*)|*.obj*|All Files (*.*)|*.*";
             openFileDialog1.FilterIndex = 1;
             openFileDialog1.RestoreDirectory = true;
 
@@ -891,6 +891,7 @@ namespace Neon3D
                             using (myReader)
                             {
                                 string data = myReader.ReadToEnd();
+                                newForm.PrintDebug("DATA READ:\n " + data + " \n");
                                 setArrays(data);
                                 resetScreen();
                             }
