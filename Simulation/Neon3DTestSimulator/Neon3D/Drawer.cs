@@ -70,9 +70,9 @@ namespace Neon3D
                     {
                         string newStringLine = stringlines.Replace("v ", "");
                         string[] coordinates = newStringLine.Split(' ');
-                        allNodes[ammountOfNodes, 0] = float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat);
-                        allNodes[ammountOfNodes, 1] = float.Parse(coordinates[1], CultureInfo.InvariantCulture.NumberFormat);
-                        allNodes[ammountOfNodes, 2] = float.Parse(coordinates[2], CultureInfo.InvariantCulture.NumberFormat);
+                        allNodes[ammountOfNodes, 0] = (int)float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat);
+                        allNodes[ammountOfNodes, 1] = (int)float.Parse(coordinates[1], CultureInfo.InvariantCulture.NumberFormat);
+                        allNodes[ammountOfNodes, 2] = (int)float.Parse(coordinates[2], CultureInfo.InvariantCulture.NumberFormat);
                         DebugCallBack("ADDED COORDINATE (" + coordinates[0] + "," + coordinates[1] + "," + coordinates[2] + ") \n");
 
                         ammountOfNodes++;
@@ -114,6 +114,12 @@ namespace Neon3D
                             for (int a = 0; a < maxLines; a++)
                             {
                                 if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[lineCounter, 0, 1] == startNodeY && starteEndnodes[lineCounter, 0, 2] == startNodeY && starteEndnodes[lineCounter, 1, 0] == endNodeX && starteEndnodes[lineCounter, 1, 1] == endNodeY && starteEndnodes[lineCounter, 1, 2] == endNodeZ)
+                                {
+                                    DebugCallBack("LINE ALREADY EXISTS \n");
+                                    found = true;
+                                    break;
+                                }
+                                else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[lineCounter, 0, 1] == endNodeY && starteEndnodes[lineCounter, 0, 2] == endNodeY && starteEndnodes[lineCounter, 1, 0] == startNodeX && starteEndnodes[lineCounter, 1, 1] == startNodeY && starteEndnodes[lineCounter, 1, 2] == startNodeZ)
                                 {
                                     DebugCallBack("LINE ALREADY EXISTS \n");
                                     found = true;
@@ -233,11 +239,11 @@ namespace Neon3D
                             {
 
                                 valuestr = value + "p";
-                                valuestr2 = value.ToString() + ",";
+                                valuestr2 = value.ToString() + " , ";
                             }
                             else
                             {
-                                valuestr2 =  value.ToString() + ",";
+                                valuestr2 =  value.ToString() + " , ";
                                 value = value * -1;
                                 valuestr = value + "m";
                                 

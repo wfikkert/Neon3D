@@ -22,6 +22,8 @@ namespace Neon3D
             FpgaUploadInformation.AppendText("Not connected to FPGA! \n");
             FpgaUploadInformation.AppendText("Data to be send over:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1] + "\n");
+            FpgaUploadInformation.AppendText("Amount of values:  \n");
+            FpgaUploadInformation.AppendText(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length + "\n");
             radioAllObjects.Checked = true;
         }
 
@@ -34,6 +36,8 @@ namespace Neon3D
             FpgaUploadInformation.AppendText("Connected to FPGA! \n");
             FpgaUploadInformation.AppendText("Data to be send over:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1] + "\n");
+            FpgaUploadInformation.AppendText("Amount of values:  \n");
+            FpgaUploadInformation.AppendText(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length + "\n");
             radioAllObjects.Checked = true;
         }
 

@@ -137,7 +137,7 @@ namespace Neon3D
             zoomTR.Location = new System.Drawing.Point(wWidth + 13, 52);
             RotationBR.Location = new System.Drawing.Point(wWidth + 13, wHeight + 41);
 
-            drawer = new Drawer(this, debugCallback, 100, screenInformation);
+            drawer = new Drawer(this, debugCallback, 1000, screenInformation);
             //initializing debug form.
             newForm = new Form2(this);
 

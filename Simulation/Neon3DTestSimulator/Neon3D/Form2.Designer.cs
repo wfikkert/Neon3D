@@ -36,23 +36,20 @@
             this.Debug.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.Debug.Location = new System.Drawing.Point(13, 13);
-            this.Debug.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Debug.Location = new System.Drawing.Point(10, 11);
             this.Debug.Name = "Debug";
-            this.Debug.Size = new System.Drawing.Size(441, 513);
+            this.Debug.Size = new System.Drawing.Size(332, 418);
             this.Debug.TabIndex = 11;
             this.Debug.Text = "";
-            
             // 
             // Form2
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(467, 551);
+            this.ClientSize = new System.Drawing.Size(350, 448);
             this.Controls.Add(this.Debug);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Form2";
-            this.Text = "Form2";
+            this.Text = "Debugging";
             this.ResumeLayout(false);
 
         }
