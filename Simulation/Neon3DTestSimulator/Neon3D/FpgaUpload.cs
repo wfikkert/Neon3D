@@ -25,6 +25,19 @@ namespace Neon3D
             FpgaUploadInformation.AppendText("Amount of values:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length + "\n");
             radioAllObjects.Checked = true;
+
+            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 800)
+            {
+                radioAllObjects.Enabled = false;
+                radioObject1.Enabled = false;
+                radioObject2.Enabled = false;
+            }
+            else
+            {
+                radioAllObjects.Enabled = true;
+                radioObject1.Enabled = true;
+                radioObject2.Enabled = true;
+            }
         }
 
         public FpgaUpload(SerialPort comPort, string data)
@@ -39,6 +52,18 @@ namespace Neon3D
             FpgaUploadInformation.AppendText("Amount of values:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length + "\n");
             radioAllObjects.Checked = true;
+            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 800)
+            {
+                radioAllObjects.Enabled = false;
+                radioObject1.Enabled = false;
+                radioObject2.Enabled = false;
+            }
+            else
+            {
+                radioAllObjects.Enabled = true;
+                radioObject1.Enabled = true;
+                radioObject2.Enabled = true;
+            }
         }
 
         private void setProgressBar(int maxValue)
@@ -140,18 +165,26 @@ namespace Neon3D
                 {
                     if (radioAllObjects.Checked)
                     {
-                        comPort.Write("1");
+                        comPort.Write("0");
                     }else if (radioObject1.Checked)
                     {
-                        comPort.Write("2");
+                        comPort.Write("1");
                     }else if (radioObject2.Checked)
                     {
-                        comPort.Write("3");
+                        comPort.Write("2");
                     }
                 }else if(i == 6)
                 {
-                    comPort.Write("i");
-                }
+                    if(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length <= 800)
+                    {
+                        comPort.Write("i");
+                    }
+                    else
+                    {
+                        comPort.Write("t");
+                    }
+                    
+                } 
                 else if (i >= 7 && i <= 11)
                 {
 
