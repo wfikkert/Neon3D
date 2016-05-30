@@ -121,8 +121,8 @@ namespace Neon3D
             int i;
 
             comPort.Write("0");
-            setProgressBar(FPGA.Length + 12);
-            for (i = 0; i < FPGA.Length + 12; i++)
+            setProgressBar(FPGA.Length + 13);
+            for (i = 0; i < FPGA.Length + 13; i++)
             {
                 while (!received && i <= (FPGA.Length + 12) && !abortUpload) ;
                 if (abortUpload)
@@ -140,19 +140,19 @@ namespace Neon3D
                 {
                     if (radioAllObjects.Checked)
                     {
-                        comPort.Write("0");
+                        comPort.Write("1");
                     }else if (radioObject1.Checked)
                     {
-                        comPort.Write("1");
+                        comPort.Write("2");
                     }else if (radioObject2.Checked)
                     {
-                        comPort.Write("2");
+                        comPort.Write("3");
                     }
                 }else if(i == 6)
                 {
                     comPort.Write("i");
                 }
-                else if (i >= 7 && i <= 10)
+                else if (i >= 7 && i <= 11)
                 {
 
                     try
@@ -164,14 +164,14 @@ namespace Neon3D
                         comPort.Write("t");
                     }
                 }
-                else if (i == 11)
+                else if (i == 12)
                 {
                     comPort.Write("n");
                 }
                 else
                 {
                     updateProgressBar(i);
-                    comPort.Write(FPGA[i - 12].ToString());
+                    comPort.Write(FPGA[i - 13].ToString());
                 }
                 received = false;
             }
@@ -190,7 +190,12 @@ namespace Neon3D
                 isUploading = false;
                 abortUpload = false;
                 updateProgressBar(0);
-                this.Close();
+                try
+                {
+                    this.Close();
+                }
+                catch { }
+                
             }
 
             updateProgressBar(i);
