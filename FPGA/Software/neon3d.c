@@ -19,7 +19,7 @@ OS_STK    TaskDraw3D3_stk[TASK_STACKSIZE];
 #define TaskSerialInput_PRIORITY    3
 #define TaskFPSCounter_PRIORITY     4
 #define TaskDraw3D_PRIORITY         5
-#define VALUES 240              //the maximum value the array can contain. (240/6 == 40 Lines in total)
+#define VALUES 2600            //the maximum value the array can contain. (240/6 == 40 Lines in total)
 
 ALT_SEM(sem_objectDrawn)        //semaphore to prevent that multiple tasks use the same global variables at the same time.
 ALT_SEM(sem_updateFps)          //sempahore to prevent that the global variable FPScounter is used at the same time by multiple tasks.
@@ -40,7 +40,7 @@ int minFps = 10000;
 int maxFps = 0;
 int avgFps = 0;
 int stopTask3D = 0;
-
+int objectID = 0;
 //Write text on the screen.
 void VGA_text(int x, int y, char * text_ptr)
 {
@@ -239,7 +239,7 @@ void TaskSerialInput(void* pdata)
 	volatile int* UART_DATA_ptr = (int*) 0x10001010;
 	volatile int* UART_CONTROL_ptr = (int *) 0x10001014;
 	volatile int * SWITCH_ptr = (int *) 0x10000040;
-
+	volatile short * sd_ram = (short *) 0x00000000;
     //values for rotation and zoom
 	int xRotation = rotation[0];
 	int yRotation = rotation[1];
@@ -260,9 +260,6 @@ void TaskSerialInput(void* pdata)
 	int integerPos = 0;
 
     //resets the array
-	int test[VALUES];
-	startEndnodes = malloc(sizeof(int) * VALUES);
-	startEndnodes = test;
 
 	int singleObjectTaskCreated = 0;
 	int multipleObjectTaskCreated = 0;
@@ -294,6 +291,7 @@ void TaskSerialInput(void* pdata)
 
 		  			char customString[2] = {(char)dataSerial, '\0'};
 		  			//if the FPGA receives a 't' he knows how many characters will come.
+		  			//printf("RECEIVED: %c\n", customString[0]);
 		  			if(customString[0] == 't'){
 		  				if(integerPos > 0){
 
@@ -325,14 +323,10 @@ void TaskSerialInput(void* pdata)
 
 		  				char onScreenTitle = "NEON 3D Inc.";
 						VGA_text(1,0,onScreenTitle);
-		  				test[VALUES];
 		  				for(i = 0; i < VALUES; i++){
-		  					test[i] = 0;
 		  					//printf("reset index: %d \n", i);
-		  					(startEndnodes)[i] = 0;
+		  					*(sd_ram + (i + (1 << 18))) = 0;
 		  				}
-
-						startEndnodes = test;
 						amountOfLines = 0;
 						integerPos = 0;
 						amountOfIntegersReceived = 0;
@@ -366,7 +360,8 @@ void TaskSerialInput(void* pdata)
 						totalAmountOfCharactersReceived = 0;
 						oneProcentOfCharactersToBeSend = 0;
 						loadingBarOneProcent = 2.4;
-						startEndnodes = test;
+
+
 		  				stopDrawing = 0;
 		  				ignoreDelayWhileUpload = 0;
 		  			//if the FPGA receives a 'm' he knows that he received a coordination which is lower than 0.
@@ -383,7 +378,8 @@ void TaskSerialInput(void* pdata)
 							} else if(integerPos == 4){
 								total = (integer[0] * 1000 + integer[1] * 100 + integer[2] * 10 + integer[3]) * -1;
 							}
-							test[amountOfIntegersReceived] = total;
+
+							*(sd_ram + (amountOfIntegersReceived + (1 << 18))) = total;
 							amountOfIntegersReceived++;
 
 							int amountOfLines = amountOfIntegersReceived / 6;
@@ -408,7 +404,7 @@ void TaskSerialInput(void* pdata)
 							} else if(integerPos == 4){
 								total = (integer[0] * 1000 + integer[1] * 100 + integer[2] * 10 + integer[3]);
 							}
-							test[amountOfIntegersReceived] = total;
+							*(sd_ram + (amountOfIntegersReceived + (1 << 18))) = total;
 
 							amountOfIntegersReceived++;
 
@@ -572,39 +568,48 @@ void TaskSerialInput(void* pdata)
 					//switch 8 will switch between multiple objects or single object
 					if (SWITCH_value & 0x100)
 					{
-							stopTask3D = 1;
-							resetScreen(0);
 
-							int midPoint2[2] = {80, 120};
-							int midPoint3[2] = {240, 120};
-							if(!multipleObjectTaskCreated){
-								OSTaskCreateExt(TaskDraw3D,
-													  midPoint2,
-													  (void *)&TaskDraw3D2_stk[TASK_STACKSIZE-1],
-													  TaskDraw3D_PRIORITY + 1,
-													  TaskDraw3D_PRIORITY + 1,
-													  TaskDraw3D2_stk,
-													  TASK_STACKSIZE,
-													  NULL,
-													  0);
-								OSTaskCreateExt(TaskDraw3D,
-												  midPoint3,
-												  (void *)&TaskDraw3D3_stk[TASK_STACKSIZE-1],
-												  TaskDraw3D_PRIORITY + 2,
-												  TaskDraw3D_PRIORITY + 2,
-												  TaskDraw3D3_stk,
+
+
+						if(!multipleObjectTaskCreated){
+
+							int midPoint2[3] = {80, 120,1};
+							int midPoint3[3] = {240,120,2};
+							resetScreen(0);
+							stopTask3D = 1;
+							OSTimeDly(100);
+							OSTaskCreateExt(TaskDraw3D,
+												  midPoint2,
+												  (void *)&TaskDraw3D2_stk[TASK_STACKSIZE-1],
+												  TaskDraw3D_PRIORITY,
+												  TaskDraw3D_PRIORITY,
+												  TaskDraw3D2_stk,
 												  TASK_STACKSIZE,
 												  NULL,
 												  0);
-								multipleObjectTaskCreated = 1;
-								singleObjectTaskCreated = 0;
-							}
+							OSTaskCreateExt(TaskDraw3D,
+											  midPoint3,
+											  (void *)&TaskDraw3D3_stk[TASK_STACKSIZE-1],
+											  TaskDraw3D_PRIORITY + 1,
+											  TaskDraw3D_PRIORITY + 1,
+											  TaskDraw3D3_stk,
+											  TASK_STACKSIZE,
+											  NULL,
+											  0);
+							multipleObjectTaskCreated = 1;
+							singleObjectTaskCreated = 0;
 						}
+					}
 					else {
-						stopTask3D = 1;
-						resetScreen(0);
-						int midPoint1[2] = {160, 120};
+
+
+
 						if(!singleObjectTaskCreated){
+							int midPoint1[3] = {160, 120, 0};
+							resetScreen(0);
+							stopTask3D = 1;
+							OSTimeDly(500);
+							printf("Starting sinlge task \n");
 							OSTaskCreateExt(TaskDraw3D,
 								  midPoint1,
 								  (void *)&TaskDraw3D_stk[TASK_STACKSIZE-1],
@@ -619,7 +624,22 @@ void TaskSerialInput(void* pdata)
 							multipleObjectTaskCreated = 0;
 						}
 					}
-					//switch 16 decreases zoom with 0.01
+
+					//switch 13 and switch 14 are both high
+					if(SWITCH_value & 0x02000 && SWITCH_value & 0x04000){
+						objectID = 0;
+					}else {
+						objectID = 0;
+					}
+					//switch 13 rotation with object id 2 will rotate
+					if(SWITCH_value & 0x02000){
+						objectID = 2;
+					}
+					//switch 14 rotation with object id 1 will rotate
+					if(SWITCH_value & 0x04000){
+						objectID = 1;
+					}
+					//switch 18 decreases zoom with 0.01
 					if(SWITCH_value & 0x10000){
 						if(zoom >= 0.11){
 							zoom = zoom - 0.01;
@@ -648,9 +668,9 @@ void TaskSerialInput(void* pdata)
 	  		ALT_SEM_POST(sem_objectDrawn);
 
 	  		if(!ignoreDelayWhileUpload){
-		  		OSTimeDly(10);
+		  		OSTimeDly(15);
 	  		} else {
-	  			OSTimeDly(10);
+	  			OSTimeDly(1);
 	  		}
 	  	}
 	}
@@ -660,6 +680,12 @@ void TaskSerialInput(void* pdata)
 //Reads the startEndNodes array and performs the rotation calculations on it while pushing the caclulated values to the drawLine function.
 void TaskDraw3D(void* pdata)
 {
+
+	volatile short * sd_ram = (short *) 0x00000000;
+	int x1FirstNode = *(sd_ram + (1+ (1 << 18)));
+
+			printf("first node x1: %d", x1FirstNode);
+
 	printf("Start task draw 3D");
 	stopTask3D = 0;
     //to make sure nothing is on the screen before drawing starts.
@@ -675,6 +701,12 @@ void TaskDraw3D(void* pdata)
 	int *midPoint = pdata;
 	int midX = midPoint[0];
 	int midY = midPoint[1];
+
+	stopTask3D = 0;
+	if(midPoint[2] == 1 ){
+		OSTimeDly(500);
+	}
+
 	//for erasing previous rotated/zoomed object
 	float prevousZoomScreenBR = 0;
 	int previousXRotation = 0;
@@ -687,9 +719,7 @@ void TaskDraw3D(void* pdata)
 
 	VGA_text(1,0, onScreenTitle);
 	VGA_text (1, 1, onScreenAmountOfLines);
-	int test[VALUES] = {-48,0,-2,-48,39,-1,-48,39,-1,-30,0,-2,-30,0,-2,-32,39,-1,-20,39,0,-19,-1,1,-8,38,-1,-20,39,0,-8,18,0,-21,18,0,-8,-1,-1,-19,-1,1,6,37,-1,6,-1,-1,25,-2,-1,6,-1,-1,25,-2,-1,25,37,0,6,37,-1,25,37,0,39,-1,-2,38,37,-1,38,37,-1,56,-1,-1,56,-1,-1,56,37,-1,-1,-53,-4,-24,-53,-1,-1,-53,-4,-1,-37,0,-1,-37,0,-23,-33,1,-1,-13,-1,-23,-12,1,-1,-37,0,-1,-13,-1,5,-55,1,20,-56,0,7,-36,-1,22,-35,-4,5,-55,1,7,-36,-1,22,-35,-4,20,-56,0,22,-13,-1,22,-35};
 
-	startEndnodes = test;
 
     //calculate all sin/cos values for given rotation
 	float sinArray[360];
@@ -705,7 +735,7 @@ void TaskDraw3D(void* pdata)
 	//local array to perform rotation and zoom calculations on
 	int temporaryStartEndNodes[VALUES];
 
-	while(1){
+	while(!stopTask3D){
 	    //wait for other task to stop accessing global values such as rotation, zoom and startendnodes array
 		ALT_SEM_PEND(sem_objectDrawn, 0);
 
@@ -717,94 +747,92 @@ void TaskDraw3D(void* pdata)
 		float endy = 0;
 		float endz = 0;
 
+
+		if(objectID  == midPoint[2] || objectID == 0){
         //local rotation values
-		int localRotationX = rotation[0];
-		int localRotationY = rotation[1];
-		int localRotationZ = rotation[2];
-		float zoomscreen = *zoomscreenpointer;
+			int localRotationX = rotation[0];
+			int localRotationY = rotation[1];
+			int localRotationZ = rotation[2];
+			float zoomscreen = *zoomscreenpointer;
 
-        //check if it should stop drawing/stop performing calculations on array (set in TaskSerialInput)
-		if(!stopDrawing){
+			//check if it should stop drawing/stop performing calculations on array (set in TaskSerialInput)
+			if(!stopDrawing){
 
-		    int linesDrawn;
-			for (linesDrawn = 0; linesDrawn < VALUES/6; linesDrawn++)
-			{
-                //skips index every interation by 6
-				int indexOfArray = linesDrawn * 6;
-
-				//read start node from global array
-				float x1 = startx = (startEndnodes)[indexOfArray];
-				float y1 = starty = (startEndnodes)[indexOfArray + 1];
-				float z1 = startz = (startEndnodes)[indexOfArray + 2];
-
-                //read end node from global array
-				float x2 = endx = (startEndnodes)[indexOfArray + 3];
-				float y2 = endy = (startEndnodes)[indexOfArray + 4];
-				float z2 = endz = (startEndnodes)[indexOfArray + 5];
-
-                //if start and end node are both zero (if array has less then 240 elements) stop the draw loop and do not perform calculations
-				if(x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0 && z1 == 0 && z2 == 0){
-					break;
-				}
-
-                //if a change happend in either the rotation or zoom, remove the previous known object calculated with the previous known zoom and rotation from screen
-				if(previousXRotation != localRotationX || previousYRotation != localRotationY || previousZRotation != localRotationZ || zoomscreen != prevousZoomScreenBR)
+				int linesDrawn;
+				for (linesDrawn = 0; linesDrawn < VALUES/6; linesDrawn++)
 				{
-				     //perform rotation calculations on the 3 dimensonal nodes and convert them to 2D nodes and then perform zoom calculation.
+					//skips index every interation by 6
+					int indexOfArray = linesDrawn * 6;
 
-					 x1 = (((startx * cosArray[previousXRotation] - (starty * cosArray[previousZRotation] - startz * sinArray[previousZRotation]) * sinArray[previousXRotation]) * (cosArray[previousYRotation])) + (starty * sinArray[previousZRotation] + startz * cosArray[previousZRotation]) * sinArray[previousYRotation]) * prevousZoomScreenBR;
-					 x2 = (((endx * cosArray[previousXRotation] - (endy * cosArray[previousZRotation] - endz * sinArray[previousZRotation]) * sinArray[previousXRotation]) * (cosArray[previousYRotation])) + (endy * sinArray[previousZRotation] + endz * cosArray[previousZRotation]) * sinArray[previousYRotation]) * prevousZoomScreenBR;
+					//read start node from global array
+					float x1 = startx = *(sd_ram + (indexOfArray + (1 << 18)));
+					float y1 = starty = *(sd_ram + ((indexOfArray + 1)+ (1 << 18)));
+					float z1 = startz = *(sd_ram + ((indexOfArray + 2)+ (1 << 18)));
 
-					 y1 = (((-(startx * cosArray[previousXRotation] - (starty * cosArray[previousZRotation] - startz * sinArray[previousZRotation]) * sinArray[previousXRotation])) * (sinArray[previousYRotation]) + (starty * sinArray[previousZRotation] + startz * cosArray[previousZRotation]) * cosArray[previousYRotation])) * prevousZoomScreenBR;
-					 y2 = (((-(endx * cosArray[previousXRotation] - (endy * cosArray[previousZRotation] - endz * sinArray[previousZRotation]) * sinArray[previousXRotation])) * (sinArray[previousYRotation]) + (endy * sinArray[previousZRotation] + endz * cosArray[previousZRotation]) * cosArray[previousYRotation])) * prevousZoomScreenBR;
+					//read end node from global array
+					float x2 = endx = *(sd_ram + ((indexOfArray + 3)+ (1 << 18)));
+					float y2 = endy = *(sd_ram + ((indexOfArray + 4)+ (1 << 18)));
+					float z2 = endz = *(sd_ram + ((indexOfArray + 5)+ (1 << 18)));
 
-                     //if offscreen benchmark mode is enabled, do not execute draw functions (which is the current bottleneck)
+					//if start and end node are both zero (if array has less then 240 elements) stop the draw loop and do not perform calculations
+					if(x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0 && z1 == 0 && z2 == 0){
+						break;
+					}
 
-					 DrawLineV2(x1,y1,x2,y2, midX, midY,1 , 1, color);
+					//if a change happend in either the rotation or zoom, remove the previous known object calculated with the previous known zoom and rotation from screen
+					if(previousXRotation != localRotationX || previousYRotation != localRotationY || previousZRotation != localRotationZ || zoomscreen != prevousZoomScreenBR)
+					{
+						 //perform rotation calculations on the 3 dimensonal nodes and convert them to 2D nodes and then perform zoom calculation.
+
+						 x1 = (((startx * cosArray[previousXRotation] - (starty * cosArray[previousZRotation] - startz * sinArray[previousZRotation]) * sinArray[previousXRotation]) * (cosArray[previousYRotation])) + (starty * sinArray[previousZRotation] + startz * cosArray[previousZRotation]) * sinArray[previousYRotation]) * prevousZoomScreenBR;
+						 x2 = (((endx * cosArray[previousXRotation] - (endy * cosArray[previousZRotation] - endz * sinArray[previousZRotation]) * sinArray[previousXRotation]) * (cosArray[previousYRotation])) + (endy * sinArray[previousZRotation] + endz * cosArray[previousZRotation]) * sinArray[previousYRotation]) * prevousZoomScreenBR;
+
+						 y1 = (((-(startx * cosArray[previousXRotation] - (starty * cosArray[previousZRotation] - startz * sinArray[previousZRotation]) * sinArray[previousXRotation])) * (sinArray[previousYRotation]) + (starty * sinArray[previousZRotation] + startz * cosArray[previousZRotation]) * cosArray[previousYRotation])) * prevousZoomScreenBR;
+						 y2 = (((-(endx * cosArray[previousXRotation] - (endy * cosArray[previousZRotation] - endz * sinArray[previousZRotation]) * sinArray[previousXRotation])) * (sinArray[previousYRotation]) + (endy * sinArray[previousZRotation] + endz * cosArray[previousZRotation]) * cosArray[previousYRotation])) * prevousZoomScreenBR;
+
+						 //if offscreen benchmark mode is enabled, do not execute draw functions (which is the current bottleneck)
+
+						 DrawLineV2(x1,y1,x2,y2, midX, midY,1 , 1, color);
+					}
+
+				   //perform rotation calculations on the 3 dimensonal nodes and convert them to 2D nodes and then perform zoom calculation.
+					 x1 = (((startx * cosArray[localRotationX] - (starty * cosArray[localRotationZ] - startz * sinArray[localRotationZ]) * sinArray[localRotationX]) * (cosArray[localRotationY])) + (starty * sinArray[localRotationZ] + startz * cosArray[localRotationZ]) * sinArray[localRotationY]) * zoomscreen;
+					 x2 = (((endx * cosArray[localRotationX] - (endy * cosArray[localRotationZ] - endz * sinArray[localRotationZ]) * sinArray[localRotationX]) * (cosArray[localRotationY])) + (endy * sinArray[localRotationZ] + endz * cosArray[localRotationZ]) * sinArray[localRotationY]) * zoomscreen;
+
+					 y1 = (((-(startx * cosArray[localRotationX] - (starty * cosArray[localRotationZ] - startz * sinArray[localRotationZ]) * sinArray[localRotationX])) * (sinArray[localRotationY]) + (starty * sinArray[localRotationZ] + startz * cosArray[localRotationZ]) * cosArray[localRotationY]))* zoomscreen;
+					 y2 = (((-(endx * cosArray[localRotationX] - (endy * cosArray[localRotationZ] - endz * sinArray[localRotationZ]) * sinArray[localRotationX])) * (sinArray[localRotationY]) + (endy * sinArray[localRotationZ] + endz * cosArray[localRotationZ]) * cosArray[localRotationY]))* zoomscreen;
+
+					//if offscreen benchmark mode is enabled, do not execute draw functions (which is the current bottleneck)
+
+					DrawLineV2(x1,y1,x2,y2, midX, midY, 1 , 0, color);
 				}
 
-               //perform rotation calculations on the 3 dimensonal nodes and convert them to 2D nodes and then perform zoom calculation.
-				 x1 = (((startx * cosArray[localRotationX] - (starty * cosArray[localRotationZ] - startz * sinArray[localRotationZ]) * sinArray[localRotationX]) * (cosArray[localRotationY])) + (starty * sinArray[localRotationZ] + startz * cosArray[localRotationZ]) * sinArray[localRotationY]) * zoomscreen;
-				 x2 = (((endx * cosArray[localRotationX] - (endy * cosArray[localRotationZ] - endz * sinArray[localRotationZ]) * sinArray[localRotationX]) * (cosArray[localRotationY])) + (endy * sinArray[localRotationZ] + endz * cosArray[localRotationZ]) * sinArray[localRotationY]) * zoomscreen;
+				//save previous zoomscreen if its different then before
+				if (zoomscreen != prevousZoomScreenBR)
+				{
+					prevousZoomScreenBR = zoomscreen;
+				}
 
-				 y1 = (((-(startx * cosArray[localRotationX] - (starty * cosArray[localRotationZ] - startz * sinArray[localRotationZ]) * sinArray[localRotationX])) * (sinArray[localRotationY]) + (starty * sinArray[localRotationZ] + startz * cosArray[localRotationZ]) * cosArray[localRotationY]))* zoomscreen;
-				 y2 = (((-(endx * cosArray[localRotationX] - (endy * cosArray[localRotationZ] - endz * sinArray[localRotationZ]) * sinArray[localRotationX])) * (sinArray[localRotationY]) + (endy * sinArray[localRotationZ] + endz * cosArray[localRotationZ]) * cosArray[localRotationY]))* zoomscreen;
+				//save previous rotation
+				previousXRotation = localRotationX;
+				previousYRotation = localRotationY;
+				previousZRotation = localRotationZ;
 
-                //if offscreen benchmark mode is enabled, do not execute draw functions (which is the current bottleneck)
+				//update fps counter (after for loop is finished peforming calculation, a complete frame has been drawn)
+				ALT_SEM_PEND(sem_updateFps, 0);
+				fpsCounter++;
+				ALT_SEM_POST(sem_updateFps);
 
-				DrawLineV2(x1,y1,x2,y2, midX, midY, 1 , 0, color);
+				//OSTimeDly(1);
+
+
 			}
-
-            //save previous zoomscreen if its different then before
-			if (zoomscreen != prevousZoomScreenBR)
-			{
-				prevousZoomScreenBR = zoomscreen;
-			}
-
-            //save previous rotation
-			previousXRotation = localRotationX;
-			previousYRotation = localRotationY;
-			previousZRotation = localRotationZ;
-
-			//update fps counter (after for loop is finished peforming calculation, a complete frame has been drawn)
-			ALT_SEM_PEND(sem_updateFps, 0);
-			fpsCounter++;
-			ALT_SEM_POST(sem_updateFps);
-
-			//OSTimeDly(1);
-
-			if(stopTask3D){
-				break;
-			}
-		}
         //other tasks may perform actions on global values used in this task
-		if(stopTask3D){
-			break;
 		}
+		OSTimeDly(1);
 		ALT_SEM_POST(sem_objectDrawn);
-
 	}
-	stopTask3D = 0;
+	printf("Task removed");
 	OSTaskDel(OS_PRIO_SELF);
 }
 
@@ -812,7 +840,7 @@ void TaskDraw3D(void* pdata)
 void TaskStartUp(void* pdata){
 
 	printf("Start StartUp task");
-
+	volatile short * sd_ram = (short *) 0x00000000;
     //set startup values
 	amountOfLines = 0;
 	int rotatevalue[3] = {0,1,0};
@@ -832,13 +860,25 @@ void TaskStartUp(void* pdata){
 	sprintf(onScreenAmountOfLines, "3D amount of lines: %d", 24 );
 	VGA_text (1, 1, onScreenAmountOfLines);
 
+	int test[150] = {-48,0,-2,-48,39,-1,-48,39,-1,-30,0,-2,-30,0,-2,-32,39,-1,-20,39,0,-19,-1,1,-8,38,-1,-20,39,0,-8,18,0,-21,18,0,-8,-1,-1,-19,-1,1,6,37,-1,6,-1,-1,25,-2,-1,6,-1,-1,25,-2,-1,25,37,0,6,37,-1,25,37,0,39,-1,-2,38,37,-1,38,37,-1,56,-1,-1,56,-1,-1,56,37,-1,-1,-53,-4,-24,-53,-1,-1,-53,-4,-1,-37,0,-1,-37,0,-23,-33,1,-1,-13,-1,-23,-12,1,-1,-37,0,-1,-13,-1,5,-55,1,20,-56,0,7,-36,-1,22,-35,-4,5,-55,1,7,-36,-1,22,-35,-4,20,-56,0,22,-13,-1,22,-35};
+
+	int tempi;
+	for(tempi = 1; tempi <= 150; tempi++){
+		printf("WRITING TO SDRAM \n");
+		*(sd_ram + (tempi+ (1 << 18))) = test[tempi-1];
+		OSTimeDly(10);
+	}
+
+
 	//local rotation counter
-	OSTimeDly(1000);
+	//OSTimeDly(1000);
 
 	int zRotation;
+	int xRotation;
 	for(zRotation = 360; zRotation >= 270; zRotation--){
 		ALT_SEM_PEND(sem_objectDrawn, 0);
-		rotation[2] = zRotation;
+		rotation[2] = zRotation - 90;
+		rotation[0] = xRotation;
 		char onScreenZoom[40];
 		char onScreenRotation[40];
 		VGA_text (6, 2, "                                          \0");
@@ -847,9 +887,9 @@ void TaskStartUp(void* pdata){
 		VGA_text (1, 2, onScreenZoom);
 		sprintf(onScreenRotation, "Rotation X,Y,Z: %d,%d,%d", rotation[0], rotation[1], rotation[2]);
 		VGA_text (1, 3, onScreenRotation);
-
+		xRotation++;
 		ALT_SEM_POST(sem_objectDrawn);
-		OSTimeDly(50);
+		OSTimeDly(20);
 	}
 
 	OSTaskDel(OS_PRIO_SELF);
@@ -1235,6 +1275,7 @@ int main(void)
                   0);
 
 	//draws 3D object on screen
+	/*
 	OSTaskCreateExt(TaskDraw3D,
                   midPoint1,
                   (void *)&TaskDraw3D_stk[TASK_STACKSIZE-1],
@@ -1243,7 +1284,7 @@ int main(void)
                   TaskDraw3D_stk,
                   TASK_STACKSIZE,
                   NULL,
-                  0);
+                  0); */
 	//second object
 
 	//default start screen
