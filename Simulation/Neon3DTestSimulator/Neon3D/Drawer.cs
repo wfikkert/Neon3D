@@ -113,13 +113,13 @@ namespace Neon3D
                             bool found = false;
                             for (int a = 0; a < maxLines; a++)
                             {
-                                if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[lineCounter, 0, 1] == startNodeY && starteEndnodes[lineCounter, 0, 2] == startNodeY && starteEndnodes[lineCounter, 1, 0] == endNodeX && starteEndnodes[lineCounter, 1, 1] == endNodeY && starteEndnodes[lineCounter, 1, 2] == endNodeZ)
+                                if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[a, 0, 1] == startNodeY && starteEndnodes[a, 0, 2] == startNodeZ && starteEndnodes[a, 1, 0] == endNodeX && starteEndnodes[a, 1, 1] == endNodeY && starteEndnodes[a, 1, 2] == endNodeZ)
                                 {
                                     DebugCallBack("LINE ALREADY EXISTS \n");
                                     found = true;
                                     break;
                                 }
-                                else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[lineCounter, 0, 1] == endNodeY && starteEndnodes[lineCounter, 0, 2] == endNodeY && starteEndnodes[lineCounter, 1, 0] == startNodeX && starteEndnodes[lineCounter, 1, 1] == startNodeY && starteEndnodes[lineCounter, 1, 2] == startNodeZ)
+                                else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[a, 0, 1] == endNodeY && starteEndnodes[a, 0, 2] == endNodeZ && starteEndnodes[a, 1, 0] == startNodeX && starteEndnodes[a, 1, 1] == startNodeY && starteEndnodes[a, 1, 2] == startNodeZ)
                                 {
                                     DebugCallBack("LINE ALREADY EXISTS \n");
                                     found = true;
@@ -483,6 +483,44 @@ namespace Neon3D
             drawLine(0, globalScreenInformation[screen][1], 0, -globalScreenInformation[screen][1], globalScreenInformation[screen][0], globalScreenInformation[screen][1], r, g, b, size, false);
         }
 
+        public void deleteLines()
+        {
+            
+            for (int i = 0; i < selectedNodes.Length; i++)
+            {
+                if ((i % 2) == 0)
+                {
+                    if (selectedNodes[i] != null && selectedNodes[i + 1] != null)
+                    {
+                            if(lineCounter > 0)
+                            {
+                                starteEndnodes[(int)selectedNodes[i], 0, 0] = null;
+                                starteEndnodes[(int)selectedNodes[i], 0, 1] = null;
+                                starteEndnodes[(int)selectedNodes[i], 0, 2] = null;
+                                starteEndnodes[(int)selectedNodes[i], 1, 0] = null;
+                                starteEndnodes[(int)selectedNodes[i], 1, 1] = null;
+                                starteEndnodes[(int)selectedNodes[i], 1, 2] = null;
+                                lineCounter--;
+                                mainForm.resetScreen();
+                            }
+                            
+                      
+                        selectedNodes = new int?[maxLines * 2];
+                        selectedArrayLastIndex = 0;
+                        break;
+                    }
+                    else
+                    {
+                        MessageBox.Show("You need to select 2 nodes!!!", "Hint");
+
+                        break;
+                    }
+                }
+            }
+            
+        }
+        
+
         //creates a line between two nodes
         public void createLines()
         {
@@ -492,13 +530,54 @@ namespace Neon3D
                 {
                     if (selectedNodes[i] != null && selectedNodes[i + 1] != null)
                     {
-                        starteEndnodes[lineCounter, 0, 0] = allNodes[selectedNodes[i].Value, 0];
-                        starteEndnodes[lineCounter, 0, 1] = allNodes[selectedNodes[i].Value, 1];
-                        starteEndnodes[lineCounter, 0, 2] = allNodes[selectedNodes[i].Value, 2];
-                        starteEndnodes[lineCounter, 1, 0] = allNodes[selectedNodes[i + 1].Value, 0];
-                        starteEndnodes[lineCounter, 1, 1] = allNodes[selectedNodes[i + 1].Value, 1];
-                        starteEndnodes[lineCounter, 1, 2] = allNodes[selectedNodes[i + 1].Value, 2];
-                        lineCounter++;
+                        
+                        float startNodeX = (float)allNodes[(int)selectedNodes[i], 0];
+                        float startNodeY = (float)allNodes[(int)selectedNodes[i], 1];
+                        float startNodeZ = (float)allNodes[(int)selectedNodes[i], 2];
+                        float endNodeX = (float)allNodes[(int)selectedNodes[i + 1], 0];
+                        float endNodeY = (float)allNodes[(int)selectedNodes[i + 1], 1];
+                        float endNodeZ = (float)allNodes[(int)selectedNodes[i + 1], 2];
+
+                        DebugCallBack("LINE OF FACE (" + startNodeX + "," + startNodeY + "," + startNodeZ + " | " + endNodeX + ", " + endNodeY + "," + endNodeZ + ") \n");
+                        bool found = false;
+                        for (int a = 0; a < maxLines; a++)
+                        {
+                            if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[a, 0, 1] == startNodeY && starteEndnodes[a, 0, 2] == startNodeZ && starteEndnodes[a, 1, 0] == endNodeX && starteEndnodes[a, 1, 1] == endNodeY && starteEndnodes[a, 1, 2] == endNodeZ)
+                            {
+                                DebugCallBack("LINE ALREADY EXISTS \n");
+                                found = true;
+                                break;
+                            }
+                            else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[a, 0, 1] == endNodeY && starteEndnodes[a, 0, 2] == endNodeZ && starteEndnodes[a, 1, 0] == startNodeX && starteEndnodes[a, 1, 1] == startNodeY && starteEndnodes[a, 1, 2] == startNodeZ)
+                            {
+                                DebugCallBack("LINE ALREADY EXISTS \n");
+                                found = true;
+                                break;
+                            }
+                            else if (starteEndnodes[a, 0, 0] == null)
+                            {
+                                DebugCallBack("Line doesn't exist \n");
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                        
+                            starteEndnodes[lineCounter, 0, 0] = allNodes[selectedNodes[i].Value, 0];
+                            starteEndnodes[lineCounter, 0, 1] = allNodes[selectedNodes[i].Value, 1];
+                            starteEndnodes[lineCounter, 0, 2] = allNodes[selectedNodes[i].Value, 2];
+                            starteEndnodes[lineCounter, 1, 0] = allNodes[selectedNodes[i + 1].Value, 0];
+                            starteEndnodes[lineCounter, 1, 1] = allNodes[selectedNodes[i + 1].Value, 1];
+                            starteEndnodes[lineCounter, 1, 2] = allNodes[selectedNodes[i + 1].Value, 2];
+                            lineCounter++;
+                        
+                        }else
+                        {
+                            MessageBox.Show("Lines are already drawn between those two nodes", "Error");
+                        }
+                        
+                        
 
                         selectedNodes = new int?[maxLines * 2];
                         selectedArrayLastIndex = 0;

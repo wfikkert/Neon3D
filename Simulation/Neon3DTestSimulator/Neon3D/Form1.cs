@@ -757,6 +757,10 @@ namespace Neon3D
             {
                 drawer.createLines();
             }
+            else if (e.KeyData == Keys.Delete)
+            {
+                drawer.deleteLines();
+            }
             else if (e.KeyData == Keys.R)
             {
                 resetScreen();
