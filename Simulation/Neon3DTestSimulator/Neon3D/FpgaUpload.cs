@@ -26,7 +26,7 @@ namespace Neon3D
             FpgaUploadInformation.AppendText(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length + "\n");
             radioAllObjects.Checked = true;
 
-            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 800)
+            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 500)
             {
                 radioAllObjects.Enabled = false;
                 radioObject1.Enabled = false;
@@ -52,7 +52,7 @@ namespace Neon3D
             FpgaUploadInformation.AppendText("Amount of values:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length + "\n");
             radioAllObjects.Checked = true;
-            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 800)
+            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 500)
             {
                 radioAllObjects.Enabled = false;
                 radioObject1.Enabled = false;
@@ -156,7 +156,16 @@ namespace Neon3D
                 }
                 if (i < 4)
                 {
-                    comPort.Write("1");
+                    //if it fails to upload you need to break out of the loop.
+                    try
+                    {
+                        comPort.Write("1");
+                    }
+                    catch(Exception e)
+                    {
+                        break;
+                    }
+                    
                 }
                 else if (i == 4)
                 {
@@ -175,7 +184,7 @@ namespace Neon3D
                     }
                 }else if(i == 6)
                 {
-                    if(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length <= 800)
+                    if(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length <= 500)
                     {
                         comPort.Write("i");
                     }
