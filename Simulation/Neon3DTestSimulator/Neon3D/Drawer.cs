@@ -486,37 +486,58 @@ namespace Neon3D
         public void deleteLines()
         {
             
-            for (int i = 0; i < selectedNodes.Length; i++)
-            {
-                if ((i % 2) == 0)
+           
+                if (selectedNodes[0] != null && selectedNodes[1] != null && selectedNodes[0] != selectedNodes[1])
                 {
-                    if (selectedNodes[i] != null && selectedNodes[i + 1] != null)
-                    {
-                            if(lineCounter > 0)
-                            {
-                                starteEndnodes[(int)selectedNodes[i], 0, 0] = null;
-                                starteEndnodes[(int)selectedNodes[i], 0, 1] = null;
-                                starteEndnodes[(int)selectedNodes[i], 0, 2] = null;
-                                starteEndnodes[(int)selectedNodes[i], 1, 0] = null;
-                                starteEndnodes[(int)selectedNodes[i], 1, 1] = null;
-                                starteEndnodes[(int)selectedNodes[i], 1, 2] = null;
-                                lineCounter--;
-                                mainForm.resetScreen();
-                            }
-                            
-                      
-                        selectedNodes = new int?[maxLines * 2];
-                        selectedArrayLastIndex = 0;
-                        break;
-                    }
-                    else
-                    {
-                        MessageBox.Show("You need to select 2 nodes!!!", "Hint");
 
-                        break;
+
+                    float startNodeX = (float)allNodes[(int)selectedNodes[0].Value, 0];
+                    float startNodeY = (float)allNodes[(int)selectedNodes[0].Value, 1];
+                    float startNodeZ = (float)allNodes[(int)selectedNodes[0].Value, 2];
+                    float endNodeX = (float)allNodes[(int)selectedNodes[1].Value, 0];
+                    float endNodeY = (float)allNodes[(int)selectedNodes[1].Value, 1];
+                    float endNodeZ = (float)allNodes[(int)selectedNodes[1].Value, 2];
+
+                    DebugCallBack("LINE OF FACE (" + startNodeX + "," + startNodeY + "," + startNodeZ + " | " + endNodeX + ", " + endNodeY + "," + endNodeZ + ") \n");
+                    bool found = false;
+                    for (int a = 0; a < maxLines; a++)
+                    {
+                        if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[a, 0, 1] == startNodeY && starteEndnodes[a, 0, 2] == startNodeZ && starteEndnodes[a, 1, 0] == endNodeX && starteEndnodes[a, 1, 1] == endNodeY && starteEndnodes[a, 1, 2] == endNodeZ)
+                        {
+                            DebugCallBack("LINE EXISTS \n");
+                            starteEndnodes[a, 0, 0] = null;
+                            starteEndnodes[a, 0, 1] = null;
+                            starteEndnodes[a, 0, 2] = null;
+                            starteEndnodes[a, 1, 0] = null;
+                            starteEndnodes[a, 1, 1] = null;
+                            starteEndnodes[a, 1, 2] = null;
+                        }
+                        else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[a, 0, 1] == endNodeY && starteEndnodes[a, 0, 2] == endNodeZ && starteEndnodes[a, 1, 0] == startNodeX && starteEndnodes[a, 1, 1] == startNodeY && starteEndnodes[a, 1, 2] == startNodeZ)
+                        {
+                            DebugCallBack("LINE EXISTS \n");
+                            starteEndnodes[a, 0, 0] = null;
+                            starteEndnodes[a, 0, 1] = null;
+                            starteEndnodes[a, 0, 2] = null;
+                            starteEndnodes[a, 1, 0] = null;
+                            starteEndnodes[a, 1, 1] = null;
+                            starteEndnodes[a, 1, 2] = null;
+                        }
+                        else if (starteEndnodes[a, 0, 0] == null)
+                        {
+                            DebugCallBack("Line doesn't exist \n");
+                        }
                     }
+
+                    mainForm.resetScreen();
+                    mainForm.resetScreen();
+                    selectedNodes = new int?[maxLines * 2];
+                    selectedArrayLastIndex = 0;
                 }
-            }
+                else
+                {
+                    MessageBox.Show("You need to select 2 nodes!!!", "Hint");
+                }
+               
             
         }
         
@@ -524,73 +545,66 @@ namespace Neon3D
         //creates a line between two nodes
         public void createLines()
         {
-            for (int i = 0; i < selectedNodes.Length; i++)
+           
+            if (selectedNodes[0] != null && selectedNodes[1] != null)
             {
-                if ((i % 2) == 0)
+                        
+                float startNodeX = (float)allNodes[(int)selectedNodes[0], 0];
+                float startNodeY = (float)allNodes[(int)selectedNodes[0], 1];
+                float startNodeZ = (float)allNodes[(int)selectedNodes[0], 2];
+                float endNodeX = (float)allNodes[(int)selectedNodes[1], 0];
+                float endNodeY = (float)allNodes[(int)selectedNodes[1], 1];
+                float endNodeZ = (float)allNodes[(int)selectedNodes[1], 2];
+
+                DebugCallBack("LINE OF FACE (" + startNodeX + "," + startNodeY + "," + startNodeZ + " | " + endNodeX + ", " + endNodeY + "," + endNodeZ + ") \n");
+                bool found = false;
+                for (int a = 0; a < maxLines; a++)
                 {
-                    if (selectedNodes[i] != null && selectedNodes[i + 1] != null)
+                    if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[a, 0, 1] == startNodeY && starteEndnodes[a, 0, 2] == startNodeZ && starteEndnodes[a, 1, 0] == endNodeX && starteEndnodes[a, 1, 1] == endNodeY && starteEndnodes[a, 1, 2] == endNodeZ)
                     {
-                        
-                        float startNodeX = (float)allNodes[(int)selectedNodes[i], 0];
-                        float startNodeY = (float)allNodes[(int)selectedNodes[i], 1];
-                        float startNodeZ = (float)allNodes[(int)selectedNodes[i], 2];
-                        float endNodeX = (float)allNodes[(int)selectedNodes[i + 1], 0];
-                        float endNodeY = (float)allNodes[(int)selectedNodes[i + 1], 1];
-                        float endNodeZ = (float)allNodes[(int)selectedNodes[i + 1], 2];
-
-                        DebugCallBack("LINE OF FACE (" + startNodeX + "," + startNodeY + "," + startNodeZ + " | " + endNodeX + ", " + endNodeY + "," + endNodeZ + ") \n");
-                        bool found = false;
-                        for (int a = 0; a < maxLines; a++)
-                        {
-                            if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[a, 0, 1] == startNodeY && starteEndnodes[a, 0, 2] == startNodeZ && starteEndnodes[a, 1, 0] == endNodeX && starteEndnodes[a, 1, 1] == endNodeY && starteEndnodes[a, 1, 2] == endNodeZ)
-                            {
-                                DebugCallBack("LINE ALREADY EXISTS \n");
-                                found = true;
-                                break;
-                            }
-                            else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[a, 0, 1] == endNodeY && starteEndnodes[a, 0, 2] == endNodeZ && starteEndnodes[a, 1, 0] == startNodeX && starteEndnodes[a, 1, 1] == startNodeY && starteEndnodes[a, 1, 2] == startNodeZ)
-                            {
-                                DebugCallBack("LINE ALREADY EXISTS \n");
-                                found = true;
-                                break;
-                            }
-                            else if (starteEndnodes[a, 0, 0] == null)
-                            {
-                                DebugCallBack("Line doesn't exist \n");
-                                break;
-                            }
-                        }
-
-                        if (!found)
-                        {
-                        
-                            starteEndnodes[lineCounter, 0, 0] = allNodes[selectedNodes[i].Value, 0];
-                            starteEndnodes[lineCounter, 0, 1] = allNodes[selectedNodes[i].Value, 1];
-                            starteEndnodes[lineCounter, 0, 2] = allNodes[selectedNodes[i].Value, 2];
-                            starteEndnodes[lineCounter, 1, 0] = allNodes[selectedNodes[i + 1].Value, 0];
-                            starteEndnodes[lineCounter, 1, 1] = allNodes[selectedNodes[i + 1].Value, 1];
-                            starteEndnodes[lineCounter, 1, 2] = allNodes[selectedNodes[i + 1].Value, 2];
-                            lineCounter++;
-                        
-                        }else
-                        {
-                            MessageBox.Show("Lines are already drawn between those two nodes", "Error");
-                        }
-                        
-                        
-
-                        selectedNodes = new int?[maxLines * 2];
-                        selectedArrayLastIndex = 0;
+                        DebugCallBack("LINE ALREADY EXISTS \n");
+                        found = true;
                         break;
                     }
-                    else
+                    else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[a, 0, 1] == endNodeY && starteEndnodes[a, 0, 2] == endNodeZ && starteEndnodes[a, 1, 0] == startNodeX && starteEndnodes[a, 1, 1] == startNodeY && starteEndnodes[a, 1, 2] == startNodeZ)
                     {
-                        MessageBox.Show("You need to select 2 nodes!!!", "Hint");
-
+                        DebugCallBack("LINE ALREADY EXISTS \n");
+                        found = true;
+                        break;
+                    }
+                    else if (starteEndnodes[a, 0, 0] == null)
+                    {
+                        DebugCallBack("Line doesn't exist \n");
                         break;
                     }
                 }
+
+                if (!found)
+                {
+                        
+                    starteEndnodes[lineCounter, 0, 0] = allNodes[selectedNodes[0].Value, 0];
+                    starteEndnodes[lineCounter, 0, 1] = allNodes[selectedNodes[0].Value, 1];
+                    starteEndnodes[lineCounter, 0, 2] = allNodes[selectedNodes[0].Value, 2];
+                    starteEndnodes[lineCounter, 1, 0] = allNodes[selectedNodes[1].Value, 0];
+                    starteEndnodes[lineCounter, 1, 1] = allNodes[selectedNodes[1].Value, 1];
+                    starteEndnodes[lineCounter, 1, 2] = allNodes[selectedNodes[1].Value, 2];
+                    lineCounter++;
+                        
+                }else
+                {
+                    MessageBox.Show("Lines are already drawn between those two nodes", "Error");
+                }
+                        
+                        
+
+                selectedNodes = new int?[maxLines * 2];
+                selectedArrayLastIndex = 0;
             }
+            else
+            {
+                MessageBox.Show("You need to select 2 nodes!!!", "Hint");
+            }
+               
         }
 
         public float prevousZoomScreenTL = 0;
@@ -604,7 +618,7 @@ namespace Neon3D
         //draws the nodes and beams on screen for every view
         public void drawNodesAndBeams(int conv3dto2d, int screen, float zoomscreen, int[] rotation)
         {
-            isStillDrawing = true;
+            //isStillDrawing = true;
             int linesDrawn;
             float startx = 0;
             float starty = 0;
@@ -612,6 +626,8 @@ namespace Neon3D
             float endx = 0;
             float endy = 0;
             float endz = 0;
+
+
 
             for (int i = 0; i < (allNodes.Length / 3); i++)
             {
@@ -641,6 +657,8 @@ namespace Neon3D
                         startx = -allNodes[i, 2].Value;
                     }
 
+
+                    bool found = false;
                     for (int selectedcounter = 0; selectedcounter < selectedNodes.Length; selectedcounter++)
                     {
                         switch (screen)
@@ -665,33 +683,47 @@ namespace Neon3D
                                 break;
                         }
 
+
                         if (conv3dto2d != 6)
                         {
                             if (selectedNodes[selectedcounter] != null)
                             {
-                                if (selectedNodes[selectedcounter].Value == i)
+                                DebugCallBack("there is a value in index: " + selectedcounter + ", current node index = " + i + " \n");
+                                if (selectedNodes[selectedcounter] == i)
                                 {
+                                    DebugCallBack("value is same as node\n");
                                     drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 0, 255, 0);
-                                    break;
-                                }
-                                else
-                                {
-                                    drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
+                                    found = true;
+                                   
                                 }
                             }
                             else
                             {
-                                drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
+                                // DebugCallBack("there is not a value in index: " + selectedcounter + " \n");
+                                if (!found)
+                                {
+                                    drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 255, 0, 0);
+                                } else
+                                {
+                                    drawPixel((int)(((startx * zoomscreen) + globalScreenInformation[screen][0])), (int)((globalScreenInformation[screen][1] - (starty * zoomscreen))), 4, 0, 255, 0);
+                                }
+
+                              
                             }
                         }
-                    }
+
+                      
+                    } 
                 }
             }
 
-            isStillDrawing = false;
+
+            // isStillDrawing = false;
 
             for (linesDrawn = 0; linesDrawn < maxLines; linesDrawn++)
             {
+
+
                 if (starteEndnodes[linesDrawn, 0, 0] != null && starteEndnodes[linesDrawn, 0, 1] != null && starteEndnodes[linesDrawn, 1, 0] != null && starteEndnodes[linesDrawn, 1, 1] != null)
                 {
                     float x1 = startx = starteEndnodes[linesDrawn, 0, 0].Value;
@@ -701,6 +733,10 @@ namespace Neon3D
                     float x2 = endx = starteEndnodes[linesDrawn, 1, 0].Value;
                     float y2 = endy = starteEndnodes[linesDrawn, 1, 1].Value;
                     float z2 = endz = starteEndnodes[linesDrawn, 1, 2].Value;
+
+
+                    int? node1_selected = selectedNodes[0];
+                    int? node2_selected = selectedNodes[0];
 
                     if (conv3dto2d == 0)
                     {
@@ -760,6 +796,8 @@ namespace Neon3D
                         y2 = (float)((-(endx * Math.Cos(rotation[0] / 57.4) - (endy * Math.Cos(rotation[2] / 57.4) - endz * Math.Sin(rotation[2] / 57.4)) * Math.Sin(rotation[0] / 57.4))) * (Math.Sin(rotation[1] / 57.4)) + (endy * Math.Sin(rotation[2] / 57.4) + endz * Math.Cos(rotation[2] / 57.4)) * Math.Cos(rotation[1] / 57.4));
                     }
 
+                   
+
                     switch (screen)
                     {
                         case 1:
@@ -810,7 +848,12 @@ namespace Neon3D
                             break;
                     }
                 }
+            
+
             }
+
+
+
             switch (screen)
             {
                 case 1:
@@ -841,6 +884,9 @@ namespace Neon3D
                     previousZRotation = rotation[2];
                     break;
             }
+
+
+
             isStillDrawing = false;
         }
     }

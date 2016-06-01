@@ -710,7 +710,7 @@ namespace Neon3D
                     {
                         bool isAlreadySelected = false;
                         int a;
-                        for (a = 0; a < (drawer.selectedNodes.Length); a++)
+                        for (a = 0; a < (3); a++)
                         {
                             if (drawer.selectedNodes[a] == i)
                             {
@@ -720,8 +720,13 @@ namespace Neon3D
                         }
                         if (!isAlreadySelected)
                         {
+                            if (drawer.selectedArrayLastIndex == 3) {
+                                drawer.selectedArrayLastIndex = 0;
+                            }
+                            newForm.PrintDebug("Selected node with index : " + i + " \n");
                             drawer.selectedNodes[drawer.selectedArrayLastIndex] = i;
                             drawer.selectedArrayLastIndex++;
+                            break;
                         }
                         else
                         {
@@ -738,8 +743,10 @@ namespace Neon3D
                             }
 
                             drawer.selectedNodes = dest;
-
-                            drawer.selectedArrayLastIndex--;
+                            if(drawer.selectedArrayLastIndex > 0)
+                            {
+                                drawer.selectedArrayLastIndex--;
+                            }
                         }
                     }
                 }
