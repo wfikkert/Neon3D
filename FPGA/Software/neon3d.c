@@ -316,20 +316,44 @@ void TaskSerialInput(void* pdata)
 							integerPos = 0;
 						}
 					//if the FPGA receives a 'n' he knows that there will come a new object
-		  			}else if(customString[0] == 'n'){
+		  			}else if(customString[0] == 'i'){
+		  				int total;
+		  				if(integerPos == 1){
+							total = integer[0];
+						}
+		  				objectID = total;
+		  				if(objectID == 2){
+							amountOfIntegersReceived = VALUES/2;
+							int i;
+							for(i = amountOfIntegersReceived ; i < VALUES; i++){
+								//printf("reset index: %d \n", i);
+								*(sd_ram + i + (1 << 18)) = 0;
+							}
+		  				} else if(objectID == 1){
+		  					amountOfIntegersReceived = 0;
+		  					int i;
+							for(i = 0 ; i < VALUES/2; i++){
+								//printf("reset index: %d \n", i);
+								*(sd_ram + i + (1 << 18)) = 0;
+							}
+		  				} else {
+		  					amountOfIntegersReceived = 0;
+		  					int i;
+							for(i = 0; i < VALUES; i++){
+								//printf("reset index: %d \n", i);
+								*(sd_ram + i + (1 << 18)) = 0;
+							}
+		  				}
+		  				printf("OBJECT ID: %d \n", objectID);
+		  			} else if(customString[0] == 'n'){
 
 		  				resetScreen(1);
 		  				int i;
 
 		  				char onScreenTitle = "NEON 3D Inc.";
 						VGA_text(1,0,onScreenTitle);
-		  				for(i = 0; i < VALUES; i++){
-		  					//printf("reset index: %d \n", i);
-		  					*(sd_ram + (i + (1 << 18))) = 0;
-		  				}
 						amountOfLines = 0;
 						integerPos = 0;
-						amountOfIntegersReceived = 0;
 
 						xRotation = 0;
 						rotation[0] = xRotation;
@@ -493,6 +517,8 @@ void TaskSerialInput(void* pdata)
 						rotation[2] = zRotation;
 						zoom = 0.8;
 						*zoomscreenpointer = zoom;
+
+						resetScreen(0);
 					}
 					//switch 1 increases y rotation with 1.
 					if (SWITCH_value & 0x2)
@@ -581,8 +607,8 @@ void TaskSerialInput(void* pdata)
 							OSTaskCreateExt(TaskDraw3D,
 												  midPoint2,
 												  (void *)&TaskDraw3D2_stk[TASK_STACKSIZE-1],
-												  TaskDraw3D_PRIORITY,
-												  TaskDraw3D_PRIORITY,
+												  TaskDraw3D_PRIORITY + 1,
+												  TaskDraw3D_PRIORITY + 1,
 												  TaskDraw3D2_stk,
 												  TASK_STACKSIZE,
 												  NULL,
@@ -590,25 +616,24 @@ void TaskSerialInput(void* pdata)
 							OSTaskCreateExt(TaskDraw3D,
 											  midPoint3,
 											  (void *)&TaskDraw3D3_stk[TASK_STACKSIZE-1],
-											  TaskDraw3D_PRIORITY + 1,
-											  TaskDraw3D_PRIORITY + 1,
+											  TaskDraw3D_PRIORITY + 2,
+											  TaskDraw3D_PRIORITY + 2,
 											  TaskDraw3D3_stk,
 											  TASK_STACKSIZE,
 											  NULL,
 											  0);
 							multipleObjectTaskCreated = 1;
 							singleObjectTaskCreated = 0;
+
 						}
 					}
 					else {
-
-
-
 						if(!singleObjectTaskCreated){
+
+							OSTimeDly(100);
 							int midPoint1[3] = {160, 120, 0};
 							resetScreen(0);
 							stopTask3D = 1;
-							OSTimeDly(500);
 							printf("Starting sinlge task \n");
 							OSTaskCreateExt(TaskDraw3D,
 								  midPoint1,
@@ -681,15 +706,12 @@ void TaskSerialInput(void* pdata)
 void TaskDraw3D(void* pdata)
 {
 
+	int *midPoint = pdata;
 	volatile short * sd_ram = (short *) 0x00000000;
-	int x1FirstNode = *(sd_ram + (1+ (1 << 18)));
 
-			printf("first node x1: %d", x1FirstNode);
+	printf("Start task draw 3D ID: %d\n", midPoint[2]);
 
-	printf("Start task draw 3D");
-	stopTask3D = 0;
-    //to make sure nothing is on the screen before drawing starts.
-    resetScreen(1);
+
 
 	//default line color
 	short color = 0x0F00;
@@ -698,15 +720,17 @@ void TaskDraw3D(void* pdata)
 	//int midX = (320/2);
 	//int midY = (240/2);
 
-	int *midPoint = pdata;
 	int midX = midPoint[0];
 	int midY = midPoint[1];
 
-	stopTask3D = 0;
-	if(midPoint[2] == 1 ){
+
+	if(midPoint[2] == 1 || midPoint[2] == 0 ){
 		OSTimeDly(500);
 	}
+	stopTask3D = 0;
 
+	 //to make sure nothing is on the screen before drawing starts.
+	    resetScreen(1);
 	//for erasing previous rotated/zoomed object
 	float prevousZoomScreenBR = 0;
 	int previousXRotation = 0;
@@ -735,6 +759,8 @@ void TaskDraw3D(void* pdata)
 	//local array to perform rotation and zoom calculations on
 	int temporaryStartEndNodes[VALUES];
 
+	int ValuesofObject = VALUES/2;
+	int startAddress = 0;
 	while(!stopTask3D){
 	    //wait for other task to stop accessing global values such as rotation, zoom and startendnodes array
 		ALT_SEM_PEND(sem_objectDrawn, 0);
@@ -758,21 +784,33 @@ void TaskDraw3D(void* pdata)
 			//check if it should stop drawing/stop performing calculations on array (set in TaskSerialInput)
 			if(!stopDrawing){
 
+
+				if(midPoint[2] == 1){
+					ValuesofObject = VALUES/2;
+					startAddress = 0;
+				}else if(midPoint[2] == 2){
+					ValuesofObject == VALUES/2;
+					startAddress = VALUES/2;
+				}else{
+					startAddress = 0;
+					ValuesofObject = VALUES;
+				}
+
 				int linesDrawn;
-				for (linesDrawn = 0; linesDrawn < VALUES/6; linesDrawn++)
+				for (linesDrawn = 0; linesDrawn < ValuesofObject/6; linesDrawn++)
 				{
 					//skips index every interation by 6
 					int indexOfArray = linesDrawn * 6;
 
 					//read start node from global array
-					float x1 = startx = *(sd_ram + (indexOfArray + (1 << 18)));
-					float y1 = starty = *(sd_ram + ((indexOfArray + 1)+ (1 << 18)));
-					float z1 = startz = *(sd_ram + ((indexOfArray + 2)+ (1 << 18)));
+					float x1 = startx = *(sd_ram + startAddress + (indexOfArray + (1 << 18)));
+					float y1 = starty = *(sd_ram + startAddress + ((indexOfArray + 1)+ (1 << 18)));
+					float z1 = startz = *(sd_ram + startAddress + ((indexOfArray + 2)+ (1 << 18)));
 
 					//read end node from global array
-					float x2 = endx = *(sd_ram + ((indexOfArray + 3)+ (1 << 18)));
-					float y2 = endy = *(sd_ram + ((indexOfArray + 4)+ (1 << 18)));
-					float z2 = endz = *(sd_ram + ((indexOfArray + 5)+ (1 << 18)));
+					float x2 = endx = *(sd_ram + startAddress + ((indexOfArray + 3)+ (1 << 18)));
+					float y2 = endy = *(sd_ram + startAddress + ((indexOfArray + 4)+ (1 << 18)));
+					float z2 = endz = *(sd_ram + startAddress + ((indexOfArray + 5)+ (1 << 18)));
 
 					//if start and end node are both zero (if array has less then 240 elements) stop the draw loop and do not perform calculations
 					if(x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0 && z1 == 0 && z2 == 0){
@@ -864,9 +902,7 @@ void TaskStartUp(void* pdata){
 
 	int tempi;
 	for(tempi = 1; tempi <= 150; tempi++){
-		printf("WRITING TO SDRAM \n");
 		*(sd_ram + (tempi+ (1 << 18))) = test[tempi-1];
-		OSTimeDly(10);
 	}
 
 
