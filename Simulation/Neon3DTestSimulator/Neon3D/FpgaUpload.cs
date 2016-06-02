@@ -31,12 +31,16 @@ namespace Neon3D
                 radioAllObjects.Enabled = false;
                 radioObject1.Enabled = false;
                 radioObject2.Enabled = false;
+                radioBigObjects.Enabled = true;
+                radioBigObjects.Checked = true;
             }
             else
             {
                 radioAllObjects.Enabled = true;
                 radioObject1.Enabled = true;
                 radioObject2.Enabled = true;
+                radioBigObjects.Enabled = false;
+                
             }
         }
 
@@ -57,12 +61,15 @@ namespace Neon3D
                 radioAllObjects.Enabled = false;
                 radioObject1.Enabled = false;
                 radioObject2.Enabled = false;
+                radioBigObjects.Enabled = true;
+                radioBigObjects.Checked = true;
             }
             else
             {
                 radioAllObjects.Enabled = true;
                 radioObject1.Enabled = true;
                 radioObject2.Enabled = true;
+                radioBigObjects.Enabled = false;
             }
         }
 
@@ -181,6 +188,9 @@ namespace Neon3D
                     }else if (radioObject2.Checked)
                     {
                         comPort.Write("2");
+                    }else if (radioBigObjects.Checked)
+                    {
+                        comPort.Write("3");
                     }
                 }else if(i == 6)
                 {
@@ -264,5 +274,7 @@ namespace Neon3D
             string indata = sp.ReadExisting();
             received = true;
         }
+
+        
     }
 }
