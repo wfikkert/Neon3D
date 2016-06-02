@@ -96,7 +96,7 @@ namespace Neon3D
             }
             else
             {
-                MessageBox.Show("FPGA not found");
+                MessageBox.Show("FPGA not found, connect FPGA via RS-232 to your laptop by USB and restart Node3D.");
             }
 
             wHeight = Screen.PrimaryScreen.Bounds.Height / 2;

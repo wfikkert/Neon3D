@@ -19,7 +19,7 @@ namespace Neon3D
             InitializeComponent();
             StartUpload.Enabled = false;
             this.data = data;
-            FpgaUploadInformation.AppendText("Not connected to FPGA! \n");
+            FpgaUploadInformation.AppendText("FPGA not found! \n Connect FPGA via RS - 232 to your laptop by USB and restart Node3D.");
             FpgaUploadInformation.AppendText("Data to be send over:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1] + "\n");
             FpgaUploadInformation.AppendText("Amount of values:  \n");

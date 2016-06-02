@@ -152,6 +152,59 @@ namespace Neon3D
                 string[] stringLines = array.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
                 DebugCallBack("first index of stringLines: " + stringLines[0] + " \n");
                 lineCounter = 0;
+                string stringline = stringLines[0];
+                if (stringline != "" || stringline != null)
+                {
+                    DebugCallBack("stringline: " + stringline + " \n");
+                    try
+                    {
+                        string[] parts = stringline.Split('[');
+                        //int lineIndex = Int32.Parse(parts[1].Split(',')[0]);
+                        float startNodeX = float.Parse(parts[3].Split(',')[1].Split(']')[0]);
+                        float startNodeY = float.Parse(parts[4].Split(',')[1].Split(']')[0]);
+                        float startNodeZ = float.Parse(parts[5].Split(',')[1].Split(']')[0]);
+                        float endNodeX = float.Parse(parts[7].Split(',')[1].Split(']')[0]);
+                        float endNodeY = float.Parse(parts[8].Split(',')[1].Split(']')[0]);
+                        float endNodeZ = float.Parse(parts[9].Split(',')[1].Split(']')[0]);
+                        starteEndnodes[lineCounter, 0, 0] = startNodeX;
+                        starteEndnodes[lineCounter, 0, 1] = startNodeY;
+                        starteEndnodes[lineCounter, 0, 2] = startNodeZ;
+                        starteEndnodes[lineCounter, 1, 0] = endNodeX;
+                        starteEndnodes[lineCounter, 1, 1] = endNodeY;
+                        starteEndnodes[lineCounter, 1, 2] = endNodeZ;
+                        lineCounter++;
+                        DebugCallBack("ADDED: " + stringline + " \n");
+                        bool added = false;
+                        for (int i = 0; i < (allNodes.Length); i++)
+                        {
+                            if (allNodes[i, 0] == null)
+                            {
+                                allNodes[i, 0] = startNodeX;
+                                allNodes[i, 1] = startNodeY;
+                                allNodes[i, 2] = startNodeZ;
+                                allNodes[i + 1, 0] = startNodeX;
+                                allNodes[i + 1, 1] = startNodeY;
+                                allNodes[i + 1, 2] = startNodeZ;
+                                lineCounter = i;
+                                added = true;
+                                break;
+                            }
+                        }
+
+                        if (!added)
+                        {
+                            DebugCallBack("Could not add node to nodelist, array reached limit! \n");
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugCallBack("Cannot read line and nodes! \n");
+                        DebugCallBack(e.ToString() + "\n");
+                    }
+                }
+
+
                 foreach (string stringlines in stringLines)
                 {
                     if (stringlines != "" || stringlines != null)
@@ -174,6 +227,7 @@ namespace Neon3D
                             starteEndnodes[lineCounter, 1, 1] = endNodeY;
                             starteEndnodes[lineCounter, 1, 2] = endNodeZ;
                             lineCounter++;
+                            DebugCallBack("ADDED: " + stringlines + " \n");
                             bool added = false;
                             for (int i = 0; i < (allNodes.Length); i++)
                             {
