@@ -720,7 +720,7 @@ namespace Neon3D
                         }
                         if (!isAlreadySelected)
                         {
-                            if (drawer.selectedArrayLastIndex == 3) {
+                            if (drawer.selectedArrayLastIndex == 2) {
                                 drawer.selectedArrayLastIndex = 0;
                             }
                             newForm.PrintDebug("Selected node with index : " + i + " \n");
