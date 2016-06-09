@@ -1004,7 +1004,9 @@ namespace Neon3D
 
         private void DeleteAllLines_Click(object sender, EventArgs e)
         {
+            
             drawer.DeleteAllLines();
+            resetScreen();
         }
 
         private void GenerateLines_Click(object sender, EventArgs e)
