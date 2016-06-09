@@ -659,7 +659,7 @@ namespace Neon3D
         }
 
         //refreshes screen by removing all drawn objects on screen
-        private void refreshScreen()
+        public void refreshScreen()
         {
             Brush aBrush = (Brush)Brushes.White;
             Graphics g = this.CreateGraphics();
@@ -997,6 +997,21 @@ namespace Neon3D
             SerialPort sp = (SerialPort)sender;
             string indata = sp.ReadExisting();
             received = true;
+        }
+
+        
+       
+
+        private void DeleteAllLines_Click(object sender, EventArgs e)
+        {
+            drawer.DeleteAllLines();
+        }
+
+        private void GenerateLines_Click(object sender, EventArgs e)
+        {
+            GenerateAllLines generate = new GenerateAllLines(drawer , this);
+            
+            generate.Show();   
         }
     }
 }

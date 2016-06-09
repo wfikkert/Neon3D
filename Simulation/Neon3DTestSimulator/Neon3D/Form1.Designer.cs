@@ -59,6 +59,8 @@
             this.ResetScr = new System.Windows.Forms.ToolStripButton();
             this.DeleteAllNodes = new System.Windows.Forms.ToolStripButton();
             this.DrawLine = new System.Windows.Forms.ToolStripButton();
+            this.GenerateLines = new System.Windows.Forms.ToolStripButton();
+            this.DeleteLines = new System.Windows.Forms.ToolStripButton();
             this.OpenDebug = new System.Windows.Forms.ToolStripButton();
             this.UploadFPGA = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
@@ -174,6 +176,8 @@
             this.ResetScr,
             this.DeleteAllNodes,
             this.DrawLine,
+            this.GenerateLines,
+            this.DeleteLines,
             this.OpenDebug,
             this.UploadFPGA});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
@@ -232,6 +236,27 @@
             this.DrawLine.Size = new System.Drawing.Size(63, 22);
             this.DrawLine.Text = "Draw Line";
             this.DrawLine.Click += new System.EventHandler(this.DrawLine_Click);
+            // 
+            // GenerateLines
+            // 
+            this.GenerateLines.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.GenerateLines.Image = ((System.Drawing.Image)(resources.GetObject("GenerateLines.Image")));
+            this.GenerateLines.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.GenerateLines.Name = "GenerateLines";
+            this.GenerateLines.Size = new System.Drawing.Size(85, 22);
+            this.GenerateLines.Text = "Generate lines";
+            this.GenerateLines.Click += new System.EventHandler(this.GenerateLines_Click);
+            // 
+            // DeleteLines
+            // 
+            this.DeleteLines.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.DeleteLines.Image = ((System.Drawing.Image)(resources.GetObject("DeleteLines.Image")));
+            this.DeleteLines.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.DeleteLines.Name = "DeleteLines";
+            this.DeleteLines.Size = new System.Drawing.Size(86, 22);
+            this.DeleteLines.Text = "Delete all lines";
+            this.DeleteLines.ToolTipText = "DeleteAllLines";
+            this.DeleteLines.Click += new System.EventHandler(this.DeleteAllLines_Click);
             // 
             // OpenDebug
             // 
@@ -310,6 +335,8 @@
         private System.Windows.Forms.ToolStripButton DrawLine;
         private System.Windows.Forms.ToolStripButton OpenDebug;
         private System.Windows.Forms.ToolStripButton UploadFPGA;
+        private System.Windows.Forms.ToolStripButton GenerateLines;
+        private System.Windows.Forms.ToolStripButton DeleteLines;
     }
 }
 

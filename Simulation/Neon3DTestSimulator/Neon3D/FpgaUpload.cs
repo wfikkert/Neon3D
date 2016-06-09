@@ -26,7 +26,7 @@ namespace Neon3D
             FpgaUploadInformation.AppendText(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length + "\n");
             radioAllObjects.Checked = true;
 
-            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 500)
+            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 432)
             {
                 radioAllObjects.Enabled = false;
                 radioObject1.Enabled = false;
@@ -56,7 +56,7 @@ namespace Neon3D
             FpgaUploadInformation.AppendText("Amount of values:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length + "\n");
             radioAllObjects.Checked = true;
-            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 500)
+            if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length >= 432)
             {
                 radioAllObjects.Enabled = false;
                 radioObject1.Enabled = false;
@@ -194,7 +194,7 @@ namespace Neon3D
                     }
                 }else if(i == 6)
                 {
-                    if(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length <= 500)
+                    if(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length <= 432)
                     {
                         comPort.Write("i");
                     }

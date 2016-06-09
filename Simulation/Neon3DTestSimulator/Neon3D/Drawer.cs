@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Neon3D
 {
-    class Drawer : Form
+    public class Drawer : Form
     {
         //constructor
         private Form1 mainForm = null;
@@ -34,6 +34,8 @@ namespace Neon3D
         //midpoints
         public int[][] globalScreenInformation;
 
+        public int ammountOfNodes = 0;
+
         //initializes forms, arrays.
         public Drawer(Form form, Action<string> callback, int maxAmountOflines, int[][] globalScreenInformation)
         {
@@ -46,6 +48,170 @@ namespace Neon3D
             maxLines = maxAmountOflines;
             lineCounter = 0;
             selectedArrayLastIndex = 0;
+        }
+
+        public void DeleteAllLines()
+        {
+            starteEndnodes = new float?[maxLines, 2, 3];
+        }
+
+        public void GenerateAllLines(int ammountOfConnections)
+        {
+            DebugCallBack("start generate lines");
+            starteEndnodes = new float?[maxLines, 2, 3];
+
+            int?[,] nodeIndexAlreadyParsed = new int?[ammountOfNodes, ammountOfConnections + 1];
+
+            DebugCallBack(ammountOfConnections + ", " + ammountOfNodes);
+            int indexOfClosestNode = 0;
+            for (int i = 0; i < ammountOfNodes; i++)
+            {
+                float? nodeX = allNodes[i, 0];
+                float? nodeY = allNodes[i, 1];
+                float? nodeZ = allNodes[i, 2];
+
+                for (int c = 0; c < ammountOfConnections; c++)
+                {
+                    float? currentClosestDistance = 10000;
+                    for (int a = 0; a < ammountOfNodes; a++)
+                    {
+
+                         DebugCallBack("Ammount of nodes: " + ammountOfNodes + " \n Checking node: " + (a) + "\n");
+
+                        float? nodeXToCompare = allNodes[a, 0];
+                        float? nodeYToCompare = allNodes[a, 1];
+                        float? nodeZToCompare = allNodes[a, 2];
+
+
+                        float? distanceX = 0;
+                        float? distanceY = 0;
+                        float? distanceZ = 0;
+
+                        if (nodeX < nodeXToCompare)
+                        {
+                            distanceX = (nodeX * -1) + nodeXToCompare;
+                        }
+                        else
+                        {
+                            distanceX = nodeX + (nodeXToCompare * -1);
+                        }
+
+                        if (nodeY < nodeYToCompare)
+                        {
+                            distanceY = (nodeY * -1) + nodeYToCompare;
+                        }
+                        else
+                        {
+                            distanceY = nodeY + (nodeYToCompare * -1);
+                        }
+                        if (nodeZ < nodeZToCompare)
+                        {
+                            distanceZ = (nodeZ * -1) + nodeZToCompare;
+                        }
+                        else
+                        {
+                            distanceZ = nodeZ + (nodeZToCompare * -1);
+                        }
+
+                        float? tempClosestDistance = (float?)Math.Sqrt(Math.Pow((float)(nodeX - (nodeXToCompare)), 2) + Math.Pow((float)(nodeY - (nodeYToCompare)), 2) + Math.Pow((float)(nodeZ - (nodeZToCompare)), 2));
+                          DebugCallBack("Node with index: " + a + " is has distance from node with index" + i + ": " + tempClosestDistance + "\n");
+
+
+                        bool found = false;
+                        for (int b = 0; b <= ammountOfConnections; b++)
+                        {
+
+                            if (nodeIndexAlreadyParsed[i, b] == a)
+                            {
+
+                                DebugCallBack("Node with index " + a + " already is used for the current node with index " + i + " \n");
+                                found = true;
+                                break;
+                            }
+                            else
+                            {
+                                found = false;
+                            }
+                        }
+
+                        if (currentClosestDistance > tempClosestDistance && tempClosestDistance > 0)
+                        {
+
+
+                            if (!found)
+                            {
+                                currentClosestDistance = tempClosestDistance;
+                                indexOfClosestNode = a;
+                            }
+
+                        }
+                    }
+
+
+                    DebugCallBack("Node with index: " + indexOfClosestNode + " is closest node to current node with index " + i + "\n");
+                    nodeIndexAlreadyParsed[i, c] = indexOfClosestNode;
+                }
+
+            }
+
+            for (int i = 0; i < ammountOfNodes; i++)
+            {
+                DebugCallBack("iterating over node with index " + i + " \n");
+                for (int b = 0; b <= ammountOfConnections; b++)
+                {
+
+                    DebugCallBack("iterating over start node with index " + i + " and end node with index + " + nodeIndexAlreadyParsed[i, b] + "\n");
+                    if (nodeIndexAlreadyParsed[i, b] == null)
+                    {
+
+                    }
+                    else
+                    {
+                        float startNodeX = (float)allNodes[i, 0];
+                        float startNodeY = (float)allNodes[i, 1];
+                        float startNodeZ = (float)allNodes[i, 2];
+                        float endNodeX = (float)allNodes[(int)nodeIndexAlreadyParsed[i, b], 0];
+                        float endNodeY = (float)allNodes[(int)nodeIndexAlreadyParsed[i, b], 1];
+                        float endNodeZ = (float)allNodes[(int)nodeIndexAlreadyParsed[i, b], 2];
+
+                        DebugCallBack("LINE OF FACE (" + startNodeX + "," + startNodeY + "," + startNodeZ + " | " + endNodeX + ", " + endNodeY + "," + endNodeZ + ") \n");
+                        bool found = false;
+                        for (int a = 0; a < maxLines; a++)
+                        {
+                            if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[a, 0, 1] == startNodeY && starteEndnodes[a, 0, 2] == startNodeZ && starteEndnodes[a, 1, 0] == endNodeX && starteEndnodes[a, 1, 1] == endNodeY && starteEndnodes[a, 1, 2] == endNodeZ)
+                            {
+                                DebugCallBack("LINE ALREADY EXISTS \n");
+                                found = true;
+                                break;
+                            }
+                            else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[a, 0, 1] == endNodeY && starteEndnodes[a, 0, 2] == endNodeZ && starteEndnodes[a, 1, 0] == startNodeX && starteEndnodes[a, 1, 1] == startNodeY && starteEndnodes[a, 1, 2] == startNodeZ)
+                            {
+                                DebugCallBack("LINE ALREADY EXISTS \n");
+                                found = true;
+                                break;
+                            }
+                            else if (starteEndnodes[a, 0, 0] == null)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            DebugCallBack("ADDING LINE\n");
+                            starteEndnodes[lineCounter, 0, 0] = startNodeX;
+                            starteEndnodes[lineCounter, 0, 1] = startNodeY;
+                            starteEndnodes[lineCounter, 0, 2] = startNodeZ;
+                            starteEndnodes[lineCounter, 1, 0] = endNodeX;
+                            starteEndnodes[lineCounter, 1, 1] = endNodeY;
+                            starteEndnodes[lineCounter, 1, 2] = endNodeZ;
+                            lineCounter++;
+                        }
+                    }
+
+                }
+
+            }
         }
         //reads the arrays when you open a .n3d file.
         public void setArrays(string array)
@@ -61,7 +227,7 @@ namespace Neon3D
             {
                 DebugCallBack("FILE IS OBJ FILE\n");
                 string[] stringLines = array.Split(new string[] { Environment.NewLine, "\r\n", "\n" }, StringSplitOptions.None);
-                int ammountOfNodes = 0;
+                
 
                 int?[,] faces = new int?[1000, 100];
                 foreach (string stringlines in stringLines)
@@ -80,237 +246,9 @@ namespace Neon3D
 
                 }
 
-                int ammountOfConnections = 4;
 
-                int?[,] nodeIndexAlreadyParsed = new int?[ammountOfNodes, ammountOfConnections + 1];
-
-
-                int indexOfClosestNode = 0;
-                for (int i = 0; i < ammountOfNodes; i++)
-                {
-                    float? nodeX = allNodes[i, 0];
-                    float? nodeY = allNodes[i, 1];
-                    float? nodeZ = allNodes[i, 2];
-                    
-                    for(int c = 0; c < ammountOfConnections; c++)
-                    {
-                        float? currentClosestDistance = 10000;
-                        for (int a = 0; a < ammountOfNodes; a++)
-                        {
-
-                           // DebugCallBack("Ammount of nodes: " + ammountOfNodes + " \n Checking node: " + (a - indexesParsed) + "\n");
-                          
-                            float? nodeXToCompare = allNodes[a, 0];
-                            float? nodeYToCompare = allNodes[a, 1];
-                            float? nodeZToCompare = allNodes[a, 2];
-
-
-                            float? distanceX = 0;
-                            float? distanceY = 0;
-                            float? distanceZ = 0;
-
-                            if (nodeX < nodeXToCompare)
-                            {
-                                distanceX = (nodeX * -1) + nodeXToCompare;
-                            }
-                            else
-                            {
-                                distanceX = nodeX + (nodeXToCompare * -1);
-                            }
-
-                            if (nodeY < nodeYToCompare)
-                            {
-                                distanceY = (nodeY * -1) + nodeYToCompare;
-                            }
-                            else
-                            {
-                                distanceY = nodeY + (nodeYToCompare * -1);
-                            }
-                            if (nodeZ < nodeZToCompare)
-                            {
-                                distanceZ = (nodeZ * -1) + nodeZToCompare;
-                            }
-                            else
-                            {
-                                distanceZ = nodeZ + (nodeZToCompare * -1);
-                            }
-
-                            float? tempClosestDistance = (float?)Math.Sqrt(Math.Pow((float)(nodeX - (nodeXToCompare)), 2) + Math.Pow((float)(nodeY - (nodeYToCompare)), 2) + Math.Pow((float)(nodeZ - (nodeZToCompare)), 2));
-                            //  DebugCallBack("Node with index: " + a + " is has distance from node with index" + i + ": " + tempClosestDistance + "\n");
-
-
-                            bool found = false;
-                            for (int b = 0; b <= ammountOfConnections; b++)
-                            {
-
-                                if (nodeIndexAlreadyParsed[i, b] == a)
-                                {
-
-                                    DebugCallBack("Node with index " + a + " already is used for the current node with index " + i + " \n");
-                                    found = true;
-                                    break;
-                                }
-                                else
-                                {
-                                    found = false;
-                                }
-                            }
-
-                            if (currentClosestDistance > tempClosestDistance && tempClosestDistance > 0)
-                            {
-
-                               
-                                if (!found)
-                                {
-                                    currentClosestDistance = tempClosestDistance;
-                                    indexOfClosestNode = a;
-                                }
-
-                            }
-                        }
-
-
-                        DebugCallBack("Node with index: " + indexOfClosestNode + " is closest node to current node with index " + i + "\n");
-                        nodeIndexAlreadyParsed[i, c] = indexOfClosestNode;
-                    }
-                    
-                }
-
-                for(int i = 0; i < ammountOfNodes; i++)
-                {
-                    DebugCallBack("iterating over node with index " + i + " \n");
-                    for (int b = 0; b <= ammountOfConnections; b++)
-                    {
-
-                        DebugCallBack("iterating over start node with index " + i + " and end node with index + " + nodeIndexAlreadyParsed[i, b] + "\n");
-                        if(nodeIndexAlreadyParsed[i, b] == null)
-                        {
-                            
-                        } else
-                        {
-                            float startNodeX = (float)allNodes[i, 0];
-                            float startNodeY = (float)allNodes[i, 1];
-                            float startNodeZ = (float)allNodes[i, 2];
-                            float endNodeX = (float)allNodes[(int)nodeIndexAlreadyParsed[i, b], 0];
-                            float endNodeY = (float)allNodes[(int)nodeIndexAlreadyParsed[i, b], 1];
-                            float endNodeZ = (float)allNodes[(int)nodeIndexAlreadyParsed[i, b], 2];
-
-                            DebugCallBack("LINE OF FACE (" + startNodeX + "," + startNodeY + "," + startNodeZ + " | " + endNodeX + ", " + endNodeY + "," + endNodeZ + ") \n");
-                            bool found = false;
-                            for (int a = 0; a < maxLines; a++)
-                            {
-                                if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[a, 0, 1] == startNodeY && starteEndnodes[a, 0, 2] == startNodeZ && starteEndnodes[a, 1, 0] == endNodeX && starteEndnodes[a, 1, 1] == endNodeY && starteEndnodes[a, 1, 2] == endNodeZ)
-                                {
-                                    DebugCallBack("LINE ALREADY EXISTS \n");
-                                    found = true;
-                                    break;
-                                }
-                                else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[a, 0, 1] == endNodeY && starteEndnodes[a, 0, 2] == endNodeZ && starteEndnodes[a, 1, 0] == startNodeX && starteEndnodes[a, 1, 1] == startNodeY && starteEndnodes[a, 1, 2] == startNodeZ)
-                                {
-                                    DebugCallBack("LINE ALREADY EXISTS \n");
-                                    found = true;
-                                    break;
-                                }
-                                else if (starteEndnodes[a, 0, 0] == null)
-                                {
-                                    break;
-                                }
-                            }
-
-                            if (!found)
-                            {
-                                DebugCallBack("ADDING LINE\n");
-                                starteEndnodes[lineCounter, 0, 0] = startNodeX;
-                                starteEndnodes[lineCounter, 0, 1] = startNodeY;
-                                starteEndnodes[lineCounter, 0, 2] = startNodeZ;
-                                starteEndnodes[lineCounter, 1, 0] = endNodeX;
-                                starteEndnodes[lineCounter, 1, 1] = endNodeY;
-                                starteEndnodes[lineCounter, 1, 2] = endNodeZ;
-                                lineCounter++;
-                            }
-                        }
-                       
-                    }
-
-                }
-
-
-
-
-
-                /*
-                foreach(string stringlines in stringLines)
-                {
-                    if (stringlines.Contains("f "))
-                    {
-                        string newStringLine = stringlines.Replace("f ", "");
-                        string[] nodes = newStringLine.Split(' ');
-                        for (int i = 0; i < nodes.Length; i++)
-                        {
-                            string node;
-                            if (nodes[i].Contains('/'))
-                            {
-                                node = nodes[i].Split('/')[0];
-                            }
-                            else
-                            {
-                                node = nodes[i];
-                            }
-                            int currentNode = int.Parse(nodes[i]) - 1;
-                            int nextNode = 0;
-                            try
-                            {
-                                nextNode = int.Parse(nodes[i + 1]) - 1;
-                            }
-                            catch (Exception e)
-                            {
-                                nextNode = 0;
-                            }
-
-                            float startNodeX = (float)allNodes[currentNode, 0];
-                            float startNodeY = (float)allNodes[currentNode, 1];
-                            float startNodeZ = (float)allNodes[currentNode, 2];
-                            float endNodeX = (float)allNodes[nextNode, 0];
-                            float endNodeY = (float)allNodes[nextNode, 1];
-                            float endNodeZ = (float)allNodes[nextNode, 2];
-
-                            DebugCallBack("LINE OF FACE (" + startNodeX + "," + startNodeY + "," + startNodeZ + " | " + endNodeX + ", " + endNodeY + "," + endNodeZ + ") \n");
-                            bool found = false;
-                            for (int a = 0; a < maxLines; a++)
-                            {
-                                if (starteEndnodes[a, 0, 0] == startNodeX && starteEndnodes[a, 0, 1] == startNodeY && starteEndnodes[a, 0, 2] == startNodeZ && starteEndnodes[a, 1, 0] == endNodeX && starteEndnodes[a, 1, 1] == endNodeY && starteEndnodes[a, 1, 2] == endNodeZ)
-                                {
-                                    DebugCallBack("LINE ALREADY EXISTS \n");
-                                    found = true;
-                                    break;
-                                }
-                                else if (starteEndnodes[a, 0, 0] == endNodeX && starteEndnodes[a, 0, 1] == endNodeY && starteEndnodes[a, 0, 2] == endNodeZ && starteEndnodes[a, 1, 0] == startNodeX && starteEndnodes[a, 1, 1] == startNodeY && starteEndnodes[a, 1, 2] == startNodeZ)
-                                {
-                                    DebugCallBack("LINE ALREADY EXISTS \n");
-                                    found = true;
-                                    break;
-                                }
-                                else if (starteEndnodes[a, 0, 0] == null)
-                                {
-                                    break;
-                                }
-                            }
-
-                            if (!found)
-                            {
-                                DebugCallBack("ADDING LINE\n");
-                                starteEndnodes[lineCounter, 0, 0] = startNodeX;
-                                starteEndnodes[lineCounter, 0, 1] = startNodeY;
-                                starteEndnodes[lineCounter, 0, 2] = startNodeZ;
-                                starteEndnodes[lineCounter, 1, 0] = endNodeX;
-                                starteEndnodes[lineCounter, 1, 1] = endNodeY;
-                                starteEndnodes[lineCounter, 1, 2] = endNodeZ;
-                                lineCounter++;
-                            }
-                        }
-
-                    }
-                }*/
+                GenerateAllLines(4);
+                
             } else
             {
                 string[] stringLines = array.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
@@ -337,6 +275,8 @@ namespace Neon3D
                         starteEndnodes[lineCounter, 1, 1] = endNodeY;
                         starteEndnodes[lineCounter, 1, 2] = endNodeZ;
                         lineCounter++;
+
+                        
                         DebugCallBack("ADDED: " + stringline + " \n");
                         bool added = false;
                         for (int i = 0; i < (allNodes.Length); i++)
@@ -349,7 +289,9 @@ namespace Neon3D
                                 allNodes[i + 1, 0] = startNodeX;
                                 allNodes[i + 1, 1] = startNodeY;
                                 allNodes[i + 1, 2] = startNodeZ;
+                                
                                 lineCounter = i;
+                                
                                 added = true;
                                 break;
                             }
