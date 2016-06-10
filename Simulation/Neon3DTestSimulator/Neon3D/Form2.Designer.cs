@@ -38,7 +38,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.Debug.Location = new System.Drawing.Point(10, 11);
             this.Debug.Name = "Debug";
-            this.Debug.Size = new System.Drawing.Size(332, 418);
+            this.Debug.Size = new System.Drawing.Size(669, 1023);
             this.Debug.TabIndex = 11;
             this.Debug.Text = "";
             // 
@@ -46,7 +46,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(350, 448);
+            this.ClientSize = new System.Drawing.Size(687, 1053);
             this.Controls.Add(this.Debug);
             this.Name = "Form2";
             this.Text = "Debugging";

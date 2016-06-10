@@ -899,7 +899,6 @@ namespace Neon3D
                             using (myReader)
                             {
                                 string data = myReader.ReadToEnd();
-                                newForm.PrintDebug("DATA READ:\n " + data + " \n");
                                 setArrays(data);
                                 resetScreen();
                             }
