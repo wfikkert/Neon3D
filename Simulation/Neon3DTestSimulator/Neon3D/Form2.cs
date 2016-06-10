@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 namespace Neon3D
 {
+    //class for printing debug text in a textbox.
     public partial class Form2 : Form
     {
         public Form2()
@@ -26,18 +27,18 @@ namespace Neon3D
         }
 
         //prints message in textbox.
-        public void PrintDebug(string tekst)
+        public void PrintDebug(string text)
         {
             try
             {
                 if (InvokeRequired)
                 {
-                    this.Invoke(new Action<string>(Debug.AppendText), new object[] { tekst });
+                    this.Invoke(new Action<string>(Debug.AppendText), new object[] { text });
                     return;
                 }
                 else
                 {
-                    Debug.AppendText(tekst);
+                    Debug.AppendText(text);
                 }
             }
             catch

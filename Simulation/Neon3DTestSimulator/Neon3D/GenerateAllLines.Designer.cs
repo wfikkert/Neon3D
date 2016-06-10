@@ -31,6 +31,7 @@
             this.Lines = new System.Windows.Forms.ComboBox();
             this.AmountOfLines = new System.Windows.Forms.Label();
             this.GenerateLines = new System.Windows.Forms.Button();
+            this.ObjFiles = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // Lines
@@ -69,11 +70,21 @@
             this.GenerateLines.UseVisualStyleBackColor = true;
             this.GenerateLines.Click += new System.EventHandler(this.GenerateLines_Click);
             // 
+            // ObjFiles
+            // 
+            this.ObjFiles.AutoSize = true;
+            this.ObjFiles.Location = new System.Drawing.Point(25, 9);
+            this.ObjFiles.Name = "ObjFiles";
+            this.ObjFiles.Size = new System.Drawing.Size(115, 13);
+            this.ObjFiles.TabIndex = 3;
+            this.ObjFiles.Text = "This is only for .obj files";
+            // 
             // GenerateAllLines
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(176, 135);
+            this.Controls.Add(this.ObjFiles);
             this.Controls.Add(this.GenerateLines);
             this.Controls.Add(this.AmountOfLines);
             this.Controls.Add(this.Lines);
@@ -89,5 +100,6 @@
         private System.Windows.Forms.ComboBox Lines;
         private System.Windows.Forms.Label AmountOfLines;
         private System.Windows.Forms.Button GenerateLines;
+        private System.Windows.Forms.Label ObjFiles;
     }
 }

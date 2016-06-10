@@ -8,6 +8,7 @@ using System.IO.Ports;
 
 namespace Neon3D
 {
+    //class for the mainscreen.
     public partial class Form1 : Form
     {
         public Form1()
@@ -40,7 +41,6 @@ namespace Neon3D
         public int[] bottomLeftMP = new int[2];
         public int[] bottomRightMP = new int[2];
         public int[][] screenInformation = new int[5][];
-
 
         //check which key is pressed.
         public static bool upKeyIsPressed = false; //+y
@@ -124,7 +124,6 @@ namespace Neon3D
             rotationBottomRight[0] = 0;
             rotationBottomRight[1] = 0;
             rotationBottomRight[2] = 0;
-            //FPGAProgress.Hide();
 
             //sets locatoin for text to be written
             TopLabel.Location = new System.Drawing.Point(13, 39);
@@ -177,7 +176,7 @@ namespace Neon3D
 
         }
 
-        //if loading is done the screen will reset.
+        //if loading is done the screen will reset so everything is shown correctly.
         private void Form1_Shown(object sender, EventArgs e)
         {
             resetScreen();
@@ -218,7 +217,6 @@ namespace Neon3D
         //checks if the keys are still pressed, increase or decrease rotation if so and send a value to the FPGA if it is connected.
         private void keepTrackOfRotation()
         {
-
             while (true)
             {
                 if (rightKeyIsPressed)
@@ -407,7 +405,7 @@ namespace Neon3D
             drawInsideAxles(4);
         }
 
-        //draws axes on screen to devide the screen
+        //draws axis on screen to devide the screen
         public void drawInsideAxles(int size)
         {
             drawer.drawAxMatrix(1, 180, 168, 168, size);
@@ -423,11 +421,11 @@ namespace Neon3D
                 case 1: //top left
                     if (e.Delta > 0)
                     {
-                        if(zoomTopLeft < 1.5)
+                        if (zoomTopLeft < 1.5)
                         {
                             zoomTopLeft = zoomTopLeft + (float)0.1;
                         }
-                        
+
                     }
                     else if (e.Delta < 0)
                     {
@@ -444,12 +442,12 @@ namespace Neon3D
 
                 case 2: //top right
                     if (e.Delta > 0)
-                    {   
-                        if(zoomTopRight < 1.5)
+                    {
+                        if (zoomTopRight < 1.5)
                         {
                             zoomTopRight = zoomTopRight + (float)0.1;
                         }
-                        
+
                     }
                     else if (e.Delta < 0)
                     {
@@ -466,11 +464,11 @@ namespace Neon3D
                 case 3://bottom left
                     if (e.Delta > 0)
                     {
-                        if(zoomBottomLeft < 1.5)
+                        if (zoomBottomLeft < 1.5)
                         {
                             zoomBottomLeft = zoomBottomLeft + (float)0.1;
                         }
-                        
+
                     }
                     else if (e.Delta < 0)
                     {
@@ -486,11 +484,11 @@ namespace Neon3D
                 case 4://bottom right
                     if (e.Delta > 0)
                     {
-                        if(zoomBottomRight < 1.5)
+                        if (zoomBottomRight < 1.5)
                         {
                             zoomBottomRight = zoomBottomRight + (float)0.1;
                         }
-                        
+
                     }
                     else if (e.Delta < 0)
                     {
@@ -665,9 +663,6 @@ namespace Neon3D
             Graphics g = this.CreateGraphics();
 
             g.FillRectangle(aBrush, wWidth + 6, wHeight + 6, wWidth * 2, wHeight * 2);
-
-            //drawer.drawAxMatrix(0, 255, 0, 0, 6);
-            //drawInsideAxles(4);
         }
 
         //executes method in drawer.cs for creating line
@@ -676,7 +671,8 @@ namespace Neon3D
             drawer.createLines();
         }
 
-        //mouse click event handler, checks if location where clicked is location where node exists, if so, add it to selected nodes array, if selected, remove it from selected node array
+        //mouse click event handler, checks if location where clicked is location where node exists, if so, add it to selected nodes array
+        //if selected, remove it from selected node array
         private void Form1_MouseClick(object sender, MouseEventArgs e)
         {
             int customRawClickedXpos = rawClickedXpos;
@@ -720,7 +716,8 @@ namespace Neon3D
                         }
                         if (!isAlreadySelected)
                         {
-                            if (drawer.selectedArrayLastIndex == 2) {
+                            if (drawer.selectedArrayLastIndex == 2)
+                            {
                                 drawer.selectedArrayLastIndex = 0;
                             }
                             newForm.PrintDebug("Selected node with index : " + i + " \n");
@@ -743,7 +740,7 @@ namespace Neon3D
                             }
 
                             drawer.selectedNodes = dest;
-                            if(drawer.selectedArrayLastIndex > 0)
+                            if (drawer.selectedArrayLastIndex > 0)
                             {
                                 drawer.selectedArrayLastIndex--;
                             }
@@ -998,22 +995,20 @@ namespace Neon3D
             string indata = sp.ReadExisting();
             received = true;
         }
-
-        
-       
-
+        //button for deleting all lines.
         private void DeleteAllLines_Click(object sender, EventArgs e)
         {
-            
+
             drawer.DeleteAllLines();
             resetScreen();
         }
 
+        //opens a new form for generating lines between nodes of .obj files.
         private void GenerateLines_Click(object sender, EventArgs e)
         {
-            GenerateAllLines generate = new GenerateAllLines(drawer , this);
-            
-            generate.Show();   
+            GenerateAllLines generate = new GenerateAllLines(drawer, this);
+
+            generate.Show();
         }
     }
 }

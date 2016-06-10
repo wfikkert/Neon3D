@@ -2,7 +2,7 @@
 #include "includes.h"
 #include <os/alt_sem.h>
 
-#define M_PI 3.14159265358979323846
+
 /* Definition of Task Stacks */
 #define   TASK_STACKSIZE       4096             //we need such a big stacksize because we save sin(0-360) and cos(0-360) in there to get a better performance.
 
@@ -23,12 +23,23 @@ OS_STK    TaskDraw3D3_stk[TASK_STACKSIZE];
 #define TaskFPSCounter_PRIORITY     5
 #define TaskDraw3D_PRIORITY         6
 
-//the maximum value the array can contain. (2600/2/6 ~= 215 Lines in total)
+//the maximum of addresses to be used(2600/2/6 ~= 215 Lines in total)
 #define VALUES 2600
+
+//define pi constant
+#define M_PI 3.14159265358979323846
 
 //semaphores to prevent global values for corruption
 ALT_SEM(sem_objectDrawn)
 ALT_SEM(sem_updateFps)
+
+//All pointers to hardware
+volatile short * pixel_buffer = (short *) 0x08000000;		// Pointer to start of VGA pixel buffer
+volatile char * character_buffer = (char *) 0x09000000;		// Pointer to start of VGA character buffer
+volatile short * sd_ram = (short *) 0x00000000; 			// Pointer to start of SD Ram
+volatile int* UART_DATA_ptr = (int*) 0x10001010; 			// Pointer to UART Data buffer
+volatile int* UART_CONTROL_ptr = (int *) 0x10001014; 		// Pointer to UART CONTROL
+volatile int * SWITCH_ptr = (int *) 0x10000040;				// Pointer to start of SWITCH data
 
 //globale variable of the object array, zoom, rotation, amount of lines, fpscounter.
 float *zoomscreenpointer;
@@ -56,7 +67,6 @@ int stopTask3D = 0;
 void VGA_text(int x, int y, char * text_ptr)
 {
 	int offset;
-  	volatile char * character_buffer = (char *) 0x09000000;	// VGA character buffer
 
 	/* assume that the text string fits on one line */
 	offset = (y << 7) + x;
@@ -68,29 +78,23 @@ void VGA_text(int x, int y, char * text_ptr)
 	}
 }
 
-//draw a box on screen.
-void VGA_box(int x1, int y1, int x2, int y2, short pixel_color)
-{
-	int offset, row, col;
-	volatile short * pixel_buffer = (short *) 0x08000000;// VGA pixel buffer
-
-	/* assume that the box coordinates are valid */
-	for (row = y1; row <= y2; row++)
-	{
-		col = x1;
-		while (col <= x2)
-		{
-			offset = (row << 9) + col;
-			*(pixel_buffer + offset) = pixel_color;	// compute halfword address, set pixel
-			++col;
-		}
-	}
-}
-
 //reset screen to a black screen. Removes all boxes and text.
 void resetScreen(int removeText)
 {
-	VGA_box (0, 0, 319, 239, 0);
+
+	int offset, row, col;
+
+	/* assume that the box coordinates are valid */
+	for (row = 0; row <= 239; row++)
+	{
+		col = 0;
+		while (col <= 319)
+		{
+			offset = (row << 9) + col;
+			*(pixel_buffer + offset) = 0x0000;	// compute halfword address, set pixel
+			++col;
+		}
+	}
 	if(removeText){
 		int i;
 		for(i = 0; i < 80; i++){
@@ -105,14 +109,12 @@ void resetScreen(int removeText)
 //draws a pixel on the screen
 void drawPixel(int x, int y, int size, short pixel_color )
 {
-	volatile short * pixel_buffer = (short *) 0x08000000;
-	if(x != 0){
-		int offset;
-		offset = (y << 9) + x;
-		*(pixel_buffer + offset) = pixel_color;
-	}
+	int offset;
+	offset = (y << 9) + x;
+	*(pixel_buffer + offset) = pixel_color;
 }
 
+//draws a line between 2 points on screen, starting from the middle of the screen
 void DrawLineV2(float x1, float y1, float x2, float y2, float midX, float midY, int remove, short pixel_color)
 {
     //switch points when first point is behind second point on x axel
@@ -143,13 +145,11 @@ void DrawLineV2(float x1, float y1, float x2, float y2, float midX, float midY, 
     //setup vars for loop
     float x = 0;
     float y = y1;
-    float prevY = y1;
 
-	volatile short * pixel_buffer = (short *) 0x08000000;
 	int offset;
 
 	//pixelSteps has to have a maximum because otherwise it will crash.
-    if(pixelSteps < 1000 && pixelSteps > -1000){
+    if(pixelSteps < 200 && pixelSteps > -200){
     	 for(x = x1; x <= x2; x++){
     	 	//draws a pixel on every y between y1 and y2 if x1 equals x2
 			if(x1 == x2){
@@ -222,16 +222,33 @@ void DrawLineV2(float x1, float y1, float x2, float y2, float midX, float midY, 
 					}
 				}
 			}
-			prevY = y;
 		}
     }
 }
 
-/* TASKS */
+//Array contains values 0-9 per index, combines values in array to single integer, depending how many single decimals(0-9) are in the array
+int parseInteger(int ammountOfDecimals, char array[4]){
+	int total;
+	/*if(ammountOfDecimals  == 1){
+		total = array[0];
+	} else if(ammountOfDecimals == 2){
+		total = (array[0] * 10 + array[1]);
+	} else if(ammountOfDecimals == 3){
+		total = (array[0] * 100 + array[1] * 10 + array[2]);
+	} else if(ammountOfDecimals == 4){
+		total = (array[0] * 1000 + array[1] * 100 + array[2] * 10 + array[3]);
+	}else {
+		total = 1;
+	}*/
+	int i;
+	int total;
+	for(i = 0; i < amountOfDecimals; i++){
+	 	total = (10 ^ i) * integerArray[(amountOfDecimals - i)] + total;
+	}
+	return total;
+}
 
-//creates the task already because the tasks have to be started in the serial Input task.
-//void TaskBenchmark(void* pdata);
-//void TaskDraw3D(void* pdata);
+/* TASKS */
 
 //this task shows the credits screen of the 3D engine.
 void TaskShowCredits(void* pdata){
@@ -254,8 +271,6 @@ void TaskShowCredits(void* pdata){
 //Reads the startEndNodes array and performs the rotation calculations on it while pushing the caclulated values to the drawLine function.
 void TaskDraw3D(void* pdata)
 {
-	//Pointer to SDRAM access
-	volatile short * sd_ram = (short *) 0x00000000;
 
 	//remove any unremoved drawings by previous tasks
 	resetScreen(0);
@@ -423,9 +438,6 @@ void TaskStartUp(void* pdata){
 	 //reset screen to remove any pixels or text thats not meant to be there
 	resetScreen(1);
 	VGA_text(1,0, "Neon3D FPGA Engine");
-
-	//set pointer to SDRAM address
-	volatile short * sd_ram = (short *) 0x00000000;
 
     //set default start values
 	amountOfLines = 24;
@@ -839,10 +851,7 @@ void TaskSerialInput(void* pdata)
     int SWITCH_value;
 
     //pointers for accessing data from other hardware
-	volatile int* UART_DATA_ptr = (int*) 0x10001010;
-	volatile int* UART_CONTROL_ptr = (int *) 0x10001014;
-	volatile int * SWITCH_ptr = (int *) 0x10000040;
-	volatile short * sd_ram = (short *) 0x00000000;
+
 
 	//contains received integer (to be combined)
 	char integer[4];
@@ -879,7 +888,9 @@ void TaskSerialInput(void* pdata)
 
   		if(!benchmarkIsRunning){
 	  		if(dataSerial & 0x8000){
-	  			if(stopDrawing){        //only run this if the Taskdraw3D is done with drawing.
+
+	  			//Draws progressbar for upload on scren
+	  			if(stopDrawing){        //only run this if the Taskdraw3D is not drawing.
 	  				int pixelPosition = (int)((totalAmountOfCharactersReceived * oneProcentOfCharactersToBeSend) * loadingBarOneProcent);
 	  				int x = 0;
 	  				for(x = 0; x < (int)pixelPosition; x++){
@@ -899,18 +910,7 @@ void TaskSerialInput(void* pdata)
 						totalAmountOfCharactersToBeSend = 0;
 						totalAmountOfCharactersReceived = 0;
 						oneProcentOfCharactersToBeSend = 0;
-						int total;
-						if(integerPosition == 1){
-							total = integer[0];
-						} else if(integerPosition == 2){
-							total = (integer[0] * 10 + integer[1]);
-						} else if(integerPosition == 3){
-							total = (integer[0] * 100 + integer[1] * 10 + integer[2]);
-						} else if(integerPosition == 4){
-							total = (integer[0] * 1000 + integer[1] * 100 + integer[2] * 10 + integer[3]);
-						}else {
-							total = 1;
-						}
+						int total = parseInteger(integerPosition, integer);
 						totalAmountOfCharactersToBeSend = total;
 						oneProcentOfCharactersToBeSend = 100 / totalAmountOfCharactersToBeSend;
 
@@ -918,34 +918,37 @@ void TaskSerialInput(void* pdata)
 					}
 				//if the FPGA receives a 'i' then the FPGA knows which object has to change.
 	  			}else if(characterReceived[0] == 'i'){
-	  				int total;
-	  				if(integerPosition == 1){
-						total = integer[0];
-					}
+	  				objectID = parseInteger(integerPosition, integer);
 
-	  				objectID = total;
-
-	  				if(objectID == 2){
+	  				if(objectID == 3){
+	  					amountOfIntegersReceived = 0;
+						int i;
+						for(i = 0; i < VALUES; i++){
+							*(sd_ram + i + (1 << 18)) = 0;
+						}
+					} else if(objectID == 2){
 						amountOfIntegersReceived = VALUES/2;
 						int i;
 						for(i = amountOfIntegersReceived ; i < VALUES; i++){
 							*(sd_ram + i + (1 << 18)) = 0;
 						}
-	  				} else if(objectID == 1){
-	  					amountOfIntegersReceived = 0;
-	  					int i;
+					} else if(objectID == 1){
+						amountOfIntegersReceived = 0;
+						int i;
 						for(i = 0 ; i < VALUES/2; i++){
 							*(sd_ram + i + (1 << 18)) = 0;
 						}
-	  				} else {
-	  					amountOfIntegersReceived = 0;
-	  					int i;
+					} else {
+						amountOfIntegersReceived = 0;
+						int i;
 						for(i = 0; i < VALUES; i++){
 							*(sd_ram + i + (1 << 18)) = 0;
 						}
-	  				}
+					}
+
 	  			//if the FPGA receives a 'n' then the FPGA knows that there will come a new object
 	  			} else if(characterReceived[0] == 'n'){
+
 
 	  				resetScreen(1);
 
@@ -993,16 +996,7 @@ void TaskSerialInput(void* pdata)
 	  			} else if(characterReceived[0] == 'm'){
 
 					if(integerPosition > 0){
-						int total;
-						if(integerPosition == 1){
-							total = integer[0] * -1;
-						} else if(integerPosition == 2){
-							total = (integer[0] * 10 + integer[1]) * -1;
-						} else if(integerPosition == 3){
-							total = (integer[0] * 100 + integer[1] * 10 + integer[2]) * -1;
-						} else if(integerPosition == 4){
-							total = (integer[0] * 1000 + integer[1] * 100 + integer[2] * 10 + integer[3]) * -1;
-						}
+						int total = parseInteger(integerPosition, integer) * -1;
 
 						if(objectID != 0){
 							*(sd_ram + (amountOfIntegersReceived + (1 << 18))) = total;
@@ -1024,16 +1018,7 @@ void TaskSerialInput(void* pdata)
 	  			else if(characterReceived[0] == 'p'){
 	  				if(integerPosition > 0){
 
-						int total;
-						if(integerPosition == 1){
-							total = integer[0];
-						} else if(integerPosition == 2){
-							total = (integer[0] * 10 + integer[1]);
-						} else if(integerPosition == 3){
-							total = (integer[0] * 100 + integer[1] * 10 + integer[2]);
-						} else if(integerPosition == 4){
-							total = (integer[0] * 1000 + integer[1] * 100 + integer[2] * 10 + integer[3]);
-						}
+	  					int total = parseInteger(integerPosition, integer);
 						if(objectID != 0){
 							*(sd_ram + (amountOfIntegersReceived + (1 << 18))) = total;
 						} else {
@@ -1111,6 +1096,7 @@ void TaskSerialInput(void* pdata)
 		  			totalAmountOfCharactersReceived++;
 	  			}
 
+	  			//send receive confirmation back to the sender.
 				*UART_DATA_ptr = *(UART_DATA_ptr) ^ (0x0000 ^ 'Y');
 	  		}
 
@@ -1182,7 +1168,7 @@ void TaskSerialInput(void* pdata)
 					rotation[0] = xRotation;
 				}
 
-                //switch 5 decreases z rotation with 1.
+                //switch 5 increases z rotation with 1.
 				if (SWITCH_value & 0x20)
 				{
 					zRotation = zRotation + 1;
@@ -1192,7 +1178,7 @@ void TaskSerialInput(void* pdata)
 					rotation[2] = zRotation;
 				}
 
-                //switch 6 increases z rotation with 1.
+                //switch 6 decreases z rotation with 1.
 				if (SWITCH_value & 0x40)
 				{
 					zRotation = zRotation - 1;
@@ -1256,30 +1242,29 @@ void TaskSerialInput(void* pdata)
 						resetScreen(0);
 						stopTask3D = 1;
 						OSTaskCreateExt(TaskDraw3D,
-							  midPoint1,
-							  (void *)&TaskDraw3D_stk[TASK_STACKSIZE-1],
-							  TaskDraw3D_PRIORITY,
-							  TaskDraw3D_PRIORITY,
-							  TaskDraw3D_stk,
-							  TASK_STACKSIZE,
-							  NULL,
-							  0);
+						  midPoint1,
+						  (void *)&TaskDraw3D_stk[TASK_STACKSIZE-1],
+						  TaskDraw3D_PRIORITY,
+						  TaskDraw3D_PRIORITY,
+						  TaskDraw3D_stk,
+						  TASK_STACKSIZE,
+						  NULL,
+						  0);
 						singleObjectTaskCreated = 1;
 						multipleObjectTaskCreated = 0;
 					}
 				}
 
-				//set objectID to zero for drawing all objects (if 2 objects are shown at the same time)
-				objectID = 0;
-
 				//switch 13 rotation with object id 2 will rotate
 				if(SWITCH_value & 0x02000){
 					objectID = 2;
-				}
-				//switch 14 rotation with object id 1 will rotate
-				if(SWITCH_value & 0x04000){
+				}else if(SWITCH_value & 0x04000){		//switch 14 rotation with object id 1 will rotate
 					objectID = 1;
+				}else{
+					//set objectID to zero for drawing all objects (if 2 objects are shown at the same time)
+					objectID = 0;
 				}
+				
 				//switch 15 decreases zoom with 0.01
 				if(SWITCH_value & 0x08000){
 					if(zoom >= 0.11){
@@ -1287,6 +1272,7 @@ void TaskSerialInput(void* pdata)
 						*zoomscreenpointer = zoom;
 					}
 				}
+				
                 //switch 16 increases zoom with 0.01
 				if(SWITCH_value & 0x10000){
 					if(zoom <= 1.49){
@@ -1294,6 +1280,7 @@ void TaskSerialInput(void* pdata)
 						*zoomscreenpointer = zoom;
 					}
 				}
+				
 				//switch 17 will show the credits screen
 				if(SWITCH_value & 0x20000){
 					OSTaskCreateExt(TaskShowCredits,
@@ -1306,7 +1293,6 @@ void TaskSerialInput(void* pdata)
 					  NULL,
 					  0);
 				}
-
 	  		}
   		}
 
@@ -1334,7 +1320,6 @@ void TaskSerialInput(void* pdata)
 int main(void)
 {
 	//reset sdram values on startup
-	volatile short * sd_ram = (short *) 0x00000000;
 	int i;
 	for(i = 0; i < VALUES; i++){
 		*(sd_ram + i + (1 << 18)) = 0;

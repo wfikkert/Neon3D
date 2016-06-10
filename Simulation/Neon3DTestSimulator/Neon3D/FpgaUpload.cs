@@ -19,7 +19,7 @@ namespace Neon3D
             InitializeComponent();
             StartUpload.Enabled = false;
             this.data = data;
-            FpgaUploadInformation.AppendText("FPGA not found! \n Connect FPGA via RS - 232 to your laptop by USB and restart Node3D.");
+            FpgaUploadInformation.AppendText("FPGA not found! \n Connect FPGA via RS - 232 to your laptop by USB and restart Node3D. \n");
             FpgaUploadInformation.AppendText("Data to be send over:  \n");
             FpgaUploadInformation.AppendText(data.Split('~')[1] + "\n");
             FpgaUploadInformation.AppendText("Amount of values:  \n");
@@ -40,7 +40,7 @@ namespace Neon3D
                 radioObject1.Enabled = true;
                 radioObject2.Enabled = true;
                 radioBigObjects.Enabled = false;
-                
+
             }
         }
 
@@ -79,8 +79,8 @@ namespace Neon3D
             {
                 if (InvokeRequired)
                 {
-                    
-                    
+
+
                     this.Invoke(new Action<int>(setProgressBar), new object[] { maxValue });
                     return;
                 }
@@ -91,13 +91,13 @@ namespace Neon3D
                 }
             }
             catch { }
-            
-            
+
+
         }
 
         private void updateProgressBar(int currentValue)
         {
-           
+
             try
             {
                 if (InvokeRequired)
@@ -140,10 +140,36 @@ namespace Neon3D
             uploadThread.Start();
         }
 
+        private void disableEnableUploadButton(bool enabled)
+        {
+            try
+            {
+                if (InvokeRequired)
+                {
+                    this.Invoke(new Action<bool>(disableEnableUploadButton), new object[] { enabled });
+                    return;
+                }
+                else
+                {
+                    if (enabled)
+                    {
+                        StartUpload.Enabled = true;
+                    }
+                    else
+                    {
+                        StartUpload.Enabled = false;
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+
         private void uploadThreadProgramm()
         {
             isUploading = true;
-            StartUpload.Enabled = true;
+            disableEnableUploadButton(false);
             string fpgaArray = data.Split('~')[0];
             string amountOfChar = fpgaArray.Length.ToString();
 
@@ -168,33 +194,38 @@ namespace Neon3D
                     {
                         comPort.Write("1");
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         break;
                     }
-                    
+
                 }
                 else if (i == 4)
                 {
                     comPort.Write("t");
-                }else if(i == 5)
+                }
+                else if (i == 5)
                 {
                     if (radioAllObjects.Checked)
                     {
                         comPort.Write("0");
-                    }else if (radioObject1.Checked)
+                    }
+                    else if (radioObject1.Checked)
                     {
                         comPort.Write("1");
-                    }else if (radioObject2.Checked)
+                    }
+                    else if (radioObject2.Checked)
                     {
                         comPort.Write("2");
-                    }else if (radioBigObjects.Checked)
+                    }
+                    else if (radioBigObjects.Checked)
                     {
                         comPort.Write("3");
                     }
-                }else if(i == 6)
+                }
+                else if (i == 6)
                 {
-                    if(data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length <= 432)
+                    if (data.Split('~')[1].Split(new string[] { " , " }, StringSplitOptions.None).Length <= 432)
                     {
                         comPort.Write("i");
                     }
@@ -202,8 +233,8 @@ namespace Neon3D
                     {
                         comPort.Write("t");
                     }
-                    
-                } 
+
+                }
                 else if (i >= 7 && i <= 11)
                 {
 
@@ -247,12 +278,12 @@ namespace Neon3D
                     this.Close();
                 }
                 catch { }
-                
+
             }
 
             updateProgressBar(i);
-            StartUpload.Enabled = true;
             isUploading = false;
+            disableEnableUploadButton(true);
         }
 
         private void AbortUpload_Click(object sender, EventArgs e)
@@ -260,7 +291,8 @@ namespace Neon3D
             if (isUploading)
             {
                 abortUpload = true;
-            } else
+            }
+            else
             {
                 this.Close();
             }
@@ -274,7 +306,5 @@ namespace Neon3D
             string indata = sp.ReadExisting();
             received = true;
         }
-
-        
     }
 }
